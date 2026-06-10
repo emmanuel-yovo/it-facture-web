@@ -63,7 +63,7 @@ export async function GET(request: Request) {
           )
         }
       } catch (err) {
-        console.error(\`Erreur FedaPay pour l'abonnement \${sub.id}:\`, err)
+        console.error(`Erreur FedaPay pour l'abonnement ${sub.id}:`, err)
       }
 
       // C. Envoyer l'email
