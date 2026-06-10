@@ -104,6 +104,8 @@ export default function DashboardPage() {
                     <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
                     <Tooltip
                       contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '13px' }}
+                      itemStyle={{ color: 'hsl(var(--foreground))' }}
+                      labelStyle={{ color: 'hsl(var(--foreground))' }}
                       formatter={(value: any) => [formatCurrency(Number(value) || 0), 'Revenus']}
                     />
                     <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={2} fill="url(#colorRevenue)" />
