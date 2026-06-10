@@ -19,7 +19,7 @@ import { Lock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 export default function TicketsPage() {
-  const { workspaceId, workspacePlan } = useAuthStore()
+  const { workspaceId, workspacePlan, user } = useAuthStore()
   const plan = (workspacePlan as PlanType) || 'free'
   const router = useRouter()
   
