@@ -221,6 +221,9 @@ export class InvoiceRepository {
 
   async delete(id: string): Promise<void> {
     // Les contraintes ON DELETE CASCADE s'occupent des invoice_items et payments
+    // Mais la table tickets n'a pas de contrainte SET NULL. On libère les tickets liés :
+    await supabase.from('tickets').update({ invoice_id: null, status: 'closed' }).eq('invoice_id', id)
+
     const { error } = await supabase
       .from('invoices')
       .delete()
