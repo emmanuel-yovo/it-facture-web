@@ -79,12 +79,8 @@ export function Sidebar() {
               exit={{ opacity: 0, x: -10 }}
               className="flex flex-col overflow-hidden"
             >
-              <span className="font-bold text-sidebar-foreground text-sm leading-tight">IT-Facture Web</span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <Badge variant="secondary" className="text-[10px] uppercase font-bold tracking-wider px-2 bg-primary/10 text-primary border-primary/20">
-                  Cloud V2.0
-                </Badge>
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              <div className="flex items-center gap-3 w-full">
+                <span className="font-bold text-sidebar-foreground text-sm leading-tight">IT-Facture Web</span>
               </div>
             </motion.div>
           )}

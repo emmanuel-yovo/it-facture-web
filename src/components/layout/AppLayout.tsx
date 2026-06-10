@@ -8,16 +8,18 @@ import { useAppStore } from '@/store/appStore'
 import { useAuthStore } from '@/store/authStore'
 import { useAuth } from '@/hooks/useAuth'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Languages, Sun, Moon } from 'lucide-react'
+import { Languages, Sun, Moon, Sparkles } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { useRouter } from 'next/navigation'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { theme, toggleTheme } = useAppStore()
   const { user } = useAuthStore()
   const { loading } = useAuth()
   const { i18n } = useTranslation()
+  const router = useRouter()
 
   const [mounted, setMounted] = useState(false)
 
@@ -47,6 +49,18 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <header className="h-14 border-b border-border flex items-center justify-between px-6 bg-background/80 backdrop-blur-sm">
           <div />
           <div className="flex items-center gap-4">
+            
+            {/* Upgrade Button */}
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={() => router.push('/upgrade')}
+              className="hidden sm:flex h-8 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0 shadow-md shadow-orange-500/20"
+            >
+              <Sparkles className="w-4 h-4 mr-1.5" />
+              Tarifs & Plans
+            </Button>
+
             <div className="flex items-center gap-2 mr-2">
               <Button
                 variant="ghost"
