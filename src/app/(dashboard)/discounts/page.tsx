@@ -14,6 +14,7 @@ import { formatCurrency, formatDate } from '@/lib/utils'
 import { Plus, Search, Pencil, Trash2, Percent } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { discountRepository, Discount } from '@/lib/repositories/discount.repository'
+import { hasPermission, PERMISSIONS } from '@/lib/permissions'
 
 const empty: Partial<Discount> = { name: '', type: 'percentage', value: 0, promo_code: '', is_active: true }
 
@@ -90,8 +91,8 @@ export default function DiscountsPage() {
 
   if (loading) return <div className="h-96 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>
 
-  // Protection (Admin Only feature ideally, but keeping it visible for the demo, let's just show it to everyone)
-  if (user?.role !== 'admin' && user?.role !== 'superadmin') {
+  // Protection
+  if (!hasPermission(user?.role, PERMISSIONS.MANAGE_DISCOUNTS)) {
     return <div className="p-12 text-center text-muted-foreground"><p>Accès restreint aux administrateurs.</p></div>
   }
 

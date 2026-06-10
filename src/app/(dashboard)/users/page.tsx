@@ -5,11 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Shield, ExternalLink, Users } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
+import { hasPermission, PERMISSIONS } from '@/lib/permissions'
 
 export default function UsersPage() {
   const { user } = useAuthStore()
 
-  if (user?.role !== 'admin' && user?.role !== 'superadmin') {
+  if (!hasPermission(user?.role, PERMISSIONS.MANAGE_USERS)) {
     return <div className="p-12 text-center text-muted-foreground"><p>Accès restreint aux administrateurs.</p></div>
   }
 

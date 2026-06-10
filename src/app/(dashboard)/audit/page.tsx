@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Shield, Database, FileText, Search, User } from 'lucide-react'
+import { Shield, FileText, Search, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { hasPermission, PERMISSIONS } from '@/lib/permissions'
 import { useAuthStore } from '@/store/authStore'
 import { auditRepository, AuditLog } from '@/lib/repositories/audit.repository'
 
@@ -60,7 +61,7 @@ export default function AuditPage() {
   })
 
   // Protection (Admin Only)
-  if (user?.role !== 'admin' && user?.role !== 'superadmin') {
+  if (!hasPermission(user?.role, PERMISSIONS.VIEW_AUDIT)) {
     return <div className="p-12 text-center text-muted-foreground"><p>Accès restreint aux administrateurs.</p></div>
   }
 

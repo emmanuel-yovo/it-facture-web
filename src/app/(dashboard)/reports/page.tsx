@@ -8,6 +8,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { formatCurrency } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
 import { reportRepository } from '@/lib/repositories/report.repository'
+import { hasPermission, PERMISSIONS } from '@/lib/permissions'
 
 const COLORS = ['#6366f1', '#f43f5e', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4']
 
@@ -43,7 +44,7 @@ export default function ReportsPage() {
     alert("L'exportation du pack comptable sera disponible prochainement.")
   }
 
-  if (user?.role !== 'admin' && user?.role !== 'superadmin') {
+  if (!hasPermission(user?.role, PERMISSIONS.VIEW_REPORTS)) {
     return <div className="p-12 text-center text-muted-foreground"><p>Accès restreint aux administrateurs.</p></div>
   }
 

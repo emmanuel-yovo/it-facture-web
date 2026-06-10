@@ -12,6 +12,7 @@ import { Building, Upload, Save, Check, LogOut, ShieldCheck, Mail, FileText, Lan
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useRouter } from 'next/navigation'
+import { hasPermission, PERMISSIONS } from '@/lib/permissions'
 import { useAuthStore } from '@/store/authStore'
 import { settingsRepository } from '@/lib/repositories/settings.repository'
 import { supabase } from '@/lib/supabase'
@@ -129,22 +130,22 @@ export default function SettingsPage() {
 
       <Tabs defaultValue={authUser?.role === 'admin' ? "company" : "account"} className="space-y-6">
         <TabsList className="bg-card border border-border">
-          {(authUser?.role === 'admin' || authUser?.role === 'superadmin') && (
+          {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
             <TabsTrigger value="company"><Building className="w-4 h-4 mr-2" />Entreprise</TabsTrigger>
           )}
-          {(authUser?.role === 'admin' || authUser?.role === 'superadmin') && (
+          {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
             <TabsTrigger value="email"><Mail className="w-4 h-4 mr-2" />Emails (SMTP)</TabsTrigger>
           )}
-          {authUser?.role === 'admin' || authUser?.role === 'superadmin' ? (
+          {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
             <TabsTrigger value="documents"><FileText className="w-4 h-4 mr-2" />Documents & CGV</TabsTrigger>
-          ) : null}
-          {authUser?.role === 'superadmin' && (
+          )}
+          {hasPermission(authUser?.role, PERMISSIONS.MANAGE_FEDAPAY) && (
             <TabsTrigger value="payments"><CreditCard className="w-4 h-4 mr-2" />FedaPay (Paiements)</TabsTrigger>
           )}
           <TabsTrigger value="account"><LogOut className="w-4 h-4 mr-2" />Compte</TabsTrigger>
         </TabsList>
 
-        {(authUser?.role === 'admin' || authUser?.role === 'superadmin') && (
+        {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
           <TabsContent value="company">
             <Card className="border border-border shadow-sm">
               <CardHeader><CardTitle>Informations de l'entreprise</CardTitle></CardHeader>
@@ -259,7 +260,7 @@ export default function SettingsPage() {
           </TabsContent>
         )}
 
-        {(authUser?.role === 'admin' || authUser?.role === 'superadmin') && (
+        {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
           <TabsContent value="email">
             <Card className="border border-border shadow-sm">
               <CardHeader>
@@ -296,7 +297,7 @@ export default function SettingsPage() {
           </TabsContent>
         )}
 
-        {(authUser?.role === 'admin' || authUser?.role === 'superadmin') && (
+        {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
           <TabsContent value="documents">
             <Card className="border border-border shadow-sm">
               <CardHeader>
@@ -338,7 +339,7 @@ export default function SettingsPage() {
           </TabsContent>
         )}
 
-        {authUser?.role === 'superadmin' && (
+        {hasPermission(authUser?.role, PERMISSIONS.MANAGE_FEDAPAY) && (
           <TabsContent value="payments">
             <Card className="border border-border shadow-sm">
               <CardHeader>

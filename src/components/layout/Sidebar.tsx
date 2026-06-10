@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppStore } from '@/store/appStore'
 import { useAuthStore } from '@/store/authStore'
+import { hasPermission, PERMISSIONS, Permission } from '@/lib/permissions'
 import {
     LayoutDashboard, Users, Wrench, FileText, PlusCircle,
     Percent, CreditCard, Settings, ChevronLeft, ChevronRight, Zap,
@@ -16,24 +17,32 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 
-const navItems = [
+type NavItem = {
+  to: string
+  icon: any
+  label: string
+  accent?: boolean
+  permission?: Permission
+}
+
+const navItems: NavItem[] = [
   { to: '/', icon: LayoutDashboard, label: 'nav.dashboard' },
   { to: '/invoices', icon: FileText, label: 'nav.invoices' },
   { to: '/quotes', icon: FileText, label: 'Devis' },
   { to: '/invoices/new', icon: PlusCircle, label: 'nav.newInvoice', accent: true },
   { to: '/subscriptions', icon: Repeat, label: 'nav.subscriptions' },
-  { to: '/expenses', icon: Receipt, label: 'nav.expenses', adminOnly: true },
+  { to: '/expenses', icon: Receipt, label: 'nav.expenses', permission: PERMISSIONS.MANAGE_EXPENSES },
   { to: '/clients', icon: Users, label: 'nav.clients' },
   { to: '/services', icon: Wrench, label: 'nav.services' },
   { to: '/tickets', icon: Zap, label: 'nav.tickets' },
-  { to: '/reminders', icon: Bell, label: 'nav.reminders', adminOnly: true },
-  { to: '/reports', icon: TrendingUp, label: 'nav.reports', adminOnly: true },
-  { to: '/audit', icon: Shield, label: 'nav.audit', adminOnly: true },
-  { to: '/discounts', icon: Percent, label: 'nav.discounts', adminOnly: true },
+  { to: '/reminders', icon: Bell, label: 'nav.reminders', permission: PERMISSIONS.MANAGE_REMINDERS },
+  { to: '/reports', icon: TrendingUp, label: 'nav.reports', permission: PERMISSIONS.VIEW_REPORTS },
+  { to: '/audit', icon: Shield, label: 'Audit', permission: PERMISSIONS.VIEW_AUDIT },
+  { to: '/discounts', icon: Percent, label: 'nav.discounts', permission: PERMISSIONS.MANAGE_DISCOUNTS },
   { to: '/payments', icon: CreditCard, label: 'nav.payments' },
-  { to: '/users', icon: UserCog, label: 'nav.users', adminOnly: true },
+  { to: '/users', icon: UserCog, label: 'nav.users', permission: PERMISSIONS.MANAGE_USERS },
   { to: '/settings', icon: Settings, label: 'nav.settings' },
-  { to: '/superadmin', icon: ShieldCheck, label: 'Administration SaaS', superAdminOnly: true },
+  { to: '/superadmin', icon: ShieldCheck, label: 'Administration SaaS', permission: PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD },
 ]
 
 export function Sidebar() {
@@ -43,8 +52,7 @@ export function Sidebar() {
   const { user } = useAuthStore()
 
   const filteredNavItems = navItems.filter(item => 
-    (!item.adminOnly || user?.role === 'admin' || user?.role === 'superadmin') &&
-    (!item.superAdminOnly || user?.role === 'superadmin')
+    !item.permission || hasPermission(user?.role, item.permission)
   )
 
   return (
@@ -96,17 +104,17 @@ export function Sidebar() {
                   ? 'bg-sidebar-accent text-sidebar-accent-foreground'
                   : 'text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
                 item.accent && !sidebarCollapsed && 'bg-primary/10 text-primary hover:bg-primary/15',
-                item.superAdminOnly && 'text-purple-500 hover:text-purple-600 hover:bg-purple-500/10'
+                item.permission === PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD && 'text-purple-500 hover:text-purple-600 hover:bg-purple-500/10'
               )}
             >
               {isActive && (
                 <motion.div
                   layoutId="sidebar-active"
-                  className={cn("absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full", item.superAdminOnly ? "bg-purple-500" : "bg-primary")}
+                  className={cn("absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full", item.permission === PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD ? "bg-purple-500" : "bg-primary")}
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 />
               )}
-              <item.icon className={cn('w-5 h-5 flex-shrink-0', item.accent && 'text-primary', item.superAdminOnly && 'text-purple-500')} />
+              <item.icon className={cn('w-5 h-5 flex-shrink-0', item.accent && 'text-primary', item.permission === PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD && 'text-purple-500')} />
               <AnimatePresence>
                 {!sidebarCollapsed && (
                   <motion.span
@@ -115,7 +123,7 @@ export function Sidebar() {
                     exit={{ opacity: 0 }}
                     className="truncate"
                   >
-                    {item.superAdminOnly ? item.label : t(item.label)}
+                    {item.permission === PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD ? item.label : t(item.label)}
                   </motion.span>
                 )}
               </AnimatePresence>
