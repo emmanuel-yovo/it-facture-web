@@ -1,9 +1,11 @@
 'use client'
 
+import '@/i18n'
 import { Sidebar } from './Sidebar'
 import { motion } from 'framer-motion'
 import { useAppStore } from '@/store/appStore'
 import { useAuthStore } from '@/store/authStore'
+import { useAuth } from '@/hooks/useAuth'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Languages, Sun, Moon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -13,6 +15,7 @@ import { cn } from '@/lib/utils'
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { theme, toggleTheme } = useAppStore()
   const { user } = useAuthStore()
+  const { loading } = useAuth()
   const { i18n } = useTranslation()
 
   const setLang = (lng: string) => {
