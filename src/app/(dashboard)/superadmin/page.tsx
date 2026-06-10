@@ -5,25 +5,26 @@ import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { superadminRepository } from '@/lib/repositories/superadmin.repository'
 import { useAuthStore } from '@/store/authStore'
+import { hasPermission, PERMISSIONS } from '@/lib/permissions'
 import { Building, Receipt, Users, ArrowUpRight } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 
 export default function SuperAdminPage() {
-  const { authUser } = useAuthStore()
+  const { user } = useAuthStore()
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (authUser?.role !== 'superadmin') return
+    if (!hasPermission(user?.role, PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD)) return
     
     superadminRepository.getDashboardStats()
       .then(setStats)
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [authUser])
+  }, [user])
 
-  if (authUser?.role !== 'superadmin') {
+  if (!hasPermission(user?.role, PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD)) {
     return <div className="p-12 text-center text-red-500">Accès refusé. Réservé au SuperAdmin.</div>
   }
 
