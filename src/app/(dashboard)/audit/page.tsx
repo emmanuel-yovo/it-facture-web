@@ -30,14 +30,13 @@ export default function AuditPage() {
       return
     }
     try {
-      // Si superadmin, on ne passe pas de workspaceId pour tout voir,
-      // SAUF si on veut filtrer par le workspace actuel.
-      // Dans ce cas précis, on va montrer les logs de l'entreprise courante pour l'admin,
-      // et tous les logs s'il s'agit d'une vue superadmin globale.
+      // Si superadmin: voit uniquement les logs système (connexions, etc.) => resource_type = 'system'
+      // Si admin: voit les logs de l'entreprise => workspace_id = workspaceId
       const result = await auditRepository.getAll({
         page, 
         pageSize: 20, 
-        workspace_id: user?.role === 'superadmin' ? undefined : workspaceId || undefined
+        workspace_id: user?.role === 'admin' ? workspaceId || undefined : undefined,
+        resource_type: user?.role === 'superadmin' ? 'system' : undefined
       })
       setLogs(result.data)
       setTotal(result.total)

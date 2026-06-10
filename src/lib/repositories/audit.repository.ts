@@ -37,7 +37,7 @@ export class AuditRepository {
     if (error) console.error("Erreur Audit Log:", error) // Silencieux car non critique
   }
 
-  async getAll(params: { page?: number; pageSize?: number; workspace_id?: string }): Promise<PaginatedResult<AuditLog>> {
+  async getAll(params: { page?: number; pageSize?: number; workspace_id?: string; resource_type?: string }): Promise<PaginatedResult<AuditLog>> {
     const page = params.page || 1
     const pageSize = params.pageSize || 20
     const offset = (page - 1) * pageSize
@@ -50,6 +50,10 @@ export class AuditRepository {
 
     if (params.workspace_id) {
       query = query.eq('workspace_id', params.workspace_id)
+    }
+
+    if (params.resource_type) {
+      query = query.eq('resource_type', params.resource_type)
     }
 
     const { data, count, error } = await query
