@@ -42,9 +42,9 @@ USING (id = get_user_workspace_id() AND is_workspace_admin());
 
 
 -- Profiles
-CREATE POLICY "Users can view profiles in their workspace"
+CREATE POLICY "Users can view their own profile"
 ON profiles FOR SELECT
-USING (workspace_id = get_user_workspace_id());
+USING (id = auth.uid());
 
 CREATE POLICY "Users can update their own profile"
 ON profiles FOR UPDATE
