@@ -97,7 +97,7 @@ export function Sidebar() {
       <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto scrollbar-hide">
         {filteredNavItems.map((item) => {
           const isActive = item.to === '/' ? pathname === '/' : pathname.startsWith(item.to)
-          const isLocked = item.feature ? !canAccessFeature(plan, item.feature as any) : false
+          const isLocked = item.feature ? !canAccessFeature(plan, item.feature as any, user?.role) : false
           
           return (
             <button

@@ -70,7 +70,7 @@ export default function InvoicesPage() {
   const handlePrint = async (id: string) => { alert("L'impression sera disponible dans la phase finale.") }
   const handleDownload = async (id: string) => { alert("Le téléchargement PDF sera disponible avec le module Puppeteer/Vercel Edge.") }
 
-  const isLimitReached = !loading && !canCreateInvoice(plan, total)
+  const isLimitReached = !loading && !canCreateInvoice(plan, total, user?.role)
 
   if (loading && invoices.length === 0) {
     return <div className="h-96 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>

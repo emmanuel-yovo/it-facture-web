@@ -114,7 +114,7 @@ export default function TicketsPage() {
     }
   }
 
-  if (!isLoading && !canAccessFeature(plan, 'tickets')) {
+  if (!isLoading && !canAccessFeature(plan, 'tickets', user?.role)) {
     return (
       <div className="flex flex-col items-center justify-center h-[70vh] text-center space-y-4 max-w-md mx-auto">
         <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-2">

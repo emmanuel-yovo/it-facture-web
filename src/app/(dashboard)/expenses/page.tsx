@@ -69,7 +69,7 @@ export default function ExpensesPage() {
 
   if (loading) return <div className="h-96 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>
 
-  if (!canAccessFeature(plan, 'expenses')) {
+  if (!canAccessFeature(plan, 'expenses', user?.role)) {
     return (
       <div className="flex flex-col items-center justify-center h-[70vh] text-center space-y-4 max-w-md mx-auto">
         <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-2">

@@ -31,15 +31,18 @@ export const PLAN_LIMITS = {
   }
 } as const
 
-export const canCreateClient = (plan: PlanType, currentCount: number) => {
+export const canCreateClient = (plan: PlanType, currentCount: number, role?: string) => {
+  if (role === 'superadmin') return true
   return currentCount < PLAN_LIMITS[plan].maxClients
 }
 
-export const canCreateInvoice = (plan: PlanType, currentCount: number) => {
+export const canCreateInvoice = (plan: PlanType, currentCount: number, role?: string) => {
+  if (role === 'superadmin') return true
   return currentCount < PLAN_LIMITS[plan].maxInvoices
 }
 
-export const canAccessFeature = (plan: PlanType, feature: 'expenses' | 'tickets') => {
+export const canAccessFeature = (plan: PlanType, feature: 'expenses' | 'tickets', role?: string) => {
+  if (role === 'superadmin') return true
   if (feature === 'expenses') return PLAN_LIMITS[plan].canAccessExpenses
   if (feature === 'tickets') return PLAN_LIMITS[plan].canAccessTickets
   return false

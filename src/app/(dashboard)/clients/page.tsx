@@ -107,7 +107,7 @@ export default function ClientsPage() {
     setModalOpen(true)
   }
 
-  const isLimitReached = !initialLoading && !canCreateClient(plan, total)
+  const isLimitReached = !initialLoading && !canCreateClient(plan, total, user?.role)
 
   const openNew = () => { 
     if (isLimitReached) {
