@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import '@/i18n'
 import { Sidebar } from './Sidebar'
 import { motion } from 'framer-motion'
@@ -18,8 +19,24 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const { loading } = useAuth()
   const { i18n } = useTranslation()
 
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    const root = window.document.documentElement
+    root.classList.remove('light', 'dark')
+    root.classList.add(theme)
+  }, [theme])
+
   const setLang = (lng: string) => {
     i18n.changeLanguage(lng)
+  }
+
+  if (!mounted) {
+    return <div className="h-screen w-screen bg-background" />
   }
 
   return (
