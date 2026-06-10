@@ -2,9 +2,9 @@ import { create } from 'zustand'
 
 interface User {
   id: string
-  username: string
-  full_name: string
-  role: 'admin' | 'user'
+  username?: string
+  full_name?: string
+  role: 'superadmin' | 'admin' | 'user'
 }
 
 interface AuthState {

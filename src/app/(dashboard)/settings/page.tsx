@@ -129,22 +129,22 @@ export default function SettingsPage() {
 
       <Tabs defaultValue={authUser?.role === 'admin' ? "company" : "account"} className="space-y-6">
         <TabsList className="bg-card border border-border">
-          {authUser?.role === 'admin' && (
+          {(authUser?.role === 'admin' || authUser?.role === 'superadmin') && (
             <TabsTrigger value="company"><Building className="w-4 h-4 mr-2" />Entreprise</TabsTrigger>
           )}
-          {authUser?.role === 'admin' && (
+          {(authUser?.role === 'admin' || authUser?.role === 'superadmin') && (
             <TabsTrigger value="email"><Mail className="w-4 h-4 mr-2" />Emails (SMTP)</TabsTrigger>
           )}
-          {authUser?.role === 'admin' && (
+          {authUser?.role === 'admin' || authUser?.role === 'superadmin' ? (
             <TabsTrigger value="documents"><FileText className="w-4 h-4 mr-2" />Documents & CGV</TabsTrigger>
-          )}
-          {authUser?.role === 'admin' && (
+          ) : null}
+          {authUser?.role === 'superadmin' && (
             <TabsTrigger value="payments"><CreditCard className="w-4 h-4 mr-2" />FedaPay (Paiements)</TabsTrigger>
           )}
           <TabsTrigger value="account"><LogOut className="w-4 h-4 mr-2" />Compte</TabsTrigger>
         </TabsList>
 
-        {authUser?.role === 'admin' && (
+        {(authUser?.role === 'admin' || authUser?.role === 'superadmin') && (
           <TabsContent value="company">
             <Card className="border border-border shadow-sm">
               <CardHeader><CardTitle>Informations de l'entreprise</CardTitle></CardHeader>
@@ -259,7 +259,7 @@ export default function SettingsPage() {
           </TabsContent>
         )}
 
-        {authUser?.role === 'admin' && (
+        {(authUser?.role === 'admin' || authUser?.role === 'superadmin') && (
           <TabsContent value="email">
             <Card className="border border-border shadow-sm">
               <CardHeader>
@@ -296,7 +296,7 @@ export default function SettingsPage() {
           </TabsContent>
         )}
 
-        {authUser?.role === 'admin' && (
+        {(authUser?.role === 'admin' || authUser?.role === 'superadmin') && (
           <TabsContent value="documents">
             <Card className="border border-border shadow-sm">
               <CardHeader>
@@ -338,7 +338,7 @@ export default function SettingsPage() {
           </TabsContent>
         )}
 
-        {authUser?.role === 'admin' && (
+        {authUser?.role === 'superadmin' && (
           <TabsContent value="payments">
             <Card className="border border-border shadow-sm">
               <CardHeader>
