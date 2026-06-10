@@ -37,16 +37,22 @@ export class AuditRepository {
     if (error) console.error("Erreur Audit Log:", error) // Silencieux car non critique
   }
 
-  async getAll(params: { page?: number; pageSize?: number }): Promise<PaginatedResult<AuditLog>> {
+  async getAll(params: { page?: number; pageSize?: number; workspace_id?: string }): Promise<PaginatedResult<AuditLog>> {
     const page = params.page || 1
     const pageSize = params.pageSize || 20
     const offset = (page - 1) * pageSize
 
-    const { data, count, error } = await supabase
+    let query = supabase
       .from('audit_logs')
       .select('*, user:profiles(full_name)', { count: 'exact' })
       .order('timestamp', { ascending: false })
       .range(offset, offset + pageSize - 1)
+
+    if (params.workspace_id) {
+      query = query.eq('workspace_id', params.workspace_id)
+    }
+
+    const { data, count, error } = await query
 
     if (error) throw error
 

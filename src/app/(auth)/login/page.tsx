@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Eye, EyeOff } from 'lucide-react'
+import { auditRepository } from '@/lib/repositories/audit.repository'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -46,6 +47,7 @@ export default function LoginPage() {
       if (error) {
         setError(error.message)
       } else if (data.session) {
+        await auditRepository.logLogin(data.session.user.id)
         router.push('/')
         router.refresh()
       }
