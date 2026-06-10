@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { formatCurrencyByCountry } from '@/lib/utils'
+import { formatCurrency, formatCurrencyByCountry } from '@/lib/utils'
 import { Search, Plus, Minus, ChevronRight, ChevronLeft, Check, FileText, User, Wrench, Percent, AlertCircle } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { clientRepository } from '@/lib/repositories/client.repository'
@@ -55,7 +55,7 @@ function InvoiceForm() {
   const filteredServices = services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase()))
 
   const formatVal = (amount: number) => {
-    return formatCurrencyByCountry(amount, settings?.company_country || 'FR', settings?.currency_symbol)
+    return formatCurrency(amount)
   }
 
   const taxLabel = settings?.company_country === 'US' ? 'Sales Tax' : 'TVA'
