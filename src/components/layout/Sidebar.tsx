@@ -9,7 +9,7 @@ import { useAuthStore } from '@/store/authStore'
 import {
     LayoutDashboard, Users, Wrench, FileText, PlusCircle,
     Percent, CreditCard, Settings, ChevronLeft, ChevronRight, Zap,
-    Repeat, Receipt, UserCog, Bell, Shield, TrendingUp
+    Repeat, Receipt, UserCog, Bell, Shield, TrendingUp, ShieldCheck
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -33,6 +33,7 @@ const navItems = [
   { to: '/payments', icon: CreditCard, label: 'nav.payments' },
   { to: '/users', icon: UserCog, label: 'nav.users', adminOnly: true },
   { to: '/settings', icon: Settings, label: 'nav.settings' },
+  { to: '/superadmin', icon: ShieldCheck, label: 'Administration SaaS', superAdminOnly: true },
 ]
 
 export function Sidebar() {
@@ -41,7 +42,10 @@ export function Sidebar() {
   const { sidebarCollapsed, toggleSidebar } = useAppStore()
   const { user } = useAuthStore()
 
-  const filteredNavItems = navItems.filter(item => !item.adminOnly || user?.role === 'admin')
+  const filteredNavItems = navItems.filter(item => 
+    (!item.adminOnly || user?.role === 'admin' || user?.role === 'superadmin') &&
+    (!item.superAdminOnly || user?.role === 'superadmin')
+  )
 
   return (
     <motion.aside
@@ -91,17 +95,18 @@ export function Sidebar() {
                 isActive
                   ? 'bg-sidebar-accent text-sidebar-accent-foreground'
                   : 'text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
-                item.accent && !sidebarCollapsed && 'bg-primary/10 text-primary hover:bg-primary/15'
+                item.accent && !sidebarCollapsed && 'bg-primary/10 text-primary hover:bg-primary/15',
+                item.superAdminOnly && 'text-purple-500 hover:text-purple-600 hover:bg-purple-500/10'
               )}
             >
               {isActive && (
                 <motion.div
                   layoutId="sidebar-active"
-                  className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary"
+                  className={cn("absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full", item.superAdminOnly ? "bg-purple-500" : "bg-primary")}
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 />
               )}
-              <item.icon className={cn('w-5 h-5 flex-shrink-0', item.accent && 'text-primary')} />
+              <item.icon className={cn('w-5 h-5 flex-shrink-0', item.accent && 'text-primary', item.superAdminOnly && 'text-purple-500')} />
               <AnimatePresence>
                 {!sidebarCollapsed && (
                   <motion.span
@@ -110,7 +115,7 @@ export function Sidebar() {
                     exit={{ opacity: 0 }}
                     className="truncate"
                   >
-                    {t(item.label)}
+                    {item.superAdminOnly ? item.label : t(item.label)}
                   </motion.span>
                 )}
               </AnimatePresence>
