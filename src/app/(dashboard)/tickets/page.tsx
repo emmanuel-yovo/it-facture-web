@@ -14,9 +14,15 @@ import { Textarea } from '@/components/ui/textarea'
 import { useAuthStore } from '@/store/authStore'
 import { ticketRepository, Ticket } from '@/lib/repositories/ticket.repository'
 import { clientRepository } from '@/lib/repositories/client.repository'
+import { canAccessFeature, PlanType } from '@/lib/limits'
+import { Lock } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export default function TicketsPage() {
-  const { workspaceId } = useAuthStore()
+  const { workspaceId, workspacePlan } = useAuthStore()
+  const plan = (workspacePlan as PlanType) || 'free'
+  const router = useRouter()
+  
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -106,6 +112,23 @@ export default function TicketsPage() {
       case 'low': return <Badge className="bg-slate-500 border-none text-white">Basse</Badge>
       default: return <Badge>{priority}</Badge>
     }
+  }
+
+  if (!isLoading && !canAccessFeature(plan, 'tickets')) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[70vh] text-center space-y-4 max-w-md mx-auto">
+        <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-2">
+          <Lock className="w-8 h-8 text-muted-foreground" />
+        </div>
+        <h2 className="text-2xl font-bold">Fonctionnalité Verrouillée</h2>
+        <p className="text-muted-foreground">
+          La gestion des tickets et interventions techniques est réservée au plan Pro et Agence. Gérez vos maintenances et facturez vos interventions facilement.
+        </p>
+        <Button onClick={() => router.push('/upgrade')} className="mt-4 bg-blue-500 hover:bg-blue-600 text-white">
+          Passer à la version Pro
+        </Button>
+      </div>
+    )
   }
 
   return (

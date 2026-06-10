@@ -1,16 +1,17 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppStore } from '@/store/appStore'
 import { useAuthStore } from '@/store/authStore'
 import { hasPermission, PERMISSIONS, Permission } from '@/lib/permissions'
+import { canAccessFeature, PlanType } from '@/lib/limits'
 import {
     LayoutDashboard, Users, Wrench, FileText, PlusCircle,
     Percent, CreditCard, Settings, ChevronLeft, ChevronRight, Zap,
-    Repeat, Receipt, UserCog, Bell, Shield, TrendingUp, ShieldCheck
+    Repeat, Receipt, UserCog, Bell, Shield, TrendingUp, ShieldCheck, Lock
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -23,6 +24,7 @@ type NavItem = {
   label: string
   accent?: boolean
   permission?: Permission
+  feature?: string
 }
 
 const navItems: NavItem[] = [
@@ -31,10 +33,10 @@ const navItems: NavItem[] = [
   { to: '/quotes', icon: FileText, label: 'Devis' },
   { to: '/invoices/new', icon: PlusCircle, label: 'nav.newInvoice', accent: true },
   { to: '/subscriptions', icon: Repeat, label: 'nav.subscriptions' },
-  { to: '/expenses', icon: Receipt, label: 'nav.expenses', permission: PERMISSIONS.MANAGE_EXPENSES },
+  { to: '/expenses', icon: Receipt, label: 'nav.expenses', permission: PERMISSIONS.MANAGE_EXPENSES, feature: 'expenses' },
   { to: '/clients', icon: Users, label: 'nav.clients' },
   { to: '/services', icon: Wrench, label: 'nav.services' },
-  { to: '/tickets', icon: Zap, label: 'nav.tickets' },
+  { to: '/tickets', icon: Zap, label: 'nav.tickets', feature: 'tickets' },
   { to: '/reminders', icon: Bell, label: 'nav.reminders', permission: PERMISSIONS.MANAGE_REMINDERS },
   { to: '/reports', icon: TrendingUp, label: 'nav.reports', permission: PERMISSIONS.VIEW_REPORTS },
   { to: '/audit', icon: Shield, label: 'Audit', permission: PERMISSIONS.VIEW_AUDIT },
@@ -48,8 +50,10 @@ const navItems: NavItem[] = [
 export function Sidebar() {
   const { t } = useTranslation()
   const pathname = usePathname()
+  const router = useRouter()
   const { sidebarCollapsed, toggleSidebar } = useAppStore()
-  const { user } = useAuthStore()
+  const { user, workspacePlan } = useAuthStore()
+  const plan = (workspacePlan as PlanType) || 'free'
 
   const filteredNavItems = navItems.filter(item => 
     !item.permission || hasPermission(user?.role, item.permission)
@@ -93,13 +97,14 @@ export function Sidebar() {
       <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto scrollbar-hide">
         {filteredNavItems.map((item) => {
           const isActive = item.to === '/' ? pathname === '/' : pathname.startsWith(item.to)
+          const isLocked = item.feature ? !canAccessFeature(plan, item.feature as any) : false
           
           return (
-            <Link
+            <button
               key={item.to}
-              href={item.to}
+              onClick={() => router.push(isLocked ? '/upgrade' : item.to)}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group relative',
+                'w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group relative',
                 isActive
                   ? 'bg-sidebar-accent text-sidebar-accent-foreground'
                   : 'text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
@@ -114,20 +119,27 @@ export function Sidebar() {
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 />
               )}
-              <item.icon className={cn('w-5 h-5 flex-shrink-0', item.accent && 'text-primary', item.permission === PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD && 'text-purple-500')} />
-              <AnimatePresence>
-                {!sidebarCollapsed && (
-                  <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="truncate"
-                  >
-                    {item.permission === PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD ? item.label : t(item.label)}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </Link>
+              
+              <div className="flex items-center gap-3">
+                <item.icon className={cn('w-5 h-5 flex-shrink-0', item.accent && 'text-primary', item.permission === PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD && 'text-purple-500')} />
+                <AnimatePresence>
+                  {!sidebarCollapsed && (
+                    <motion.span
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="truncate"
+                    >
+                      {item.permission === PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD ? item.label : t(item.label)}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {!sidebarCollapsed && isLocked && (
+                <Lock className="w-4 h-4 text-muted-foreground/60 ml-auto" />
+              )}
+            </button>
           )
         })}
       </nav>

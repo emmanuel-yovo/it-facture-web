@@ -11,9 +11,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label'
 import { useAuthStore } from '@/store/authStore'
 import { expenseRepository, Expense } from '@/lib/repositories/expense.repository'
+import { canAccessFeature, PlanType } from '@/lib/limits'
+import { Lock } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export default function ExpensesPage() {
-  const { workspaceId } = useAuthStore()
+  const { workspaceId, workspacePlan } = useAuthStore()
+  const plan = (workspacePlan as PlanType) || 'free'
+  const router = useRouter()
+  
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
@@ -62,6 +68,23 @@ export default function ExpensesPage() {
   }
 
   if (loading) return <div className="h-96 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>
+
+  if (!canAccessFeature(plan, 'expenses')) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[70vh] text-center space-y-4 max-w-md mx-auto">
+        <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-2">
+          <Lock className="w-8 h-8 text-muted-foreground" />
+        </div>
+        <h2 className="text-2xl font-bold">Fonctionnalité Verrouillée</h2>
+        <p className="text-muted-foreground">
+          La gestion des dépenses est disponible à partir du plan Pro. Suivez vos sorties d'argent, classez-les par catégories et préparez votre comptabilité facilement.
+        </p>
+        <Button onClick={() => router.push('/upgrade')} className="mt-4 bg-blue-500 hover:bg-blue-600 text-white">
+          Passer à la version Pro
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">

@@ -11,14 +11,19 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { formatCurrency } from '@/lib/utils'
-import { Plus, Search, Pencil, Trash2, Users, ChevronLeft, ChevronRight, FileUp } from 'lucide-react'
+import { Plus, Search, Pencil, Trash2, Users, ChevronLeft, ChevronRight, FileUp, Lock } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { clientRepository, Client } from '@/lib/repositories/client.repository'
+import { canCreateClient, PlanType } from '@/lib/limits'
+import { useRouter } from 'next/navigation'
 
 const empty = { full_name: '', phone: '', email: '', address: '', company_name: '', country: 'FR', notes: '', is_active: true }
 
 export default function ClientsPage() {
-  const { user, workspaceId } = useAuthStore()
+  const { user, workspaceId, workspacePlan } = useAuthStore()
+  const plan = (workspacePlan as PlanType) || 'free'
+  const router = useRouter()
+  
   const [clients, setClients] = useState<Client[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
@@ -102,7 +107,15 @@ export default function ClientsPage() {
     setModalOpen(true)
   }
 
-  const openNew = () => { setEditing(null); setForm(empty); setModalOpen(true) }
+  const isLimitReached = !initialLoading && !canCreateClient(plan, total)
+
+  const openNew = () => { 
+    if (isLimitReached) {
+      router.push('/upgrade')
+      return
+    }
+    setEditing(null); setForm(empty); setModalOpen(true) 
+  }
 
   if (initialLoading) {
     return <div className="h-96 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>
@@ -120,9 +133,12 @@ export default function ClientsPage() {
             <FileUp className="w-4 h-4 mr-2" />
             Importer
           </Button>
-          <Button onClick={openNew}>
-            <Plus className="w-4 h-4 mr-2" />
-            Nouveau Client
+          <Button 
+            onClick={openNew}
+            className={isLimitReached ? 'bg-orange-500 hover:bg-orange-600 text-white' : ''}
+          >
+            {isLimitReached ? <Lock className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+            {isLimitReached ? 'Passez à Essential' : 'Nouveau Client'}
           </Button>
         </div>
       </div>

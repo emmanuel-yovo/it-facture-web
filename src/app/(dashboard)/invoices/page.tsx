@@ -11,12 +11,15 @@ import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { formatCurrency, formatDate, getStatusColor, getStatusLabel } from '@/lib/utils'
-import { Plus, Search, Eye, Printer, Download, Trash2, FileText, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Plus, Search, Eye, Printer, Download, Trash2, FileText, ChevronLeft, ChevronRight, Lock } from 'lucide-react'
 import { invoiceRepository, Invoice } from '@/lib/repositories/invoice.repository'
+import { canCreateInvoice, PlanType } from '@/lib/limits'
 
 export default function InvoicesPage() {
   const router = useRouter()
-  const { user, workspaceId } = useAuthStore()
+  const { user, workspaceId, workspacePlan } = useAuthStore()
+  const plan = (workspacePlan as PlanType) || 'free'
+  
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
@@ -67,7 +70,9 @@ export default function InvoicesPage() {
   const handlePrint = async (id: string) => { alert("L'impression sera disponible dans la phase finale.") }
   const handleDownload = async (id: string) => { alert("Le téléchargement PDF sera disponible avec le module Puppeteer/Vercel Edge.") }
 
-  if (loading) {
+  const isLimitReached = !loading && !canCreateInvoice(plan, total)
+
+  if (loading && invoices.length === 0) {
     return <div className="h-96 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>
   }
 
@@ -78,7 +83,13 @@ export default function InvoicesPage() {
           <h1 className="text-2xl font-bold">Factures</h1>
           <p className="text-muted-foreground text-sm mt-1">{total} factures</p>
         </div>
-        <Button onClick={() => router.push('/invoices/new')}><Plus className="w-4 h-4 mr-2" />Nouvelle Facture</Button>
+        <Button 
+          onClick={() => isLimitReached ? router.push('/upgrade') : router.push('/invoices/new')}
+          className={isLimitReached ? 'bg-orange-500 hover:bg-orange-600 text-white' : ''}
+        >
+          {isLimitReached ? <Lock className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+          {isLimitReached ? 'Passez à Essential' : 'Nouvelle Facture'}
+        </Button>
       </div>
 
       <div className="flex gap-3 flex-wrap">

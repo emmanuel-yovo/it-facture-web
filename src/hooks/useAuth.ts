@@ -8,7 +8,7 @@ import { useAuthStore } from '@/store/authStore'
 export function useAuth() {
   const [user, setLocalUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const { setUser, setWorkspaceId } = useAuthStore()
+  const { setUser, setWorkspaceId, setWorkspacePlan } = useAuthStore()
 
   useEffect(() => {
     // Obtenir la session actuelle
@@ -31,6 +31,7 @@ export function useAuth() {
           setLocalUser(null)
           setUser(null)
           setWorkspaceId(null)
+          setWorkspacePlan(null)
           setLoading(false)
         }
       }
@@ -41,10 +42,10 @@ export function useAuth() {
 
   async function fetchProfileAndWorkspace(userId: string) {
     try {
-      // 1. Récupérer le profil
+      // 1. Récupérer le profil et le plan du workspace
       const { data: profile } = await supabase
         .from('profiles')
-        .select('*')
+        .select('*, workspaces(plan)')
         .eq('id', userId)
         .single()
 
@@ -58,6 +59,10 @@ export function useAuth() {
         
         if (profile.workspace_id) {
           setWorkspaceId(profile.workspace_id)
+          // Le join avec workspaces retourne un objet si on le récupère
+          if (profile.workspaces && typeof profile.workspaces === 'object') {
+            setWorkspacePlan((profile.workspaces as any).plan || 'free')
+          }
         }
       }
     } catch (error) {
