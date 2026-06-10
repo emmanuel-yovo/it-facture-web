@@ -1,0 +1,71 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
+import { User } from '@supabase/supabase-js'
+import { useAuthStore } from '@/store/authStore'
+
+export function useAuth() {
+  const [user, setLocalUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const { setUser, setWorkspaceId } = useAuthStore()
+
+  useEffect(() => {
+    // Obtenir la session actuelle
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setLocalUser(session.user)
+        fetchProfileAndWorkspace(session.user.id)
+      } else {
+        setLoading(false)
+      }
+    })
+
+    // Écouter les changements d'état (connexion, déconnexion)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session?.user) {
+          setLocalUser(session.user)
+          fetchProfileAndWorkspace(session.user.id)
+        } else {
+          setLocalUser(null)
+          setUser(null)
+          setWorkspaceId(null)
+          setLoading(false)
+        }
+      }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const fetchProfileAndWorkspace = async (userId: string) => {
+    try {
+      // 1. Récupérer le profil
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
+
+      if (profile) {
+        setUser({
+          id: profile.id,
+          username: profile.full_name, // fallback pour l'ancien modèle
+          full_name: profile.full_name,
+          role: profile.role,
+        } as any)
+        
+        if (profile.workspace_id) {
+          setWorkspaceId(profile.workspace_id)
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement du profil:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return { user, loading }
+}
