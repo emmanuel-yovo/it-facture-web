@@ -30,6 +30,7 @@ export default function UsersPage() {
   const [isInviting, setIsInviting] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteName, setInviteName] = useState('')
+  const [invitePassword, setInvitePassword] = useState('')
   const [inviteRole, setInviteRole] = useState('user')
   const [inviteError, setInviteError] = useState('')
 
@@ -68,6 +69,7 @@ export default function UsersPage() {
         },
         body: JSON.stringify({
           email: inviteEmail,
+          password: invitePassword,
           fullName: inviteName,
           role: inviteRole
         })
@@ -82,6 +84,7 @@ export default function UsersPage() {
       // Success
       setIsOpen(false)
       setInviteEmail('')
+      setInvitePassword('')
       setInviteName('')
       setInviteRole('user')
       fetchUsers() // Rafraîchir la liste
@@ -135,6 +138,11 @@ export default function UsersPage() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Adresse Email</label>
                 <Input required type="email" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="jean@entreprise.com" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Mot de passe (Provisoire)</label>
+                <Input required type="text" value={invitePassword} onChange={e => setInvitePassword(e.target.value)} placeholder="Mot de passe sécurisé..." />
+                <p className="text-xs text-muted-foreground">L'utilisateur pourra le modifier plus tard.</p>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Rôle</label>
