@@ -4,7 +4,7 @@ interface User {
   id: string
   username?: string
   full_name?: string
-  role: 'superadmin' | 'admin' | 'user'
+  role: 'superadmin' | 'admin' | 'comptable' | 'user'
 }
 
 interface AuthState {

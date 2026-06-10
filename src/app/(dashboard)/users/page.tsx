@@ -1,17 +1,108 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Shield, ExternalLink, Users } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Users, UserPlus, Shield, Loader2, Mail } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { hasPermission, PERMISSIONS } from '@/lib/permissions'
+import { supabase } from '@/lib/supabase'
+import { Badge } from '@/components/ui/badge'
+
+type Profile = {
+  id: string
+  full_name: string
+  role: string
+  workspace_id: string
+}
 
 export default function UsersPage() {
   const { user } = useAuthStore()
+  const [profiles, setProfiles] = useState<Profile[]>([])
+  const [loading, setLoading] = useState(true)
+  
+  // Form state
+  const [isOpen, setIsOpen] = useState(false)
+  const [isInviting, setIsInviting] = useState(false)
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteName, setInviteName] = useState('')
+  const [inviteRole, setInviteRole] = useState('user')
+  const [inviteError, setInviteError] = useState('')
+
+  useEffect(() => {
+    fetchUsers()
+  }, [])
+
+  async function fetchUsers() {
+    setLoading(true)
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('full_name')
+
+    if (!error && data) {
+      // Filtrer les superadmins pour qu'ils n'apparaissent pas dans la liste
+      const filtered = data.filter(p => p.role !== 'superadmin')
+      setProfiles(filtered)
+    }
+    setLoading(false)
+  }
+
+  async function handleInvite(e: React.FormEvent) {
+    e.preventDefault()
+    setIsInviting(true)
+    setInviteError('')
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      const res = await fetch('/api/users/invite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({
+          email: inviteEmail,
+          fullName: inviteName,
+          role: inviteRole
+        })
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Erreur lors de l\'invitation')
+      }
+
+      // Success
+      setIsOpen(false)
+      setInviteEmail('')
+      setInviteName('')
+      setInviteRole('user')
+      fetchUsers() // Rafraîchir la liste
+
+    } catch (err: any) {
+      setInviteError(err.message)
+    } finally {
+      setIsInviting(false)
+    }
+  }
 
   if (!hasPermission(user?.role, PERMISSIONS.MANAGE_USERS)) {
     return <div className="p-12 text-center text-muted-foreground"><p>Accès restreint aux administrateurs.</p></div>
+  }
+
+  const getRoleBadge = (role: string) => {
+    switch (role) {
+      case 'admin': return <Badge variant="default" className="bg-blue-500">Admin</Badge>
+      case 'comptable': return <Badge variant="outline" className="border-purple-500 text-purple-500">Comptable</Badge>
+      default: return <Badge variant="secondary">Utilisateur</Badge>
+    }
   }
 
   return (
@@ -19,38 +110,90 @@ export default function UsersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Users className="w-8 h-8 text-primary" /> Utilisateurs
+            <Users className="w-8 h-8 text-primary" /> Équipe
           </h1>
-          <p className="text-muted-foreground mt-1">Gestion des accès et des rôles.</p>
+          <p className="text-muted-foreground mt-1">Gérez les membres de votre entreprise et leurs accès.</p>
         </div>
+        
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-primary text-white">
+              <UserPlus className="w-4 h-4 mr-2" /> Inviter un membre
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Inviter un nouveau collaborateur</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleInvite} className="space-y-4 pt-4">
+              {inviteError && <div className="p-3 bg-red-50 text-red-500 text-sm rounded-md">{inviteError}</div>}
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Nom complet</label>
+                <Input required value={inviteName} onChange={e => setInviteName(e.target.value)} placeholder="Ex: Jean Dupont" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Adresse Email</label>
+                <Input required type="email" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="jean@entreprise.com" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Rôle</label>
+                <Select value={inviteRole} onValueChange={setInviteRole}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">Utilisateur (Création de factures, Devis)</SelectItem>
+                    <SelectItem value="comptable">Comptable (Consultation globale)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground pt-1">
+                  Note : Vous ne pouvez pas créer d'autres Administrateurs pour des raisons de sécurité.
+                </p>
+              </div>
+
+              <div className="flex justify-end pt-4 gap-2">
+                <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Annuler</Button>
+                <Button type="submit" disabled={isInviting}>
+                  {isInviting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Mail className="w-4 h-4 mr-2" />}
+                  Envoyer l'invitation
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      <Card className="max-w-2xl border-border shadow-sm">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-primary" /> Sécurité Renforcée
-          </CardTitle>
-          <CardDescription>
-            Dans cette nouvelle version Cloud de IT-Facture, la gestion des utilisateurs est sécurisée par Supabase Auth.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 text-sm text-muted-foreground">
-          <p>
-            Pour garantir une sécurité maximale et le respect des normes (RGPD), la création d'utilisateurs, la réinitialisation des mots de passe et la gestion des rôles ont été centralisées sur le dashboard d'administration cloud.
-          </p>
-          <div className="bg-muted/30 p-4 rounded-lg border border-border/50">
-            <ul className="list-disc pl-5 space-y-2 text-foreground/80">
-              <li>Invitez de nouveaux collaborateurs par email</li>
-              <li>Attribuez des rôles (Admin, Utilisateur)</li>
-              <li>Gérez les accès Multi-Tenants (Workspaces)</li>
-              <li>Authentification sécurisée (MFA disponible)</li>
-            </ul>
-          </div>
-          <div className="pt-4">
-            <Button onClick={() => window.open('https://supabase.com/dashboard', '_blank')} className="bg-primary text-white">
-              <ExternalLink className="w-4 h-4 mr-2" /> Ouvrir le gestionnaire d'accès Cloud
-            </Button>
-          </div>
+      <Card className="border-border shadow-sm">
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="p-12 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+          ) : (
+            <table className="w-full text-sm text-left">
+              <thead>
+                <tr className="border-b bg-muted/30">
+                  <th className="py-3 px-6 font-medium text-muted-foreground">Nom / Email</th>
+                  <th className="py-3 px-6 font-medium text-muted-foreground">Rôle</th>
+                  <th className="py-3 px-6 font-medium text-muted-foreground">Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                {profiles.map(p => (
+                  <tr key={p.id} className="border-b border-border/50 hover:bg-muted/10 transition-colors">
+                    <td className="py-4 px-6">
+                      <div className="font-medium text-foreground">{p.full_name}</div>
+                      <div className="text-xs text-muted-foreground">Compte Cloud Supabase</div>
+                    </td>
+                    <td className="py-4 px-6">{getRoleBadge(p.role)}</td>
+                    <td className="py-4 px-6"><Badge variant="outline" className="text-emerald-500 border-emerald-500">Actif</Badge></td>
+                  </tr>
+                ))}
+                {profiles.length === 0 && (
+                  <tr><td colSpan={3} className="text-center py-8 text-muted-foreground">Aucun membre trouvé</td></tr>
+                )}
+              </tbody>
+            </table>
+          )}
         </CardContent>
       </Card>
     </motion.div>

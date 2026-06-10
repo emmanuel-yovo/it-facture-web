@@ -1,6 +1,7 @@
 export const ROLES = {
   SUPERADMIN: 'superadmin',
   ADMIN: 'admin',
+  COMPTABLE: 'comptable',
   USER: 'user'
 } as const
 
@@ -40,8 +41,8 @@ export function hasPermission(userRole: Role | string | undefined | null, permis
     return adminPermissions.includes(permission)
   }
 
-  // User permissions (very restricted, none of the sensitive pages)
-  if (userRole === ROLES.USER) {
+  // User & Comptable permissions (very restricted, none of the sensitive pages)
+  if (userRole === ROLES.USER || userRole === ROLES.COMPTABLE) {
     const userPermissions: Permission[] = [] // Add specific permissions if needed later
     return userPermissions.includes(permission)
   }
