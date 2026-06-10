@@ -4,16 +4,23 @@ import { emailService } from '@/lib/services/email.service'
 import { fedapayService } from '@/lib/services/fedapay.service'
 import { invoiceRepository } from '@/lib/repositories/invoice.repository'
 import { subscriptionRepository } from '@/lib/repositories/subscription.repository'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 // Cette route est appelée par Vercel Cron
 export async function GET(request: Request) {
   try {
+    // SÉCURITÉ : Vérifier le CRON_SECRET
+    const authHeader = request.headers.get('Authorization')
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+    }
+
     // 1. Récupérer tous les abonnements actifs échus (next_billing_date <= TODAY)
     const today = new Date().toISOString().split('T')[0]
     
-    // Note: We bypass RLS using service_role key for cron jobs in a real app.
-    // For this prototype, we query the DB directly.
-    const { data: subscriptions, error } = await supabase
+    // On utilise supabaseAdmin pour outrepasser les règles RLS
+    // car le Cron n'appartient à aucune entreprise en particulier.
+    const { data: subscriptions, error } = await supabaseAdmin
       .from('subscriptions')
       .select('*, client:clients(*)')
       .eq('is_active', true)
@@ -85,7 +92,7 @@ export async function GET(request: Request) {
         nextDate.setFullYear(nextDate.getFullYear() + 1)
       }
 
-      await supabase
+      await supabaseAdmin
         .from('subscriptions')
         .update({ next_billing_date: nextDate.toISOString().split('T')[0] })
         .eq('id', sub.id)

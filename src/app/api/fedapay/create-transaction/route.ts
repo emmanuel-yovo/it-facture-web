@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { FedaPay, Transaction } from 'fedapay'
+import { supabase } from '@/lib/supabase'
 
 // Configuration de FedaPay (idéalement chargée depuis .env.local)
 const FEDAPAY_SECRET_KEY = process.env.FEDAPAY_SECRET_KEY || 'sk_sandbox_xxx'
@@ -10,6 +11,18 @@ FedaPay.setEnvironment(FEDAPAY_ENVIRONMENT as 'sandbox' | 'live')
 
 export async function POST(req: Request) {
   try {
+    // SÉCURITÉ : Vérifier que l'utilisateur est connecté
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+    }
+    const authToken = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: authError } = await supabase.auth.getUser(authToken)
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+    }
+
     const body = await req.json()
     const { invoice_id, amount, description, client_email, client_name, workspace_id } = body
 
