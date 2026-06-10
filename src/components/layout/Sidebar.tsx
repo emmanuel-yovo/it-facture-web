@@ -44,7 +44,7 @@ const navItems: NavItem[] = [
   { to: '/payments', icon: CreditCard, label: 'nav.payments' },
   { to: '/users', icon: UserCog, label: 'nav.users', permission: PERMISSIONS.MANAGE_USERS },
   { to: '/settings', icon: Settings, label: 'nav.settings' },
-  { to: '/superadmin', icon: ShieldCheck, label: 'Administration SaaS', permission: PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD },
+  { to: '/superadmin', icon: ShieldCheck, label: 'Administration Globale', permission: PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD },
 ]
 
 export function Sidebar() {
@@ -81,8 +81,8 @@ export function Sidebar() {
             >
               <span className="font-bold text-sidebar-foreground text-sm leading-tight">IT-Facture Web</span>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <Badge variant="outline" className="px-1 py-0 h-4 text-[9px] font-bold uppercase tracking-wider bg-primary/5 text-primary border-primary/20">
-                  SaaS V2.0
+                <Badge variant="secondary" className="text-[10px] uppercase font-bold tracking-wider px-2 bg-primary/10 text-primary border-primary/20">
+                  Cloud V2.0
                 </Badge>
                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
               </div>

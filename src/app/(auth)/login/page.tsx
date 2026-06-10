@@ -82,7 +82,7 @@ export default function LoginPage() {
               <img src="/logo.ico" alt="Logo" className="w-full h-full object-cover rounded-full" />
             </motion.div>
             <h1 className="text-2xl font-bold">IT-Facture</h1>
-            <p className="text-sm text-muted-foreground mt-1">Connectez-vous à votre espace SaaS</p>
+            <p className="text-sm text-muted-foreground mt-1">Connectez-vous à votre espace professionnel</p>
           </div>
 
           {/* Form */}

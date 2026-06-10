@@ -112,7 +112,7 @@ export default function RegisterPage() {
               <img src="/logo.ico" alt="Logo" className="w-full h-full object-cover rounded-full" />
             </motion.div>
             <h1 className="text-2xl font-bold">Créer un compte</h1>
-            <p className="text-sm text-muted-foreground mt-1">Démarrez avec IT-Facture SaaS</p>
+            <p className="text-sm text-muted-foreground mt-1">Démarrez avec IT-Facture</p>
           </div>
 
           {/* Form */}

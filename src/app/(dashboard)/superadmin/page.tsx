@@ -35,7 +35,7 @@ export default function SuperAdminPage() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Administration SaaS</h1>
+        <h1 className="text-2xl font-bold">Administration Globale</h1>
         <p className="text-muted-foreground text-sm mt-1">Vue globale de toutes les entreprises utilisant IT-Facture.</p>
       </div>
 
