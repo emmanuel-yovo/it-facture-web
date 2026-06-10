@@ -137,7 +137,7 @@ export default function InvoicesPage() {
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/invoices/${inv.id}`)}><Eye className="w-4 h-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handlePrint(inv.id)}><Printer className="w-4 h-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDownload(inv.id)}><Download className="w-4 h-4" /></Button>
-                        {user?.role === 'admin' && (
+                        {['admin', 'superadmin'].includes(user?.role as string) && (
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-300" onClick={() => { setDeleteTarget(inv); setDeleteOpen(true) }}><Trash2 className="w-4 h-4" /></Button>
                         )}
                       </div>

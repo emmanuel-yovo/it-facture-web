@@ -177,7 +177,7 @@ export default function ClientsPage() {
                     <td className="py-3 px-4 text-center">
                       <div className="flex items-center justify-center gap-1">
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(c)}><Pencil className="w-4 h-4" /></Button>
-                        {user?.role === 'admin' && (
+                        {['admin', 'superadmin'].includes(user?.role as string) && (
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-300" onClick={() => { setDeleteTarget(c); setDeleteOpen(true) }}><Trash2 className="w-4 h-4" /></Button>
                         )}
                       </div>

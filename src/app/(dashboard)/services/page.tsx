@@ -114,13 +114,13 @@ export default function ServicesPage() {
           <h1 className="text-2xl font-bold">Services & Produits</h1>
           <p className="text-muted-foreground text-sm mt-1">{total} services</p>
         </div>
-        {user?.role === 'admin' && (
+        {['admin', 'superadmin'].includes(user?.role as string) && (
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleImport}>
               <FileUp className="w-4 h-4 mr-2" />
               Importer
             </Button>
-            <Button onClick={() => { setEditing(null); setForm({ ...empty, vat_percentage: defaultVat }); setModalOpen(true) }}>
+            <Button onClick={openNew}>
               <Plus className="w-4 h-4 mr-2" />
               Nouveau Service
             </Button>
@@ -166,16 +166,18 @@ export default function ServicesPage() {
                       </div>
                     </td>
                     <td className="py-3 px-4 text-center">
+                      {['admin', 'superadmin'].includes(user?.role as string) ? (
                         <div className="flex items-center justify-center gap-1">
-                          {user?.role === 'admin' ? (
-                            <>
-                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(s)}><Pencil className="w-4 h-4" /></Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-300" onClick={() => { setDeleteTarget(s); setDeleteOpen(true) }}><Trash2 className="w-4 h-4" /></Button>
-                            </>
-                          ) : (
-                            <span className="text-xs text-muted-foreground italic">Lecture seule</span>
-                          )}
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(s)}>
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-300" onClick={() => { setDeleteTarget(s); setDeleteOpen(true) }}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </div>
+                      ) : (
+                        <span className="text-muted-foreground text-xs italic">Lecture seule</span>
+                      )}
                     </td>
                   </tr>
                 ))}

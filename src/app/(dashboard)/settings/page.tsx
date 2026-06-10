@@ -128,7 +128,7 @@ export default function SettingsPage() {
         <p className="text-muted-foreground text-sm mt-1">Configurez votre entreprise et votre application</p>
       </div>
 
-      <Tabs defaultValue={authUser?.role === 'admin' ? "company" : "account"} className="space-y-6">
+      <Tabs defaultValue={['admin', 'superadmin'].includes(authUser?.role as string) ? "company" : "account"} className="space-y-6">
         <TabsList className="bg-card border border-border">
           {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
             <TabsTrigger value="company"><Building className="w-4 h-4 mr-2" />Entreprise</TabsTrigger>
