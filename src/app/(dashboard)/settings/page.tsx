@@ -61,7 +61,10 @@ export default function SettingsPage() {
     localStorage.setItem('currency_symbol', settings.currency_symbol || 'FCFA')
     setSaved(true)
     setLoading(false)
-    setTimeout(() => setSaved(false), 2000)
+    setTimeout(() => {
+      setSaved(false)
+      window.location.reload()
+    }, 1000)
   }
 
   // Upload Logo to Supabase Storage

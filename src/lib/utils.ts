@@ -6,8 +6,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(amount: number): string {
-  const country = localStorage.getItem('company_country') || 'FR'
-  const symbol = localStorage.getItem('currency_symbol') || 'FCFA'
+  const country = typeof window !== 'undefined' ? localStorage.getItem('company_country') || 'FR' : 'FR'
+  const symbol = typeof window !== 'undefined' ? localStorage.getItem('currency_symbol') || 'FCFA' : 'FCFA'
   
   const UEMOA_COUNTRIES = ['BJ', 'BF', 'CI', 'GW', 'ML', 'NE', 'SN', 'TG']
   const isUemoa = UEMOA_COUNTRIES.includes(country) || ['FCFA', 'XOF', 'XAF'].includes(symbol)
