@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
-import { Building, Upload, Save, Check, LogOut, ShieldCheck, Mail, FileText, Languages } from 'lucide-react'
+import { Building, Upload, Save, Check, LogOut, ShieldCheck, Mail, FileText, Languages, CreditCard } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useRouter } from 'next/navigation'
@@ -137,6 +137,9 @@ export default function SettingsPage() {
           )}
           {authUser?.role === 'admin' && (
             <TabsTrigger value="documents"><FileText className="w-4 h-4 mr-2" />Documents & CGV</TabsTrigger>
+          )}
+          {authUser?.role === 'admin' && (
+            <TabsTrigger value="payments"><CreditCard className="w-4 h-4 mr-2" />FedaPay (Paiements)</TabsTrigger>
           )}
           <TabsTrigger value="account"><LogOut className="w-4 h-4 mr-2" />Compte</TabsTrigger>
         </TabsList>
@@ -326,6 +329,45 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="flex justify-end">
+                  <Button onClick={handleSave} disabled={loading}>
+                    {saved ? <><Check className="w-4 h-4 mr-2" />Enregistré</> : <><Save className="w-4 h-4 mr-2" />Enregistrer</>}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
+
+        {authUser?.role === 'admin' && (
+          <TabsContent value="payments">
+            <Card className="border border-border shadow-sm">
+              <CardHeader>
+                <CardTitle>Configuration FedaPay</CardTitle>
+                <CardDescription>Connectez votre compte FedaPay pour accepter les paiements par carte et Mobile Money sur vos factures.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>FedaPay Secret Key (Clé Secrète)</Label>
+                  <Input 
+                    type="password" 
+                    placeholder="sk_live_xxxx ou sk_sandbox_xxxx" 
+                    value={settings.fedapay_secret_key || ''} 
+                    onChange={(e) => setSettings((s: any) => ({ ...s, fedapay_secret_key: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Environnement</Label>
+                  <Select value={settings.fedapay_environment || 'sandbox'} onValueChange={(val) => setSettings((s: any) => ({ ...s, fedapay_environment: val }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sandbox">Sandbox (Tests)</SelectItem>
+                      <SelectItem value="live">Live (Production)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex justify-end pt-4">
                   <Button onClick={handleSave} disabled={loading}>
                     {saved ? <><Check className="w-4 h-4 mr-2" />Enregistré</> : <><Save className="w-4 h-4 mr-2" />Enregistrer</>}
                   </Button>
