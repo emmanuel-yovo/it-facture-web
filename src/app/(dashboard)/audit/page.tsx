@@ -60,7 +60,7 @@ export default function AuditPage() {
   })
 
   // Protection (Admin Only)
-  if (user?.role !== 'admin') {
+  if (user?.role !== 'admin' && user?.role !== 'superadmin') {
     return <div className="p-12 text-center text-muted-foreground"><p>Accès restreint aux administrateurs.</p></div>
   }
 

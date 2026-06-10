@@ -9,7 +9,7 @@ import { useAuthStore } from '@/store/authStore'
 export default function UsersPage() {
   const { user } = useAuthStore()
 
-  if (user?.role !== 'admin') {
+  if (user?.role !== 'admin' && user?.role !== 'superadmin') {
     return <div className="p-12 text-center text-muted-foreground"><p>Accès restreint aux administrateurs.</p></div>
   }
 

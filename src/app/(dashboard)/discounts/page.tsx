@@ -91,7 +91,7 @@ export default function DiscountsPage() {
   if (loading) return <div className="h-96 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>
 
   // Protection (Admin Only feature ideally, but keeping it visible for the demo, let's just show it to everyone)
-  if (user?.role !== 'admin') {
+  if (user?.role !== 'admin' && user?.role !== 'superadmin') {
     return <div className="p-12 text-center text-muted-foreground"><p>Accès restreint aux administrateurs.</p></div>
   }
 

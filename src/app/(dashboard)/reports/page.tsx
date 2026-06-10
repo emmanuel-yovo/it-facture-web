@@ -43,7 +43,7 @@ export default function ReportsPage() {
     alert("L'exportation du pack comptable sera disponible prochainement.")
   }
 
-  if (user?.role !== 'admin') {
+  if (user?.role !== 'admin' && user?.role !== 'superadmin') {
     return <div className="p-12 text-center text-muted-foreground"><p>Accès restreint aux administrateurs.</p></div>
   }
 
