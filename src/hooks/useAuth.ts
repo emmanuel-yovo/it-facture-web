@@ -39,7 +39,7 @@ export function useAuth() {
     return () => subscription.unsubscribe()
   }, [])
 
-  const fetchProfileAndWorkspace = async (userId: string) => {
+  async function fetchProfileAndWorkspace(userId: string) {
     try {
       // 1. Récupérer le profil
       const { data: profile } = await supabase
