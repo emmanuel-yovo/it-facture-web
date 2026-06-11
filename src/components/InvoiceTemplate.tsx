@@ -16,8 +16,10 @@ export const InvoiceTemplate = React.forwardRef<HTMLDivElement, InvoiceTemplateP
     return (
       <div 
         ref={ref}
-        className="bg-white text-black p-10 font-sans mx-auto"
+        className="p-10 font-sans mx-auto"
         style={{
+          backgroundColor: '#ffffff',
+          color: '#000000',
           width: '210mm',
           minHeight: '297mm',
           boxSizing: 'border-box',
@@ -35,39 +37,39 @@ export const InvoiceTemplate = React.forwardRef<HTMLDivElement, InvoiceTemplateP
             ) : (
               <div className="text-2xl font-bold mb-4">{settings?.company_name || 'Votre Entreprise'}</div>
             )}
-            <div className="text-sm text-gray-600 space-y-1">
+            <div className="text-sm space-y-1" style={{ color: '#4b5563' }}>
               <p>{settings?.company_address || 'Adresse non renseignée'}</p>
               <p>{settings?.company_phone}</p>
               <p>{settings?.company_email}</p>
             </div>
           </div>
           <div className="text-right">
-            <h1 className="text-4xl font-bold text-gray-800 uppercase tracking-wider mb-2">
+            <h1 className="text-4xl font-bold uppercase tracking-wider mb-2" style={{ color: '#1f2937' }}>
               {isQuote ? 'Devis' : 'Facture'}
             </h1>
-            <p className="text-lg font-semibold text-gray-600 mb-4">{invoice.invoice_number}</p>
+            <p className="text-lg font-semibold mb-4" style={{ color: '#4b5563' }}>{invoice.invoice_number}</p>
             <div className="text-sm space-y-1">
-              <p><span className="text-gray-500">Date :</span> {formatDate(invoice.created_at)}</p>
-              <p><span className="text-gray-500">Échéance :</span> {invoice.due_date ? formatDate(invoice.due_date) : 'À réception'}</p>
+              <p><span style={{ color: '#6b7280' }}>Date :</span> {formatDate(invoice.created_at)}</p>
+              <p><span style={{ color: '#6b7280' }}>Échéance :</span> {invoice.due_date ? formatDate(invoice.due_date) : 'À réception'}</p>
             </div>
           </div>
         </div>
 
         {/* Client Info */}
         <div className="mb-12">
-          <div className="bg-gray-50 p-6 rounded-lg w-1/2 ml-auto">
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Facturé à</p>
-            <h2 className="text-lg font-bold text-gray-800">{(invoice as any).client?.full_name}</h2>
-            {(invoice as any).client?.company_name && <p className="text-gray-600">{(invoice as any).client?.company_name}</p>}
-            <p className="text-gray-600 mt-2">{(invoice as any).client?.address}</p>
-            <p className="text-gray-600">{(invoice as any).client?.phone}</p>
+          <div className="p-6 rounded-lg w-1/2 ml-auto" style={{ backgroundColor: '#f9fafb' }}>
+            <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#6b7280' }}>Facturé à</p>
+            <h2 className="text-lg font-bold" style={{ color: '#1f2937' }}>{(invoice as any).client?.full_name}</h2>
+            {(invoice as any).client?.company_name && <p style={{ color: '#4b5563' }}>{(invoice as any).client?.company_name}</p>}
+            <p className="mt-2" style={{ color: '#4b5563' }}>{(invoice as any).client?.address}</p>
+            <p style={{ color: '#4b5563' }}>{(invoice as any).client?.phone}</p>
           </div>
         </div>
 
         {/* Items Table */}
         <table className="w-full mb-8 text-sm">
           <thead>
-            <tr className="border-b-2 border-gray-800 text-gray-800">
+            <tr className="border-b-2" style={{ borderColor: '#1f2937', color: '#1f2937' }}>
               <th className="py-3 text-left font-bold w-1/2">Description</th>
               <th className="py-3 text-center font-bold">Qté</th>
               <th className="py-3 text-right font-bold">Prix unitaire</th>
@@ -76,14 +78,14 @@ export const InvoiceTemplate = React.forwardRef<HTMLDivElement, InvoiceTemplateP
           </thead>
           <tbody>
             {((invoice as any).items || []).map((item: any, i: number) => (
-              <tr key={i} className="border-b border-gray-200">
+              <tr key={i} className="border-b" style={{ borderColor: '#e5e7eb' }}>
                 <td className="py-4 text-left">
-                  <p className="font-semibold text-gray-800">{item.service_name}</p>
-                  {item.description && <p className="text-xs text-gray-500 mt-1">{item.description}</p>}
+                  <p className="font-semibold" style={{ color: '#1f2937' }}>{item.service_name}</p>
+                  {item.description && <p className="text-xs mt-1" style={{ color: '#6b7280' }}>{item.description}</p>}
                 </td>
-                <td className="py-4 text-center text-gray-700">{item.quantity}</td>
-                <td className="py-4 text-right text-gray-700">{formatCurrency(item.unit_price)}</td>
-                <td className="py-4 text-right font-semibold text-gray-800">{formatCurrency(item.line_total)}</td>
+                <td className="py-4 text-center" style={{ color: '#374151' }}>{item.quantity}</td>
+                <td className="py-4 text-right" style={{ color: '#374151' }}>{formatCurrency(item.unit_price)}</td>
+                <td className="py-4 text-right font-semibold" style={{ color: '#1f2937' }}>{formatCurrency(item.line_total)}</td>
               </tr>
             ))}
           </tbody>
@@ -92,21 +94,21 @@ export const InvoiceTemplate = React.forwardRef<HTMLDivElement, InvoiceTemplateP
         {/* Totals */}
         <div className="flex justify-end mb-16">
           <div className="w-1/2 space-y-3 text-sm">
-            <div className="flex justify-between text-gray-600">
+            <div className="flex justify-between" style={{ color: '#4b5563' }}>
               <span>Sous-total HT</span>
               <span>{formatCurrency(invoice.subtotal)}</span>
             </div>
             {invoice.discount_total > 0 && (
-              <div className="flex justify-between text-red-500">
+              <div className="flex justify-between" style={{ color: '#ef4444' }}>
                 <span>Remises</span>
                 <span>-{formatCurrency(invoice.discount_total)}</span>
               </div>
             )}
-            <div className="flex justify-between text-gray-600">
+            <div className="flex justify-between" style={{ color: '#4b5563' }}>
               <span>TVA</span>
               <span>{formatCurrency(invoice.vat_total)}</span>
             </div>
-            <div className="flex justify-between text-lg font-bold text-gray-800 border-t-2 border-gray-800 pt-3 mt-3">
+            <div className="flex justify-between text-lg font-bold border-t-2 pt-3 mt-3" style={{ color: '#1f2937', borderColor: '#1f2937' }}>
               <span>Total TTC</span>
               <span>{formatCurrency(invoice.grand_total)}</span>
             </div>
@@ -116,16 +118,16 @@ export const InvoiceTemplate = React.forwardRef<HTMLDivElement, InvoiceTemplateP
         {/* Footer (Signature & Notes) */}
         <div className="grid grid-cols-2 gap-8 text-sm">
           <div>
-            <h3 className="font-bold text-gray-800 mb-2">Notes</h3>
-            <p className="text-gray-600 whitespace-pre-wrap">{invoice.notes || 'Merci de votre confiance.'}</p>
+            <h3 className="font-bold mb-2" style={{ color: '#1f2937' }}>Notes</h3>
+            <p className="whitespace-pre-wrap" style={{ color: '#4b5563' }}>{invoice.notes || 'Merci de votre confiance.'}</p>
           </div>
           <div>
-            <h3 className="font-bold text-gray-800 mb-2 text-right">Signature</h3>
-            <div className="h-24 border border-gray-200 rounded-lg flex items-center justify-center p-2">
+            <h3 className="font-bold mb-2 text-right" style={{ color: '#1f2937' }}>Signature</h3>
+            <div className="h-24 border rounded-lg flex items-center justify-center p-2" style={{ borderColor: '#e5e7eb' }}>
               {invoice.signature_data ? (
                 <img src={invoice.signature_data} alt="Signature Client" className="max-h-full" />
               ) : (
-                <p className="text-gray-400 italic">Non signé</p>
+                <p className="italic" style={{ color: '#9ca3af' }}>Non signé</p>
               )}
             </div>
           </div>
@@ -133,7 +135,7 @@ export const InvoiceTemplate = React.forwardRef<HTMLDivElement, InvoiceTemplateP
 
         {/* CGV */}
         {settings?.cgv_text && (
-          <div className="mt-16 pt-8 border-t border-gray-200 text-xs text-gray-500 text-justify">
+          <div className="mt-16 pt-8 border-t text-xs text-justify" style={{ borderColor: '#e5e7eb', color: '#6b7280' }}>
             <p>{settings.cgv_text}</p>
           </div>
         )}
