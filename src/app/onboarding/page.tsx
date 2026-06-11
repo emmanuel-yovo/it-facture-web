@@ -77,19 +77,23 @@ export default function OnboardingPage() {
       }
 
       // 2. Mettre à jour le profil pour assigner le rôle 'admin' et le workspace_id
-      await supabase
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({ role: 'admin', workspace_id: currentWorkspaceId })
         .eq('id', user.id)
+      
+      if (profileError) throw profileError
 
       // 3. Sauvegarder les settings initiaux
-      await supabase
+      const { error: settingsError } = await supabase
         .from('settings')
         .upsert([
           { workspace_id: currentWorkspaceId, key: 'company_name', value: companyName },
           { workspace_id: currentWorkspaceId, key: 'country', value: country },
           { workspace_id: currentWorkspaceId, key: 'currency', value: currency }
         ])
+        
+      if (settingsError) throw settingsError
 
       // Rediriger vers le dashboard
       window.location.href = '/' // Force reload pour recharger le state Auth
