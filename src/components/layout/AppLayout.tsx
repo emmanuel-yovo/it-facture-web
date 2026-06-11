@@ -18,7 +18,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const { theme, toggleTheme } = useAppStore()
   const { user } = useAuthStore()
   const { loading } = useAuth()
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const router = useRouter()
 
   const [mounted, setMounted] = useState(false)
