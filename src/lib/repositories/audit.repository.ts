@@ -68,6 +68,17 @@ export class AuditRepository {
       totalPages: Math.ceil((count || 0) / pageSize) 
     }
   }
+
+  async logLogin(userId: string): Promise<void> {
+    const { error } = await supabase.rpc('log_global_event', {
+      p_user_id: userId,
+      p_action: 'LOGIN',
+      p_details: 'L\'utilisateur s\'est connecté à la plateforme.'
+    })
+    
+    // Ignore error if it fails (not critical)
+    if (error) console.error('Failed to log login:', error)
+  }
 }
 
 export const auditRepository = new AuditRepository()
