@@ -126,6 +126,28 @@
   }
 }
 
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #invoice-pdf-container, #invoice-pdf-container * {
+    visibility: visible;
+  }
+  #invoice-pdf-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 210mm;
+    margin: 0;
+    padding: 0;
+    box-shadow: none !important;
+  }
+  /* Hide UI elements */
+  aside, header, button, .no-print {
+    display: none !important;
+  }
+}
+
 /* Fallback for html2canvas which crashes on oklch/lab */
 .pdf-render-mode, .pdf-render-mode * {
   --tw-ring-color: transparent !important;

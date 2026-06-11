@@ -123,18 +123,10 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  const handlePrint = async () => { alert("L'impression sera disponible dans la phase finale.") }
-  const handleDownload = async () => { 
-    setLoading(true)
-    try {
-      const filename = `${invoice.document_type === 'quote' ? 'Devis' : 'Facture'}_${invoice.invoice_number}.pdf`
-      await pdfService.downloadPdfFromElement('invoice-pdf-container', filename)
-    } catch (e: any) {
-      console.error(e)
-      alert(`Erreur PDF: ${e.message || "Erreur inconnue"}`)
-    } finally {
-      setLoading(false)
-    }
+  const handlePrint = () => { window.print() }
+  const handleDownload = () => { 
+    // Native print dialog is the most robust way to save a perfect PDF
+    window.print() 
   }
 
   const generateFedaPayLink = async () => {
