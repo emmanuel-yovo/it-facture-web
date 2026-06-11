@@ -205,10 +205,6 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
           {invoice.document_type === 'invoice' && invoice.status !== 'paid' && (
             <>
               <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setPaymentOpen(true)}><CreditCard className="w-4 h-4 mr-2" />Ajouter un paiement</Button>
-              <Button variant="outline" className="border-indigo-200 text-indigo-700 hover:bg-indigo-50" onClick={generateFedaPayLink} disabled={fedaPayLoading}>
-                <Link2 className="w-4 h-4 mr-2" />
-                {fedaPayLoading ? 'Génération...' : 'Lien FedaPay'}
-              </Button>
             </>
           )}
           <Button variant="outline" onClick={() => setEmailOpen(true)}>
@@ -262,25 +258,6 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         </DialogContent>
       </Dialog>
 
-      <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Lien de paiement FedaPay</DialogTitle>
-            <DialogDescription>
-              Envoyez ce lien sécurisé à votre client. Il pourra payer par Mobile Money ou Carte Bancaire.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex items-center space-x-2 py-4">
-            <Input value={paymentLink} readOnly className="flex-1 font-mono text-xs" />
-            <Button size="icon" onClick={() => { navigator.clipboard.writeText(paymentLink); alert("Lien copié !") }}>
-              <Copy className="w-4 h-4" />
-            </Button>
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setLinkDialogOpen(false)}>Fermer</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
