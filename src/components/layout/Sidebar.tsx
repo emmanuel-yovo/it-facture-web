@@ -80,7 +80,7 @@ export function Sidebar({ className }: { className?: string }) {
               className="flex flex-col overflow-hidden"
             >
               <div className="flex items-center gap-3 w-full">
-                <span className="font-bold text-sidebar-foreground text-sm leading-tight">IT-Facture Web</span>
+                <span className="font-bold text-sidebar-foreground text-sm leading-tight">IT-Facture</span>
               </div>
             </motion.div>
           )}
