@@ -90,12 +90,12 @@ export default function ExpensesPage() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">{t('nav.expenses', 'Dépenses')}</h1>
           <p className="text-muted-foreground text-sm mt-1">{t("expenses.subtitle", "Suivez vos sorties d'argent")}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           <Button variant="outline" onClick={exportCSV}><Download className="w-4 h-4 mr-2" />{t('common.import', 'Exporter').replace('Import', 'Export')}</Button>
           <Button onClick={() => setOpen(true)}><Plus className="w-4 h-4 mr-2" />{t('common.add', 'Nouvelle')} {t('nav.expenses', 'Dépenses').toLowerCase()}</Button>
         </div>

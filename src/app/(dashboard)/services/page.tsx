@@ -117,13 +117,13 @@ export default function ServicesPage() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">{t('services.title')}</h1>
           <p className="text-muted-foreground text-sm mt-1">{total} {t('nav.services').toLowerCase()}</p>
         </div>
         {['admin', 'superadmin'].includes(user?.role as string) && (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
             <Button variant="outline" onClick={handleImport}>
               <FileUp className="w-4 h-4 mr-2" />
               {t('common.import', 'Importer')}

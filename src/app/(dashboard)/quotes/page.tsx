@@ -46,7 +46,7 @@ export default function QuotesPage() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">{t('nav.quotes')}</h1>
         <Button onClick={() => router.push('/invoices/new?type=quote')}><Plus className="w-4 h-4 mr-2" />{t('common.add', 'Nouveau')} {t('nav.quotes')}</Button>
       </div>
