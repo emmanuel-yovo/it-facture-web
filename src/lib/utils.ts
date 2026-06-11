@@ -5,29 +5,49 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatCurrency(amount: number): string {
+export function formatCurrency(amount: number | null | undefined): string {
+  const safeAmount = Number(amount) || 0
+  
   const country = typeof window !== 'undefined' ? localStorage.getItem('company_country') || 'FR' : 'FR'
   const symbol = typeof window !== 'undefined' ? localStorage.getItem('currency_symbol') || 'FCFA' : 'FCFA'
   
   const UEMOA_COUNTRIES = ['BJ', 'BF', 'CI', 'GW', 'ML', 'NE', 'SN', 'TG']
   const isUemoa = UEMOA_COUNTRIES.includes(country) || ['FCFA', 'XOF', 'XAF'].includes(symbol)
   
-  if (isUemoa) {
-    return new Intl.NumberFormat('fr-FR', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.round(amount)).replace(/[\s\u202F\u00A0]/g, ' ') + ' ' + symbol
-  } else if (country === 'US' || symbol === '$' || symbol === 'USD') {
-    return '$' + new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)
-  } else {
-    const formatted = new Intl.NumberFormat('fr-FR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount).replace(/[\s\u202F\u00A0]/g, ' ')
-    return `${formatted} ${symbol}`
+  try {
+    if (isUemoa) {
+      return new Intl.NumberFormat('fr-FR', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.round(safeAmount)).replace(/[\s\u202F\u00A0]/g, ' ') + ' ' + symbol
+    } else if (country === 'US' || symbol === '$' || symbol === 'USD') {
+      return '$' + new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(safeAmount)
+    } else {
+      const formatted = new Intl.NumberFormat('fr-FR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(safeAmount).replace(/[\s\u202F\u00A0]/g, ' ')
+      return `${formatted} ${symbol}`
+    }
+  } catch (e) {
+    return `${safeAmount} ${symbol}`
   }
 }
 
-export function formatDate(date: string): string {
-  return new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
+export function formatDate(date: string | null | undefined): string {
+  if (!date) return '-'
+  try {
+    const d = new Date(date)
+    if (isNaN(d.getTime())) return '-'
+    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
+  } catch (e) {
+    return '-'
+  }
 }
 
-export function formatDateTime(date: string): string {
-  return new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+export function formatDateTime(date: string | null | undefined): string {
+  if (!date) return '-'
+  try {
+    const d = new Date(date)
+    if (isNaN(d.getTime())) return '-'
+    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  } catch (e) {
+    return '-'
+  }
 }
 
 export function getStatusColor(status: string): string {
@@ -56,7 +76,8 @@ export function formatFileSize(bytes: number): string {
 
 const UEMOA_COUNTRIES = ['BJ', 'BF', 'CI', 'GW', 'ML', 'NE', 'SN', 'TG']
 
-export function formatCurrencyByCountry(amount: number, country: string = 'FR', currencySymbol?: string): string {
+export function formatCurrencyByCountry(amount: number | null | undefined, country: string = 'FR', currencySymbol?: string): string {
+  const safeAmount = Number(amount) || 0
   let symbol = currencySymbol
   if (!symbol) {
     if (country === 'US') symbol = '$'
@@ -65,13 +86,17 @@ export function formatCurrencyByCountry(amount: number, country: string = 'FR', 
   }
 
   const isUemoa = UEMOA_COUNTRIES.includes(country) || ['FCFA', 'XOF', 'XAF'].includes(symbol)
-  if (isUemoa) {
-    return new Intl.NumberFormat('fr-FR', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.round(amount)).replace(/[\s\u202F\u00A0]/g, ' ') + ' ' + symbol
-  } else if (country === 'US' || symbol === '$' || symbol === 'USD') {
-    return '$' + new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)
-  } else {
-    const formatted = new Intl.NumberFormat('fr-FR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount).replace(/[\s\u202F\u00A0]/g, ' ')
-    return `${formatted} ${symbol}`
+  try {
+    if (isUemoa) {
+      return new Intl.NumberFormat('fr-FR', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.round(safeAmount)).replace(/[\s\u202F\u00A0]/g, ' ') + ' ' + symbol
+    } else if (country === 'US' || symbol === '$' || symbol === 'USD') {
+      return '$' + new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(safeAmount)
+    } else {
+      const formatted = new Intl.NumberFormat('fr-FR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(safeAmount).replace(/[\s\u202F\u00A0]/g, ' ')
+      return `${formatted} ${symbol}`
+    }
+  } catch (e) {
+    return `${safeAmount} ${symbol}`
   }
 }
 
