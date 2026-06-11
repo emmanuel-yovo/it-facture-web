@@ -148,7 +148,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-3 hover:bg-muted/50 p-1.5 pr-2 rounded-full transition-colors text-left focus:outline-none">
+                <div role="button" tabIndex={0} className="flex items-center gap-3 hover:bg-muted/50 p-1.5 pr-2 rounded-full transition-colors text-left focus:outline-none cursor-pointer">
                   <div className="hidden sm:block text-right">
                     <p className="text-sm font-medium leading-none mb-1">{user?.full_name || 'Utilisateur'}</p>
                     <p className="text-[11px] text-muted-foreground capitalize leading-none">{user?.role || 'user'}</p>
@@ -156,7 +156,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
                     {(user?.full_name?.charAt(0) || 'U').toUpperCase()}
                   </div>
-                </button>
+                </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 mt-1">
                 <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer py-2 px-3 flex items-center gap-2">
