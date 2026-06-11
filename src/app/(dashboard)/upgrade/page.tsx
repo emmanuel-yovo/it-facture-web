@@ -3,9 +3,11 @@
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Check, Zap, AlertCircle } from 'lucide-react'
+import { Check, Zap, AlertCircle, Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { Badge } from '@/components/ui/badge'
+import { useState } from 'react'
+import { supabase } from '@/lib/supabase'
 
 const PLANS = [
   {
@@ -48,8 +50,36 @@ const PLANS = [
 ]
 
 export default function UpgradePage() {
-  const { workspacePlan } = useAuthStore()
+  const { workspacePlan, workspaceId } = useAuthStore()
   const currentPlan = workspacePlan || 'free'
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
+
+  const handleUpgrade = async (planType: string) => {
+    if (!workspaceId) return
+    setLoadingPlan(planType)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/subscriptions/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({ plan: planType, workspace_id: workspaceId })
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        alert(data.error || "Erreur de génération du paiement")
+      }
+    } catch (e) {
+      console.error(e)
+      alert("Erreur de connexion au serveur de paiement.")
+    } finally {
+      setLoadingPlan(null)
+    }
+  }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-6 space-y-8 max-w-6xl mx-auto">
@@ -93,11 +123,16 @@ export default function UpgradePage() {
               <Button 
                 variant={plan.isCurrent(currentPlan) ? 'outline' : (plan.popular ? 'default' : 'secondary')}
                 className={`w-full ${plan.popular ? 'bg-blue-500 hover:bg-blue-600 text-white' : ''}`}
-                disabled={plan.isCurrent(currentPlan)}
-                onClick={() => alert("L'intégration FedaPay (Paiement) pour cet abonnement sera ajoutée ultérieurement via le SuperAdmin.")}
+                disabled={plan.isCurrent(currentPlan) || loadingPlan !== null}
+                onClick={() => handleUpgrade(plan.type)}
               >
-                {plan.isCurrent(currentPlan) ? 'Plan Actuel' : plan.buttonText}
-                {!plan.isCurrent(currentPlan) && <Zap className="w-4 h-4 ml-2" />}
+                {loadingPlan === plan.type ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Redirection...</>
+                ) : plan.isCurrent(currentPlan) ? (
+                  'Plan Actuel'
+                ) : (
+                  <>{plan.buttonText} <Zap className="w-4 h-4 ml-2" /></>
+                )}
               </Button>
             </CardFooter>
           </Card>

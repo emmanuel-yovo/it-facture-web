@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { formatCurrency, formatDate, getStatusColor, getStatusLabel } from '@/lib/utils'
-import { Plus, Search, Eye, Printer, Download, Trash2, FileText, ChevronLeft, ChevronRight, Lock } from 'lucide-react'
+import { Plus, Search, Eye, Printer, Download, Trash2, FileText, ChevronLeft, ChevronRight, Lock, FileSpreadsheet } from 'lucide-react'
 import { invoiceRepository, Invoice } from '@/lib/repositories/invoice.repository'
 import { canCreateInvoice, PlanType } from '@/lib/limits'
 import { useTranslation } from 'react-i18next'
@@ -68,9 +68,32 @@ export default function InvoicesPage() {
     }
   }
 
-  // Print & Download will be implemented later
-  const handlePrint = async (id: string) => { alert("L'impression sera disponible dans la phase finale.") }
-  const handleDownload = async (id: string) => { alert("Le téléchargement PDF sera disponible avec le module Puppeteer/Vercel Edge.") }
+  const handlePrint = async (id: string) => { router.push(`/invoices/${id}`) }
+  const handleDownload = async (id: string) => { router.push(`/invoices/${id}`) }
+
+  const exportToCSV = () => {
+    if (invoices.length === 0) return
+    const headers = ['Numéro', 'Client', 'Date', 'Total HT', 'Total TVA', 'Total TTC', 'Statut']
+    const rows = invoices.map(inv => [
+      inv.invoice_number,
+      inv.client?.company_name || inv.client?.full_name || '',
+      formatDate(inv.created_at),
+      inv.subtotal.toString(),
+      inv.vat_total.toString(),
+      inv.grand_total.toString(),
+      inv.status
+    ])
+    
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `factures_export_${new Date().toISOString().split('T')[0]}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
 
   const isLimitReached = !loading && !canCreateInvoice(plan, total, user?.role)
 
@@ -85,13 +108,19 @@ export default function InvoicesPage() {
           <h1 className="text-2xl font-bold">{t('invoices.title')}</h1>
           <p className="text-muted-foreground text-sm mt-1">{total} {t('nav.invoices').toLowerCase()}</p>
         </div>
-        <Button 
-          onClick={() => isLimitReached ? router.push('/upgrade') : router.push('/invoices/new')}
-          className={isLimitReached ? 'bg-orange-500 hover:bg-orange-600 text-white' : ''}
-        >
-          {isLimitReached ? <Lock className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
-          {isLimitReached ? 'Passez à Essential' : t('invoices.newInvoice')}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={exportToCSV} disabled={invoices.length === 0}>
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            {t('common.export', 'Exporter CSV')}
+          </Button>
+          <Button 
+            onClick={() => isLimitReached ? router.push('/upgrade') : router.push('/invoices/new')}
+            className={isLimitReached ? 'bg-orange-500 hover:bg-orange-600 text-white' : ''}
+          >
+            {isLimitReached ? <Lock className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+            {isLimitReached ? 'Passez à Essential' : t('invoices.newInvoice')}
+          </Button>
+        </div>
       </div>
 
       <div className="flex gap-3 flex-wrap">

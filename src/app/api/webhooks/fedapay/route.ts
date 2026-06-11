@@ -24,6 +24,20 @@ export async function POST(req: Request) {
       
       if (status === 'approved') {
         const metadata = transaction.custom_metadata
+        
+        // 1. Cas d'un abonnement SaaS IT-Facture
+        if (metadata?.type === 'saas_subscription' && metadata?.workspace_id && metadata?.plan) {
+          const { error: workspaceError } = await supabaseAdmin
+            .from('workspaces')
+            .update({ plan: metadata.plan })
+            .eq('id', metadata.workspace_id)
+            
+          if (workspaceError) throw workspaceError
+          console.log(`Workspace ${metadata.workspace_id} passé au plan ${metadata.plan} avec succès.`)
+          return NextResponse.json({ received: true }, { status: 200 })
+        }
+
+        // 2. Cas du paiement d'une facture client
         const invoice_id = metadata?.invoice_id
         const workspace_id = metadata?.workspace_id
         const amount = transaction.amount

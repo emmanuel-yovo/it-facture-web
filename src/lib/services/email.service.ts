@@ -66,6 +66,53 @@ export class EmailService {
       return false
     }
   }
+
+  async sendInvoiceEmail(workspaceId: string, to: string, subject: string, htmlBody: string, pdfUrl?: string) {
+    const settings = await settingsRepository.getSettings(workspaceId)
+    
+    // Fetch encrypted SMTP password
+    const { data } = await supabaseAdmin
+      .from('settings')
+      .select('value')
+      .eq('workspace_id', workspaceId)
+      .eq('key', 'smtp_pass')
+      .single()
+      
+    const smtpPass = data ? decrypt(data.value) : null
+
+    if (!settings.smtp_host || !settings.smtp_user || !smtpPass) {
+      throw new Error('SMTP non configuré pour ce workspace')
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: settings.smtp_host,
+      port: Number(settings.smtp_port) || 587,
+      secure: Number(settings.smtp_port) === 465,
+      auth: {
+        user: settings.smtp_user,
+        pass: smtpPass
+      }
+    })
+
+    const mailOptions: any = {
+      from: `"${settings.company_name || 'IT-Facture'}" <${settings.smtp_user}>`,
+      to,
+      subject,
+      html: htmlBody
+    }
+
+    if (pdfUrl) {
+      mailOptions.attachments = [
+        {
+          filename: subject.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.pdf',
+          path: pdfUrl
+        }
+      ]
+    }
+
+    await transporter.sendMail(mailOptions)
+    return true
+  }
 }
 
 export const emailService = new EmailService()

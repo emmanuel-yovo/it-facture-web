@@ -21,7 +21,9 @@ import { paymentRepository } from '@/lib/repositories/payment.repository'
 import { settingsRepository } from '@/lib/repositories/settings.repository'
 import { InvoiceTemplate } from '@/components/InvoiceTemplate'
 import { pdfService } from '@/lib/services/pdf.service'
+import { storageService } from '@/lib/services/storage.service'
 import { Copy, Link2 } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 export default function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
@@ -80,7 +82,45 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   }
 
   const handleSendEmail = async () => {
-    alert("L'envoi par email (SMTP) sera activé avec le backend Edge (Phase 4).")
+    if (!workspaceId) return
+    setLoading(true)
+    try {
+      // 1. Generate and upload PDF
+      const path = await pdfService.uploadPdfFromElement('invoice-pdf-container', workspaceId, invoice.id)
+      
+      // 2. Get a signed URL for nodemailer to download it
+      const pdfUrl = await storageService.getInvoicePdfUrl(path)
+      
+      // 3. Send via API
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/invoices/send-email', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({
+          workspace_id: workspaceId,
+          to: emailForm.to,
+          subject: emailForm.subject,
+          htmlBody: emailForm.body.replace(/\n/g, '<br/>'),
+          pdfUrl: pdfUrl
+        })
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        alert("Email envoyé avec succès !")
+        setEmailOpen(false)
+      } else {
+        alert(data.error || "Erreur lors de l'envoi de l'email")
+      }
+    } catch (e) {
+      console.error(e)
+      alert("Erreur lors de l'envoi de l'email")
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handlePrint = async () => { alert("L'impression sera disponible dans la phase finale.") }
