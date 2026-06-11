@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Users, UserPlus, Shield, Loader2, Mail } from 'lucide-react'
+import { Users, UserPlus, Shield, Loader2, Mail, Trash2 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { hasPermission, PERMISSIONS } from '@/lib/permissions'
 import { supabase } from '@/lib/supabase'
@@ -23,7 +23,7 @@ type Profile = {
 
 export default function UsersPage() {
   const { t } = useTranslation()
-  const { user } = useAuthStore()
+  const { user, workspaceId } = useAuthStore()
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
   
@@ -37,14 +37,19 @@ export default function UsersPage() {
   const [inviteError, setInviteError] = useState('')
 
   useEffect(() => {
-    fetchUsers()
-  }, [])
+    if (workspaceId) {
+      fetchUsers()
+    }
+  }, [workspaceId])
 
   async function fetchUsers() {
+    if (!workspaceId) return
+    
     setLoading(true)
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
+      .eq('workspace_id', workspaceId)
       .order('full_name')
 
     if (!error && data) {
@@ -53,6 +58,37 @@ export default function UsersPage() {
       setProfiles(filtered)
     }
     setLoading(false)
+  }
+
+  async function handleDelete(userId: string, userName: string) {
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer le compte de ${userName} ? Cette action est irréversible.`)) {
+      return
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      const res = await fetch('/api/users/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({ userIdToDelete: userId })
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Erreur lors de la suppression')
+      }
+
+      // Refresh list
+      fetchUsers()
+      alert("Utilisateur supprimé avec succès.")
+    } catch (err: any) {
+      alert(err.message)
+    }
   }
 
   async function handleInvite(e: React.FormEvent) {
@@ -185,6 +221,7 @@ export default function UsersPage() {
                   <th className="py-3 px-6 font-medium text-muted-foreground">{t('users.nameEmail', 'Nom / Email')}</th>
                   <th className="py-3 px-6 font-medium text-muted-foreground">{t('users.role', 'Rôle')}</th>
                   <th className="py-3 px-6 font-medium text-muted-foreground">{t('invoices.status')}</th>
+                  <th className="py-3 px-6 font-medium text-muted-foreground text-right">{t('common.actions', 'Actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -196,10 +233,23 @@ export default function UsersPage() {
                     </td>
                     <td className="py-4 px-6">{getRoleBadge(p.role)}</td>
                     <td className="py-4 px-6"><Badge variant="outline" className="text-emerald-500 border-emerald-500">Actif</Badge></td>
+                    <td className="py-4 px-6 text-right">
+                      {p.id !== user?.id && (p.role !== 'admin' || user?.role === 'superadmin') && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                          onClick={() => handleDelete(p.id, p.full_name)}
+                          title={t('common.delete', 'Supprimer')}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </td>
                   </tr>
                 ))}
                 {profiles.length === 0 && (
-                  <tr><td colSpan={3} className="text-center py-8 text-muted-foreground">Aucun membre trouvé</td></tr>
+                  <tr><td colSpan={4} className="text-center py-8 text-muted-foreground">{t('common.noData', 'Aucune donnée')}</td></tr>
                 )}
               </tbody>
             </table>

@@ -10,8 +10,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Eye, EyeOff } from 'lucide-react'
 import { auditRepository } from '@/lib/repositories/audit.repository'
+import { useTranslation } from 'react-i18next'
 
 export default function LoginPage() {
+  const { t } = useTranslation()
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -52,7 +54,7 @@ export default function LoginPage() {
         router.refresh()
       }
     } catch (err: any) {
-      setError(err.message || 'Une erreur est survenue lors de la connexion.')
+      setError(err.message || t('auth.genericError', 'Une erreur est survenue lors de la connexion.'))
     } finally {
       setLoading(false)
     }
@@ -83,20 +85,20 @@ export default function LoginPage() {
             >
               <img src="/logo.ico" alt="Logo" className="w-full h-full object-cover rounded-full" />
             </motion.div>
-            <h1 className="text-2xl font-bold">IT-Facture</h1>
-            <p className="text-sm text-muted-foreground mt-1">Connectez-vous à votre espace professionnel</p>
+            <h1 className="text-2xl font-bold">{t('app.name', 'IT-Facture')}</h1>
+            <p className="text-sm text-muted-foreground mt-1">{t('auth.subtitle', 'Connectez-vous à votre espace professionnel')}</p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Adresse e-mail</Label>
+              <Label htmlFor="email">{t('auth.email', 'Adresse e-mail')}</Label>
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="vous@entreprise.com"
+                placeholder={t('auth.emailPlaceholder', 'vous@entreprise.com')}
                 autoFocus
                 required
               />
@@ -104,9 +106,9 @@ export default function LoginPage() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Mot de passe</Label>
+                <Label htmlFor="password">{t('auth.password', 'Mot de passe')}</Label>
                 <Link href="/forgot-password" className="text-xs text-primary hover:underline">
-                  Mot de passe oublié ?
+                  {t('auth.forgotPassword', 'Mot de passe oublié ?')}
                 </Link>
               </div>
               <div className="relative">
@@ -130,7 +132,7 @@ export default function LoginPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="text-sm text-red-500 bg-red-500/10 border border-red-500/20 rounded-lg p-3"
               >
-                {error === 'Invalid login credentials' ? 'Email ou mot de passe incorrect.' : error}
+                {error === 'Invalid login credentials' ? t('auth.error', 'Email ou mot de passe incorrect.') : error}
               </motion.div>
             )}
 
@@ -138,7 +140,7 @@ export default function LoginPage() {
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                'Se connecter'
+                t('auth.login', 'Se connecter')
               )}
             </Button>
           </form>
@@ -148,7 +150,7 @@ export default function LoginPage() {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Ou</span>
+              <span className="bg-card px-2 text-muted-foreground">{t('auth.or', 'Ou')}</span>
             </div>
           </div>
 
@@ -164,13 +166,13 @@ export default function LoginPage() {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
-            Continuer avec Google
+            {t('auth.continueGoogle', 'Continuer avec Google')}
           </Button>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            Vous n'avez pas de compte ?{' '}
+            {t('auth.noAccount', "Vous n'avez pas de compte ?")} {' '}
             <Link href="/register" className="text-primary font-medium hover:underline">
-              Créer un compte
+              {t('auth.createAccount', 'Créer un compte')}
             </Link>
           </div>
         </div>

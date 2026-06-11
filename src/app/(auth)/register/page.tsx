@@ -9,8 +9,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Eye, EyeOff } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export default function RegisterPage() {
+  const { t } = useTranslation()
   const router = useRouter()
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
@@ -37,6 +39,25 @@ export default function RegisterPage() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    
+    // Validation du mot de passe
+    if (password.length < 8) {
+      setError(t('auth.passwordErrorLen', "Le mot de passe doit contenir au moins 8 caractères."))
+      return
+    }
+    if (!/[A-Z]/.test(password)) {
+      setError(t('auth.passwordErrorUpper', "Le mot de passe doit contenir au moins une lettre majuscule."))
+      return
+    }
+    if (!/[0-9]/.test(password)) {
+      setError(t('auth.passwordErrorNum', "Le mot de passe doit contenir au moins un chiffre."))
+      return
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      setError(t('auth.passwordErrorSpec', "Le mot de passe doit contenir au moins un caractère spécial."))
+      return
+    }
+
     setLoading(true)
     
     try {
@@ -61,7 +82,7 @@ export default function RegisterPage() {
         setSuccess(true)
       }
     } catch (err: any) {
-      setError(err.message || "Une erreur est survenue lors de l'inscription.")
+      setError(err.message || t('auth.genericError', "Une erreur est survenue lors de l'inscription."))
     } finally {
       setLoading(false)
     }
@@ -74,12 +95,12 @@ export default function RegisterPage() {
           <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
           </div>
-          <h2 className="text-2xl font-bold mb-2">Vérifiez vos e-mails</h2>
+          <h2 className="text-2xl font-bold mb-2">{t('auth.verifyEmailTitle', 'Vérifiez vos e-mails')}</h2>
           <p className="text-muted-foreground mb-6">
-            Nous avons envoyé un lien de confirmation à <strong>{email}</strong>. Veuillez cliquer sur ce lien pour activer votre compte.
+            {t('auth.verifyEmailDesc1', 'Nous avons envoyé un lien de confirmation à')} <strong>{email}</strong>. {t('auth.verifyEmailDesc2', 'Veuillez cliquer sur ce lien pour activer votre compte.')}
           </p>
           <Button onClick={() => router.push('/login')} className="w-full">
-            Retour à la connexion
+            {t('auth.backToLogin', 'Retour à la connexion')}
           </Button>
         </div>
       </div>
@@ -111,39 +132,39 @@ export default function RegisterPage() {
             >
               <img src="/logo.ico" alt="Logo" className="w-full h-full object-cover rounded-full" />
             </motion.div>
-            <h1 className="text-2xl font-bold">Créer un compte</h1>
-            <p className="text-sm text-muted-foreground mt-1">Démarrez avec IT-Facture</p>
+            <h1 className="text-2xl font-bold">{t('auth.registerTitle', 'Créer un compte')}</h1>
+            <p className="text-sm text-muted-foreground mt-1">{t('auth.registerSubtitle', 'Démarrez avec IT-Facture')}</p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleRegister} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Nom complet</Label>
+              <Label htmlFor="fullName">{t('auth.fullName', 'Nom complet')}</Label>
               <Input
                 id="fullName"
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Jean Dupont"
+                placeholder={t('auth.fullNamePlaceholder', 'Jean Dupont')}
                 autoFocus
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Adresse e-mail</Label>
+              <Label htmlFor="email">{t('auth.email', 'Adresse e-mail')}</Label>
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="vous@entreprise.com"
+                placeholder={t('auth.emailPlaceholder', 'vous@entreprise.com')}
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
+              <Label htmlFor="password">{t('auth.password', 'Mot de passe')}</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -152,13 +173,13 @@ export default function RegisterPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  minLength={6}
+                  minLength={8}
                 />
                 <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              <p className="text-[10px] text-muted-foreground">Doit contenir au moins 6 caractères.</p>
+              <p className="text-[10px] text-muted-foreground">{t('auth.passwordHint', '8 caractères min. incluant majuscule, chiffre et caractère spécial.')}</p>
             </div>
 
             {error && (
@@ -167,7 +188,7 @@ export default function RegisterPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="text-sm text-red-500 bg-red-500/10 border border-red-500/20 rounded-lg p-3"
               >
-                {error === 'User already registered' ? 'Un compte existe déjà avec cette adresse e-mail.' : error}
+                {error === 'User already registered' ? t('auth.userExists', 'Un compte existe déjà avec cette adresse e-mail.') : error}
               </motion.div>
             )}
 
@@ -175,7 +196,7 @@ export default function RegisterPage() {
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                "S'inscrire"
+                t('auth.register', "S'inscrire")
               )}
             </Button>
           </form>
@@ -185,7 +206,7 @@ export default function RegisterPage() {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Ou</span>
+              <span className="bg-card px-2 text-muted-foreground">{t('auth.or', 'Ou')}</span>
             </div>
           </div>
 
@@ -201,13 +222,13 @@ export default function RegisterPage() {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
-            S'inscrire avec Google
+            {t('auth.registerGoogle', "S'inscrire avec Google")}
           </Button>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            Vous avez déjà un compte ?{' '}
+            {t('auth.hasAccount', 'Vous avez déjà un compte ?')} {' '}
             <Link href="/login" className="text-primary font-medium hover:underline">
-              Se connecter
+              {t('auth.login', 'Se connecter')}
             </Link>
           </div>
         </div>

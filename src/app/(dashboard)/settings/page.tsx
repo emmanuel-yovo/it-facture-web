@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
-import { Building, Upload, Save, Check, LogOut, ShieldCheck, Mail, FileText, Languages, CreditCard } from 'lucide-react'
+import { Building, Upload, Save, Check, LogOut, ShieldCheck, Mail, FileText, Languages, CreditCard, Users, Copy, Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useRouter } from 'next/navigation'
@@ -26,6 +26,7 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<any>({})
   const [saved, setSaved] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [companyCode, setCompanyCode] = useState<string>('')
 
   useEffect(() => {
     if (!workspaceId) return
@@ -44,6 +45,16 @@ export default function SettingsPage() {
         }
       } catch (err) {
         console.error('Erreur chargement secrets:', err)
+      }
+
+      // Fetch company_code
+      try {
+        const { data: wsData } = await supabase.from('workspaces').select('company_code').eq('id', workspaceId).single()
+        if (wsData?.company_code) {
+          setCompanyCode(wsData.company_code)
+        }
+      } catch (err) {
+        console.error('Erreur chargement company_code:', err)
       }
 
       setSettings(finalSettings)
@@ -161,6 +172,32 @@ export default function SettingsPage() {
     router.push('/login')
   }
 
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("Êtes-vous absolument certain de vouloir supprimer votre compte et toutes les données de votre entreprise ? Cette action est irréversible et immédiate !")) return
+
+    setLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/users/delete-self', {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${session?.access_token}` }
+      })
+
+      if (res.ok) {
+        await supabase.auth.signOut()
+        logout()
+        router.push('/register')
+      } else {
+        const d = await res.json()
+        alert(d.error || 'Erreur lors de la suppression.')
+      }
+    } catch (e) {
+      alert("Erreur réseau.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div>
@@ -172,6 +209,9 @@ export default function SettingsPage() {
         <TabsList className="bg-card border border-border">
           {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
             <TabsTrigger value="company"><Building className="w-4 h-4 mr-2" />{t('settings.companyInfo', 'Entreprise')}</TabsTrigger>
+          )}
+          {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
+            <TabsTrigger value="team"><Users className="w-4 h-4 mr-2" />Équipe & Identifiant</TabsTrigger>
           )}
           {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
             <TabsTrigger value="email"><Mail className="w-4 h-4 mr-2" />{t('settings.emailSettings', 'Emails (SMTP)')}</TabsTrigger>
@@ -301,6 +341,41 @@ export default function SettingsPage() {
         )}
 
         {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
+          <TabsContent value="team">
+            <Card className="border border-border shadow-sm">
+              <CardHeader>
+                <CardTitle>Équipe & Identifiant d'Entreprise</CardTitle>
+                <CardDescription>Invitez vos collaborateurs en leur partageant cet identifiant unique.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="p-6 bg-indigo-50/50 rounded-xl border border-indigo-100 flex flex-col items-center justify-center text-center space-y-3">
+                  <p className="text-sm font-medium text-indigo-900">Identifiant de l'entreprise (Company ID)</p>
+                  <div className="flex items-center justify-center gap-3">
+                    <code className="text-2xl md:text-3xl font-mono font-bold tracking-widest text-indigo-600 bg-white px-4 py-2 rounded-lg border border-indigo-200 shadow-sm">
+                      {companyCode || '------'}
+                    </code>
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      className="h-12 w-12 rounded-lg bg-white hover:bg-indigo-50 hover:text-indigo-600 border-indigo-200"
+                      onClick={() => {
+                        navigator.clipboard.writeText(companyCode)
+                        alert("Identifiant copié dans le presse-papier !")
+                      }}
+                    >
+                      <Copy className="w-5 h-5" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-indigo-700 max-w-md mx-auto">
+                    Demandez à vos collaborateurs de s'inscrire puis de choisir "Rejoindre une entreprise" en collant cet identifiant. Ils obtiendront automatiquement le statut "Utilisateur".
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
+
+        {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
           <TabsContent value="email">
             <Card className="border border-border shadow-sm">
               <CardHeader>
@@ -419,22 +494,40 @@ export default function SettingsPage() {
         )}
 
         <TabsContent value="account">
-          <Card className="border-red-200 bg-red-50/30">
-            <CardHeader>
-              <CardTitle className="text-red-600 flex items-center gap-2">
-                <LogOut className="w-5 h-5" /> Session utilisateur
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Vous êtes actuellement connecté en tant que <strong>{authUser?.full_name || 'utilisateur'}</strong>. 
-                Toutes vos modifications non enregistrées seront perdues lors de la déconnexion.
-              </p>
-              <Button variant="destructive" onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" /> Se déconnecter de l'application
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card className="border-border shadow-sm bg-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <LogOut className="w-5 h-5 text-muted-foreground" /> Session utilisateur
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Vous êtes actuellement connecté en tant que <strong>{authUser?.full_name || 'utilisateur'}</strong>. 
+                  Toutes vos modifications non enregistrées seront perdues lors de la déconnexion.
+                </p>
+                <Button variant="outline" onClick={handleLogout}>
+                  <LogOut className="w-4 h-4 mr-2" /> Se déconnecter de l'application
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="border-red-200 bg-red-50/30">
+              <CardHeader>
+                <CardTitle className="text-red-600 flex items-center gap-2">
+                  <Trash2 className="w-5 h-5" /> Zone de danger
+                </CardTitle>
+                <CardDescription className="text-red-600/80">
+                  La suppression de votre compte entraînera la suppression immédiate et définitive de toutes vos données (profil, factures, paramètres de l'entreprise).
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button variant="destructive" onClick={handleDeleteAccount} disabled={loading}>
+                  <Trash2 className="w-4 h-4 mr-2" /> Supprimer définitivement mon compte
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </motion.div>
