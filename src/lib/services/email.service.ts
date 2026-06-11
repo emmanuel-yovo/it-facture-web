@@ -5,7 +5,15 @@ import { decrypt } from '../encryption'
 
 export class EmailService {
   async sendPaymentLink(workspaceId: string, to: string, invoiceNumber: string, amount: number, paymentLink: string) {
-    const settings = await settingsRepository.getSettings(workspaceId)
+    const { data: settingsData } = await supabaseAdmin
+      .from('settings')
+      .select('key, value')
+      .eq('workspace_id', workspaceId)
+      
+    const settings: any = {}
+    if (settingsData) {
+      settingsData.forEach(row => { settings[row.key] = row.value })
+    }
     
     // Fetch encrypted SMTP password
     const { data } = await supabaseAdmin
@@ -68,7 +76,15 @@ export class EmailService {
   }
 
   async sendInvoiceEmail(workspaceId: string, to: string, subject: string, htmlBody: string, pdfUrl?: string) {
-    const settings = await settingsRepository.getSettings(workspaceId)
+    const { data: settingsData } = await supabaseAdmin
+      .from('settings')
+      .select('key, value')
+      .eq('workspace_id', workspaceId)
+      
+    const settings: any = {}
+    if (settingsData) {
+      settingsData.forEach(row => { settings[row.key] = row.value })
+    }
     
     // Fetch encrypted SMTP password
     const { data } = await supabaseAdmin
