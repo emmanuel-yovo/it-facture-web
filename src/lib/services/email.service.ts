@@ -1,12 +1,24 @@
 import nodemailer from 'nodemailer'
 import { settingsRepository } from '../repositories/settings.repository'
+import { supabaseAdmin } from '../supabase-admin'
+import { decrypt } from '../encryption'
 
 export class EmailService {
   async sendPaymentLink(workspaceId: string, to: string, invoiceNumber: string, amount: number, paymentLink: string) {
     const settings = await settingsRepository.getSettings(workspaceId)
     
+    // Fetch encrypted SMTP password
+    const { data } = await supabaseAdmin
+      .from('settings')
+      .select('value')
+      .eq('workspace_id', workspaceId)
+      .eq('key', 'smtp_pass')
+      .single()
+      
+    const smtpPass = data ? decrypt(data.value) : null
+
     // Check if SMTP is configured
-    if (!settings.smtp_host || !settings.smtp_user || !settings.smtp_pass) {
+    if (!settings.smtp_host || !settings.smtp_user || !smtpPass) {
       console.error('SMTP non configuré pour ce workspace')
       return false
     }
@@ -17,7 +29,7 @@ export class EmailService {
       secure: Number(settings.smtp_port) === 465,
       auth: {
         user: settings.smtp_user,
-        pass: settings.smtp_pass
+        pass: smtpPass
       }
     })
 

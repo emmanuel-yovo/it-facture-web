@@ -33,6 +33,9 @@ export class SettingsRepository {
     const settings: Partial<AppSettings> = {}
     
     data.forEach(row => {
+      // Exclure les clés secrètes qui doivent être gérées via l'API sécurisée
+      if (['fedapay_secret_key', 'smtp_pass'].includes(row.key)) return
+
       if (row.key === 'tax_rate') {
         settings.tax_rate = parseFloat(row.value)
       } else {
@@ -44,11 +47,13 @@ export class SettingsRepository {
   }
 
   async saveSettings(workspace_id: string, settings: Partial<AppSettings>): Promise<void> {
-    const recordsToUpsert = Object.entries(settings).map(([key, value]) => ({
-      workspace_id,
-      key,
-      value: value?.toString() || ''
-    }))
+    const recordsToUpsert = Object.entries(settings)
+      .filter(([key]) => !['fedapay_secret_key', 'smtp_pass'].includes(key))
+      .map(([key, value]) => ({
+        workspace_id,
+        key,
+        value: value?.toString() || ''
+      }))
 
     if (recordsToUpsert.length === 0) return
 

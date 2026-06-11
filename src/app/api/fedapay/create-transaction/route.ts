@@ -1,13 +1,7 @@
 import { NextResponse } from 'next/server'
 import { FedaPay, Transaction } from 'fedapay'
 import { supabase } from '@/lib/supabase'
-
-// Configuration de FedaPay (idéalement chargée depuis .env.local)
-const FEDAPAY_SECRET_KEY = process.env.FEDAPAY_SECRET_KEY || 'sk_sandbox_xxx'
-const FEDAPAY_ENVIRONMENT = process.env.FEDAPAY_ENVIRONMENT || 'sandbox'
-
-FedaPay.setApiKey(FEDAPAY_SECRET_KEY)
-FedaPay.setEnvironment(FEDAPAY_ENVIRONMENT as 'sandbox' | 'live')
+import { fedapayService } from '@/lib/services/fedapay.service'
 
 export async function POST(req: Request) {
   try {
@@ -26,9 +20,12 @@ export async function POST(req: Request) {
     const body = await req.json()
     const { invoice_id, amount, description, client_email, client_name, workspace_id } = body
 
-    if (!invoice_id || !amount) {
-      return NextResponse.json({ error: 'invoice_id et amount sont requis' }, { status: 400 })
+    if (!invoice_id || !amount || !workspace_id) {
+      return NextResponse.json({ error: 'invoice_id, amount et workspace_id sont requis' }, { status: 400 })
     }
+
+    // Initialiser FedaPay avec la clé sécurisée du workspace
+    await fedapayService.initFedaPay(workspace_id)
 
     // Création de la transaction FedaPay
     const transaction = await Transaction.create({

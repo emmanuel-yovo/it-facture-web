@@ -29,13 +29,30 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (!workspaceId) return
-    settingsRepository.getSettings(workspaceId).then((s) => {
-      setSettings(s)
-      if (s) {
-        localStorage.setItem('company_country', s.company_country || 'FR')
-        localStorage.setItem('currency_symbol', s.currency_symbol || 'FCFA')
+    const fetchSettings = async () => {
+      const s = await settingsRepository.getSettings(workspaceId)
+      let finalSettings = { ...s }
+
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        const res = await fetch('/api/settings/secrets', {
+          headers: { 'Authorization': `Bearer ${session?.access_token}` }
+        })
+        if (res.ok) {
+          const secrets = await res.json()
+          finalSettings = { ...finalSettings, ...secrets }
+        }
+      } catch (err) {
+        console.error('Erreur chargement secrets:', err)
       }
-    })
+
+      setSettings(finalSettings)
+      if (finalSettings) {
+        localStorage.setItem('company_country', finalSettings.company_country || 'FR')
+        localStorage.setItem('currency_symbol', finalSettings.currency_symbol || 'FCFA')
+      }
+    }
+    fetchSettings()
   }, [workspaceId])
 
   const handleCountryChange = (country: string) => {
@@ -59,7 +76,28 @@ export default function SettingsPage() {
   const handleSave = async () => {
     if (!workspaceId) return
     setLoading(true)
+    
+    // Sauvegarde des paramètres normaux (les secrets sont exclus dans le repo)
     await settingsRepository.saveSettings(workspaceId, settings)
+    
+    // Sauvegarde des secrets via l'API sécurisée
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      await fetch('/api/settings/secrets', {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          fedapay_secret_key: settings.fedapay_secret_key,
+          smtp_pass: settings.smtp_pass
+        })
+      })
+    } catch (err) {
+      console.error('Erreur sauvegarde secrets:', err)
+    }
+
     localStorage.setItem('company_country', settings.company_country || 'FR')
     localStorage.setItem('currency_symbol', settings.currency_symbol || 'FCFA')
     setSaved(true)
