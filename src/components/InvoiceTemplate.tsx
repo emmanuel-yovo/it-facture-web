@@ -7,10 +7,11 @@ import { Invoice } from '@/lib/repositories/invoice.repository'
 interface InvoiceTemplateProps {
   invoice: Invoice
   settings: any
+  plan?: string
 }
 
 export const InvoiceTemplate = React.forwardRef<HTMLDivElement, InvoiceTemplateProps>(
-  ({ invoice, settings }, ref) => {
+  ({ invoice, settings, plan = 'free' }, ref) => {
     const isQuote = invoice.document_type === 'quote'
     
     return (
@@ -137,6 +138,15 @@ export const InvoiceTemplate = React.forwardRef<HTMLDivElement, InvoiceTemplateP
         {settings?.cgv_text && (
           <div className="mt-16 pt-8 border-t text-xs text-justify" style={{ borderColor: '#e5e7eb', color: '#6b7280' }}>
             <p>{settings.cgv_text}</p>
+          </div>
+        )}
+
+        {/* Watermark pour le plan Gratuit */}
+        {plan === 'free' && (
+          <div className="absolute bottom-4 left-0 right-0 text-center">
+            <p className="text-[10px]" style={{ color: '#9ca3af' }}>
+              Généré gratuitement avec <span className="font-bold">IT-Facture.com</span> - Créez vos factures simplement.
+            </p>
           </div>
         )}
       </div>

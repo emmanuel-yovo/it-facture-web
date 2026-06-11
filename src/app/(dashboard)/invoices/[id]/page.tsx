@@ -30,7 +30,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const id = resolvedParams.id
   
   const router = useRouter()
-  const { workspaceId, user } = useAuthStore()
+  const { workspaceId, user, workspacePlan } = useAuthStore()
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [emailOpen, setEmailOpen] = useState(false)
@@ -388,7 +388,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
       {/* Hidden PDF Template Container */}
       <div id="invoice-pdf-container">
-        <InvoiceTemplate invoice={invoice} settings={settings} />
+        <InvoiceTemplate invoice={invoice} settings={settings} plan={workspacePlan as string} />
       </div>
     </motion.div>
   )
