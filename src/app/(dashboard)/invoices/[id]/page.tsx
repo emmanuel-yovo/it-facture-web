@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { formatCurrency, formatDate, getStatusLabel } from '@/lib/utils'
 import { Printer, Download, ArrowLeft, CreditCard, CheckCircle, Mail } from 'lucide-react'
-import { SignaturePad } from '@/components/SignaturePad'
+
 import { Textarea } from '@/components/ui/textarea'
 import { invoiceRepository, Invoice } from '@/lib/repositories/invoice.repository'
 import { paymentRepository } from '@/lib/repositories/payment.repository'
@@ -358,30 +358,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             </CardContent>
           </Card>
 
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle className="text-base">Signature Client</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {invoice.signature_data ? (
-                <div className="space-y-2">
-                  <div className="border rounded-lg p-4 bg-white">
-                    <img src={invoice.signature_data} alt="Signature Client" className="max-h-32 mx-auto" />
-                  </div>
-                  <div className="flex items-center gap-2 text-emerald-600 text-xs font-medium justify-center">
-                    <CheckCircle className="w-3 h-3" /> Document signé numériquement
-                  </div>
-                </div>
-              ) : (
-                <SignaturePad 
-                  onSave={async (data) => {
-                    await invoiceRepository.update(invoice.id, { signature_data: data })
-                    load()
-                  }} 
-                />
-              )}
-            </CardContent>
-          </Card>
+
         </div>
       </div>
 

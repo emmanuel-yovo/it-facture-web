@@ -217,6 +217,29 @@ export default function SettingsPage() {
     input.click()
   }
 
+  const handleUploadSignature = () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    input.onchange = async (e: any) => {
+      const file = e.target.files?.[0]
+      if (file && workspaceId) {
+        setLoading(true)
+        try {
+          const url = await storageService.uploadLogo(file, workspaceId)
+          setSettings((s: any) => ({ ...s, signature: url }))
+          setSaved(true); setTimeout(() => setSaved(false), 2000)
+        } catch (error) {
+          console.error(error)
+          alert("Erreur lors de l'upload de la signature")
+        } finally {
+          setLoading(false)
+        }
+      }
+    }
+    input.click()
+  }
+
   const handleLogout = async () => {
     await supabase.auth.signOut()
     logout()
@@ -339,7 +362,7 @@ export default function SettingsPage() {
                 </div>
 
                 <Separator />
-                <div className="grid grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
                   <div className="space-y-4">
                     <Label>Logo de l'entreprise</Label>
                     <div className="flex flex-col gap-4">
@@ -376,6 +399,26 @@ export default function SettingsPage() {
                       <Button variant="outline" size="sm" onClick={handleUploadStamp} className="w-full">
                         <Upload className="w-4 h-4 mr-2" />
                         Importer un cachet
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <Label>Signature (Entreprise)</Label>
+                    <div className="flex flex-col gap-4">
+                      <div className="h-32 w-full rounded-xl border-2 border-dashed flex items-center justify-center bg-muted/20 overflow-hidden">
+                        {settings.signature ? (
+                          <img src={settings.signature} alt="Signature" className="max-h-full max-w-full object-contain" />
+                        ) : (
+                          <div className="text-center p-4">
+                            <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground opacity-50" />
+                            <p className="text-xs text-muted-foreground">Aucune signature</p>
+                          </div>
+                        )}
+                      </div>
+                      <Button variant="outline" size="sm" onClick={handleUploadSignature} className="w-full">
+                        <Upload className="w-4 h-4 mr-2" />
+                        Importer signature
                       </Button>
                     </div>
                   </div>

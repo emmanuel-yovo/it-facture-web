@@ -123,11 +123,15 @@ export const InvoiceTemplate = React.forwardRef<HTMLDivElement, InvoiceTemplateP
             <p className="whitespace-pre-wrap" style={{ color: '#4b5563' }}>{invoice.notes || 'Merci de votre confiance.'}</p>
           </div>
           <div>
-            <h3 className="font-bold mb-2 text-right" style={{ color: '#1f2937' }}>Signature</h3>
-            <div className="h-24 border rounded-lg flex items-center justify-center p-2" style={{ borderColor: '#e5e7eb' }}>
-              {invoice.signature_data ? (
-                <img src={invoice.signature_data} alt="Signature Client" className="max-h-full" />
-              ) : (
+            <h3 className="font-bold mb-2 text-right" style={{ color: '#1f2937' }}>Signature & Cachet</h3>
+            <div className="flex flex-col items-end justify-center p-2 min-h-[96px]">
+              {settings?.signature ? (
+                <img src={settings.signature} alt="Signature" className="max-h-20 mb-2 object-contain" />
+              ) : null}
+              {settings?.stamp ? (
+                <img src={settings.stamp} alt="Cachet" className="max-h-24 object-contain" />
+              ) : null}
+              {!settings?.signature && !settings?.stamp && (
                 <p className="italic" style={{ color: '#9ca3af' }}>Non signé</p>
               )}
             </div>
