@@ -80,8 +80,17 @@ export class EmailService {
       
     const smtpPass = data ? decrypt(data.value) : null
 
-    if (!settings.smtp_host || !settings.smtp_user || !smtpPass) {
-      throw new Error('SMTP non configuré pour ce workspace')
+    if (!settings.smtp_host) {
+      throw new Error('Hôte SMTP non configuré')
+    }
+    if (!settings.smtp_user) {
+      throw new Error('Utilisateur SMTP non configuré')
+    }
+    if (!data) {
+      throw new Error('Mot de passe SMTP introuvable dans la base')
+    }
+    if (!smtpPass) {
+      throw new Error('Le mot de passe SMTP n a pas pu être déchiffré. Veuillez le saisir à nouveau et enregistrer.')
     }
 
     const transporter = nodemailer.createTransport({
