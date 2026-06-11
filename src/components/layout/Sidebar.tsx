@@ -43,7 +43,6 @@ export const navItems: NavItem[] = [
   { to: '/discounts', icon: Percent, label: 'nav.discounts', permission: PERMISSIONS.MANAGE_DISCOUNTS },
   { to: '/payments', icon: CreditCard, label: 'nav.payments' },
   { to: '/users', icon: UserCog, label: 'nav.users', permission: PERMISSIONS.MANAGE_USERS },
-  { to: '/settings', icon: Settings, label: 'nav.settings' },
   { to: '/superadmin', icon: ShieldCheck, label: 'nav.superadmin', permission: PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD },
 ]
 
