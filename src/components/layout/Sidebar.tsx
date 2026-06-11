@@ -30,7 +30,7 @@ type NavItem = {
 export const navItems: NavItem[] = [
   { to: '/', icon: LayoutDashboard, label: 'nav.dashboard' },
   { to: '/invoices', icon: FileText, label: 'nav.invoices' },
-  { to: '/quotes', icon: FileText, label: 'Devis' },
+  { to: '/quotes', icon: FileText, label: 'nav.quotes' },
   { to: '/invoices/new', icon: PlusCircle, label: 'nav.newInvoice', accent: true },
   { to: '/subscriptions', icon: Repeat, label: 'nav.subscriptions' },
   { to: '/expenses', icon: Receipt, label: 'nav.expenses', permission: PERMISSIONS.MANAGE_EXPENSES, feature: 'expenses' },
@@ -39,12 +39,12 @@ export const navItems: NavItem[] = [
   { to: '/tickets', icon: Zap, label: 'nav.tickets', feature: 'tickets' },
   { to: '/reminders', icon: Bell, label: 'nav.reminders', permission: PERMISSIONS.MANAGE_REMINDERS },
   { to: '/reports', icon: TrendingUp, label: 'nav.reports', permission: PERMISSIONS.VIEW_REPORTS },
-  { to: '/audit', icon: Shield, label: 'Audit', permission: PERMISSIONS.VIEW_AUDIT },
+  { to: '/audit', icon: Shield, label: 'nav.audit', permission: PERMISSIONS.VIEW_AUDIT },
   { to: '/discounts', icon: Percent, label: 'nav.discounts', permission: PERMISSIONS.MANAGE_DISCOUNTS },
   { to: '/payments', icon: CreditCard, label: 'nav.payments' },
   { to: '/users', icon: UserCog, label: 'nav.users', permission: PERMISSIONS.MANAGE_USERS },
   { to: '/settings', icon: Settings, label: 'nav.settings' },
-  { to: '/superadmin', icon: ShieldCheck, label: 'Administration Globale', permission: PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD },
+  { to: '/superadmin', icon: ShieldCheck, label: 'nav.superadmin', permission: PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD },
 ]
 
 export function Sidebar({ className }: { className?: string }) {

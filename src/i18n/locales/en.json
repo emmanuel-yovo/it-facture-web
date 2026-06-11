@@ -17,7 +17,8 @@
     "reminders": "Reminders",
     "reports": "Reports",
     "audit": "Security",
-    "users": "Users"
+    "users": "Users",
+    "superadmin": "Global Admin"
   },
   "reports": {
     "annualTotal": "Annual Total",
@@ -159,9 +160,11 @@
     "backup": "Backup & Restore",
     "createBackup": "Create Backup",
     "restoreBackup": "Restore Backup",
-    "exportDB": "Export Database",
     "save": "Save",
-    "saved": "Saved successfully"
+    "saved": "Saved successfully",
+    "emailSettings": "Emails (SMTP)",
+    "documentsSettings": "Documents & Terms",
+    "paymentsSettings": "FedaPay (Payments)"
   },
   "common": {
     "save": "Save",

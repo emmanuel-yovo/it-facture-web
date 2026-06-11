@@ -17,7 +17,8 @@
     "reminders": "Relances",
     "reports": "Analyses",
     "audit": "Sécurité",
-    "users": "Utilisateurs"
+    "users": "Utilisateurs",
+    "superadmin": "Administration Globale"
   },
   "reports": {
     "annualTotal": "Cumul annuel",
@@ -159,9 +160,11 @@
     "backup": "Sauvegarde & Restauration",
     "createBackup": "Créer une sauvegarde",
     "restoreBackup": "Restaurer une sauvegarde",
-    "exportDB": "Exporter la base",
     "save": "Enregistrer",
-    "saved": "Enregistré avec succès"
+    "saved": "Enregistré avec succès",
+    "emailSettings": "Emails (SMTP)",
+    "documentsSettings": "Documents & CGV",
+    "paymentsSettings": "FedaPay (Paiements)"
   },
   "common": {
     "save": "Enregistrer",

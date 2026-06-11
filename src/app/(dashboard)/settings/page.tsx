@@ -174,13 +174,13 @@ export default function SettingsPage() {
             <TabsTrigger value="company"><Building className="w-4 h-4 mr-2" />{t('settings.companyInfo', 'Entreprise')}</TabsTrigger>
           )}
           {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
-            <TabsTrigger value="email"><Mail className="w-4 h-4 mr-2" />Emails (SMTP)</TabsTrigger>
+            <TabsTrigger value="email"><Mail className="w-4 h-4 mr-2" />{t('settings.emailSettings', 'Emails (SMTP)')}</TabsTrigger>
           )}
           {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
-            <TabsTrigger value="documents"><FileText className="w-4 h-4 mr-2" />Documents & CGV</TabsTrigger>
+            <TabsTrigger value="documents"><FileText className="w-4 h-4 mr-2" />{t('settings.documentsSettings', 'Documents & CGV')}</TabsTrigger>
           )}
           {hasPermission(authUser?.role, PERMISSIONS.MANAGE_FEDAPAY) && (
-            <TabsTrigger value="payments"><CreditCard className="w-4 h-4 mr-2" />FedaPay (Paiements)</TabsTrigger>
+            <TabsTrigger value="payments"><CreditCard className="w-4 h-4 mr-2" />{t('settings.paymentsSettings', 'FedaPay (Paiements)')}</TabsTrigger>
           )}
           <TabsTrigger value="account"><LogOut className="w-4 h-4 mr-2" />{t('settings.account', 'Compte')}</TabsTrigger>
         </TabsList>
