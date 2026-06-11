@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf'
-import domtoimage from 'dom-to-image'
+import * as htmlToImage from 'html-to-image'
 import { storageService } from './storage.service'
 
 export class PdfService {
@@ -14,11 +14,12 @@ export class PdfService {
     const element = originalElement.cloneNode(true) as HTMLElement
     element.classList.add('pdf-render-mode')
     
-    // Force visible styling for the clone
+    // Force visible styling for the clone within the viewport but behind everything
     element.style.display = 'block'
-    element.style.position = 'absolute'
-    element.style.top = '-9999px'
-    element.style.left = '-9999px'
+    element.style.position = 'fixed'
+    element.style.top = '0'
+    element.style.left = '0'
+    element.style.zIndex = '-9999'
     document.body.appendChild(element)
 
     try {
@@ -26,18 +27,13 @@ export class PdfService {
       const width = element.offsetWidth || 794 // 210mm in px at 96dpi
       const height = element.offsetHeight || 1123 // 297mm in px at 96dpi
 
-      // Create a clean image using the browser's native rendering
-      const imgData = await domtoimage.toJpeg(element, {
+      // html-to-image handles fonts and images much better
+      const imgData = await htmlToImage.toJpeg(element, {
         quality: 0.95,
-        bgcolor: '#ffffff',
-        style: {
-          transform: 'scale(2)',
-          transformOrigin: 'top left',
-          width: width + 'px',
-          height: height + 'px'
-        },
-        width: width * 2,
-        height: height * 2
+        backgroundColor: '#ffffff',
+        pixelRatio: 2, // Equivalent to scale(2)
+        width: width,
+        height: height
       })
 
       const pdf = new jsPDF({
@@ -52,7 +48,7 @@ export class PdfService {
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight)
       pdf.save(filename)
     } catch (error) {
-      console.error("dom-to-image failed:", error)
+      console.error("html-to-image failed:", error)
       throw error
     } finally {
       document.body.removeChild(element)
@@ -72,9 +68,10 @@ export class PdfService {
     
     // Force visible styling for the clone
     element.style.display = 'block'
-    element.style.position = 'absolute'
-    element.style.top = '-9999px'
-    element.style.left = '-9999px'
+    element.style.position = 'fixed'
+    element.style.top = '0'
+    element.style.left = '0'
+    element.style.zIndex = '-9999'
     document.body.appendChild(element)
 
     try {
@@ -82,17 +79,12 @@ export class PdfService {
       const width = element.offsetWidth || 794
       const height = element.offsetHeight || 1123
 
-      const imgData = await domtoimage.toJpeg(element, {
+      const imgData = await htmlToImage.toJpeg(element, {
         quality: 0.95,
-        bgcolor: '#ffffff',
-        style: {
-          transform: 'scale(2)',
-          transformOrigin: 'top left',
-          width: width + 'px',
-          height: height + 'px'
-        },
-        width: width * 2,
-        height: height * 2
+        backgroundColor: '#ffffff',
+        pixelRatio: 2,
+        width: width,
+        height: height
       })
 
       const pdf = new jsPDF({
@@ -113,7 +105,7 @@ export class PdfService {
       const path = await storageService.uploadInvoicePdf(pdfBlob, workspaceId, invoiceId)
       return path
     } catch (error) {
-      console.error("dom-to-image upload failed:", error)
+      console.error("html-to-image upload failed:", error)
       throw error
     } finally {
       document.body.removeChild(element)
