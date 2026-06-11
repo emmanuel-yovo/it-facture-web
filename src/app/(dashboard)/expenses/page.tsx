@@ -31,7 +31,7 @@ export default function ExpensesPage() {
   const load = useCallback(async () => {
     if (!workspaceId) return
     try {
-      const res = await expenseRepository.getAll({ search })
+      const res = await expenseRepository.getAll({ workspace_id: workspaceId,  search })
       setExpenses(res.data)
     } catch (err) {
       console.error(err)

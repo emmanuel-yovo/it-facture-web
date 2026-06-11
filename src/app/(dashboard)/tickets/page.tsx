@@ -46,12 +46,12 @@ export default function TicketsPage() {
     if (!workspaceId) return
     setIsLoading(true)
     try {
-      const result = await ticketRepository.getAll({ 
+      const result = await ticketRepository.getAll({ workspace_id: workspaceId,  
         search, 
         status: statusFilter === 'all' ? undefined : statusFilter 
       })
       setTickets(result.data)
-      const cls = await clientRepository.getAll({ pageSize: 1000 })
+      const cls = await clientRepository.getAll({ workspace_id: workspaceId,  pageSize: 1000 })
       setClients(cls.data)
     } catch (error) {
       console.error(error)

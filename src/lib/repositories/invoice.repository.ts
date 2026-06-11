@@ -50,7 +50,7 @@ export interface CreateInvoiceData {
 }
 
 export class InvoiceRepository {
-  async getAll(params: { 
+  async getAll(params: { workspace_id?: string;  
     page?: number; 
     pageSize?: number; 
     search?: string; 
@@ -68,6 +68,7 @@ export class InvoiceRepository {
       .from('invoices')
       .select('*, client:clients(id, full_name, company_name, email, phone, address)', { count: 'exact' })
 
+    if (params.workspace_id) query = query.eq('workspace_id', params.workspace_id);
     if (params.search) {
       // Pour chercher à travers la relation client, Supabase le permet si configuré, 
       // ou on peut filtrer par numéro de facture

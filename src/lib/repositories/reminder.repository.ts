@@ -22,7 +22,7 @@ export class ReminderRepository {
     return data as Reminder[]
   }
 
-  async getAll(params: { search?: string }): Promise<any> {
+  async getAll(params: { workspace_id?: string;  search?: string }): Promise<any> {
     const { data, error } = await supabase
       .from('reminders')
       .select('*, invoice:invoices(invoice_number, client:clients(full_name))')

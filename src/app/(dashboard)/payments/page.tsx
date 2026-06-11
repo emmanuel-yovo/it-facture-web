@@ -23,7 +23,7 @@ export default function PaymentsPage() {
   const load = useCallback(async () => {
     if (!workspaceId) return
     try {
-      const r = await paymentRepository.getAll({ page, pageSize: 20 })
+      const r = await paymentRepository.getAll({ workspace_id: workspaceId,  page, pageSize: 20 })
       setPayments(r.data)
       setTotal(r.total)
       setTotalPages(r.totalPages)

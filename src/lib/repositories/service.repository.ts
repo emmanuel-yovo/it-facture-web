@@ -15,7 +15,7 @@ export interface Service {
 }
 
 export class ServiceRepository {
-  async getAll(params: { page?: number; pageSize?: number; search?: string; category?: string }): Promise<PaginatedResult<Service>> {
+  async getAll(params: { workspace_id?: string;  page?: number; pageSize?: number; search?: string; category?: string }): Promise<PaginatedResult<Service>> {
     const page = params.page || 1
     const pageSize = params.pageSize || 10
     const offset = (page - 1) * pageSize
@@ -25,6 +25,7 @@ export class ServiceRepository {
       .select('*', { count: 'exact' })
       .eq('is_active', true)
 
+    if (params.workspace_id) query = query.eq('workspace_id', params.workspace_id);
     if (params.search) {
       query = query.ilike('name', `%${params.search}%`)
     }

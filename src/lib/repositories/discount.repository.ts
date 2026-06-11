@@ -14,7 +14,7 @@ export interface Discount {
 }
 
 export class DiscountRepository {
-  async getAll(params: { page?: number; pageSize?: number; search?: string }): Promise<PaginatedResult<Discount>> {
+  async getAll(params: { workspace_id?: string;  page?: number; pageSize?: number; search?: string }): Promise<PaginatedResult<Discount>> {
     const page = params.page || 1
     const pageSize = params.pageSize || 10
     const offset = (page - 1) * pageSize
@@ -24,6 +24,7 @@ export class DiscountRepository {
       .select('*', { count: 'exact' })
       .eq('is_active', true)
 
+    if (params.workspace_id) query = query.eq('workspace_id', params.workspace_id);
     if (params.search) {
       query = query.or(`name.ilike.%${params.search}%,promo_code.ilike.%${params.search}%`)
     }

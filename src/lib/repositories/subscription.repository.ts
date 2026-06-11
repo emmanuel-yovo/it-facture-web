@@ -15,7 +15,7 @@ export interface Subscription {
 }
 
 export class SubscriptionRepository {
-  async getAll(params: { page?: number; pageSize?: number; search?: string }): Promise<PaginatedResult<Subscription>> {
+  async getAll(params: { workspace_id?: string;  page?: number; pageSize?: number; search?: string }): Promise<PaginatedResult<Subscription>> {
     const page = params.page || 1
     const pageSize = params.pageSize || 10
     const offset = (page - 1) * pageSize
@@ -24,6 +24,7 @@ export class SubscriptionRepository {
       .from('subscriptions')
       .select('*, client:clients(full_name)', { count: 'exact' })
 
+    if (params.workspace_id) query = query.eq('workspace_id', params.workspace_id);
     if (params.search) {
       query = query.ilike('title', `%${params.search}%`)
     }

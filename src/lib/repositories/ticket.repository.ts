@@ -18,7 +18,7 @@ export interface Ticket {
 }
 
 export class TicketRepository {
-  async getAll(params: { page?: number; pageSize?: number; search?: string; status?: string }): Promise<PaginatedResult<Ticket>> {
+  async getAll(params: { workspace_id?: string;  page?: number; pageSize?: number; search?: string; status?: string }): Promise<PaginatedResult<Ticket>> {
     const page = params.page || 1
     const pageSize = params.pageSize || 10
     const offset = (page - 1) * pageSize
@@ -27,6 +27,7 @@ export class TicketRepository {
       .from('tickets')
       .select('*, client:clients(full_name)', { count: 'exact' })
 
+    if (params.workspace_id) query = query.eq('workspace_id', params.workspace_id);
     if (params.search) {
       query = query.ilike('subject', `%${params.search}%`)
     }

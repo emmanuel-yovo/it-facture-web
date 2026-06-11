@@ -35,7 +35,7 @@ export default function InvoicesPage() {
   const load = useCallback(async () => {
     if (!workspaceId) return
     try {
-      const result = await invoiceRepository.getAll({
+      const result = await invoiceRepository.getAll({ workspace_id: workspaceId, 
         page, 
         pageSize: 10, 
         search,

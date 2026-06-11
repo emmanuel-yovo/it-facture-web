@@ -37,9 +37,9 @@ export default function SubscriptionsPage() {
   const load = useCallback(async () => {
     if (!workspaceId) return
     try {
-      const res = await subscriptionRepository.getAll({ search })
+      const res = await subscriptionRepository.getAll({ workspace_id: workspaceId,  search })
       setSubscriptions(res.data)
-      const cls = await clientRepository.getAll({ pageSize: 1000 })
+      const cls = await clientRepository.getAll({ workspace_id: workspaceId,  pageSize: 1000 })
       setClients(cls.data)
     } catch (err) {
       console.error(err)

@@ -38,7 +38,7 @@ export default function ServicesPage() {
   const load = useCallback(async () => {
     if (!workspaceId) return
     try {
-      const result = await serviceRepository.getAll({ page: 1, pageSize: 100, search, category: catFilter || undefined })
+      const result = await serviceRepository.getAll({ workspace_id: workspaceId,  page: 1, pageSize: 100, search, category: catFilter || undefined })
       setServices(result.data)
       setTotal(result.total)
       

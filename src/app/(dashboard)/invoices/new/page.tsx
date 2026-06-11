@@ -48,8 +48,8 @@ function InvoiceForm() {
 
   useEffect(() => {
     if (!workspaceId) return
-    clientRepository.getAll({ page: 1, pageSize: 200 }).then(r => setClients(r.data))
-    serviceRepository.getAll({ page: 1, pageSize: 200 }).then(r => setServices(r.data))
+    clientRepository.getAll({ workspace_id: workspaceId,  page: 1, pageSize: 200 }).then(r => setClients(r.data))
+    serviceRepository.getAll({ workspace_id: workspaceId,  page: 1, pageSize: 200 }).then(r => setServices(r.data))
     settingsRepository.getSettings(workspaceId).then(setSettings)
   }, [workspaceId])
 

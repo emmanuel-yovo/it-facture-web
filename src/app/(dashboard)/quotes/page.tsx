@@ -24,7 +24,7 @@ export default function QuotesPage() {
   const load = useCallback(async () => {
     if (!workspaceId) return
     try {
-      const result = await invoiceRepository.getAll({
+      const result = await invoiceRepository.getAll({ workspace_id: workspaceId, 
         page: 1, 
         pageSize: 100, 
         search,

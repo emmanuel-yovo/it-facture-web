@@ -25,7 +25,7 @@ export class PaymentRepository {
     return data as Payment[]
   }
 
-  async getAll(params: { page?: number; pageSize?: number }): Promise<PaginatedResult<Payment>> {
+  async getAll(params: { workspace_id?: string;  page?: number; pageSize?: number }): Promise<PaginatedResult<Payment>> {
     const page = params.page || 1
     const pageSize = params.pageSize || 10
     const offset = (page - 1) * pageSize

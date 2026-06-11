@@ -39,13 +39,13 @@ export default function RemindersPage() {
     if (!workspaceId) return
     setIsLoading(true)
     try {
-      const result = await reminderRepository.getAll({ search })
+      const result = await reminderRepository.getAll({ workspace_id: workspaceId,  search })
       setReminders(result.data)
       
-      const cls = await clientRepository.getAll({ pageSize: 1000 })
+      const cls = await clientRepository.getAll({ workspace_id: workspaceId,  pageSize: 1000 })
       setClients(cls.data)
       
-      const invs = await invoiceRepository.getAll({ pageSize: 1000, status: 'unpaid' })
+      const invs = await invoiceRepository.getAll({ workspace_id: workspaceId,  pageSize: 1000, status: 'unpaid' })
       setInvoices(invs.data)
     } catch (error) {
       console.error(error)

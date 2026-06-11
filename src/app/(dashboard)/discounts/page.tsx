@@ -35,7 +35,7 @@ export default function DiscountsPage() {
   const load = useCallback(async () => {
     if (!workspaceId) return
     try {
-      const r = await discountRepository.getAll({ page: 1, pageSize: 100, search })
+      const r = await discountRepository.getAll({ workspace_id: workspaceId,  page: 1, pageSize: 100, search })
       setDiscounts(r.data)
       setTotal(r.total)
     } catch (err) {

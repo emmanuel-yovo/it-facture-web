@@ -42,7 +42,7 @@ export default function ClientsPage() {
   const load = useCallback(async () => {
     if (!workspaceId) return
     try {
-      const result = await clientRepository.getAll({ page, pageSize: 10, search })
+      const result = await clientRepository.getAll({ workspace_id: workspaceId,  page, pageSize: 10, search })
       setClients(result.data)
       setTotal(result.total)
       setTotalPages(result.totalPages)
