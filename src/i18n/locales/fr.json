@@ -19,6 +19,10 @@
     "audit": "Sécurité",
     "users": "Utilisateurs"
   },
+  "reports": {
+    "annualTotal": "Cumul annuel",
+    "estimatedMargin": "Marge estimée"
+  },
   "auth": {
     "title": "Connexion",
     "subtitle": "Connectez-vous à votre espace",
@@ -29,8 +33,10 @@
   },
   "dashboard": {
     "title": "Tableau de bord",
+    "subtitle": "Vue d'ensemble de votre activité",
     "totalRevenue": "Chiffre d'affaires total",
     "monthlyRevenue": "Revenus du mois",
+    "netProfit": "Bénéfice Net",
     "totalInvoices": "Total factures",
     "paidInvoices": "Factures payées",
     "unpaidInvoices": "Factures impayées",

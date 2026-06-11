@@ -85,7 +85,7 @@ export default function ReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-indigo-700 dark:text-indigo-400">{formatCurrency(financialData.reduce((acc, curr) => acc + curr.revenue, 0))}</div>
-            <p className="text-xs text-indigo-600/80 dark:text-indigo-400/80 mt-1 flex items-center"><ArrowUpRight className="w-3 h-3 mr-1" />Cumul annuel</p>
+            <p className="text-xs text-indigo-600/80 dark:text-indigo-400/80 mt-1 flex items-center"><ArrowUpRight className="w-3 h-3 mr-1" />{t('reports.annualTotal', 'Cumul annuel')}</p>
           </CardContent>
         </Card>
 
@@ -97,19 +97,19 @@ export default function ReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-rose-700 dark:text-rose-400">{formatCurrency(financialData.reduce((acc, curr) => acc + curr.expenses, 0))}</div>
-            <p className="text-xs text-rose-600/80 dark:text-rose-400/80 mt-1 flex items-center"><ArrowDownRight className="w-3 h-3 mr-1" />Cumul annuel</p>
+            <p className="text-xs text-rose-600/80 dark:text-rose-400/80 mt-1 flex items-center"><ArrowDownRight className="w-3 h-3 mr-1" />{t('reports.annualTotal', 'Cumul annuel')}</p>
           </CardContent>
         </Card>
 
         <Card className="bg-emerald-500/5 border-emerald-500/20 shadow-none">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-emerald-700 dark:text-emerald-400 flex items-center justify-between">
-              Bénéfice Net <TrendingUp className="w-4 h-4" />
+              {t('dashboard.netProfit', 'Bénéfice Net')} <TrendingUp className="w-4 h-4" />
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(financialData.reduce((acc, curr) => acc + (curr.revenue - curr.expenses), 0))}</div>
-            <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80 mt-1 flex items-center"><ArrowUpRight className="w-3 h-3 mr-1" />Marge estimée</p>
+            <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80 mt-1 flex items-center"><ArrowUpRight className="w-3 h-3 mr-1" />{t('reports.estimatedMargin', 'Marge estimée')}</p>
           </CardContent>
         </Card>
 
