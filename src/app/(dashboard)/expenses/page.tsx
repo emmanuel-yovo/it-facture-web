@@ -14,8 +14,10 @@ import { expenseRepository, Expense } from '@/lib/repositories/expense.repositor
 import { canAccessFeature, PlanType } from '@/lib/limits'
 import { Lock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 
 export default function ExpensesPage() {
+  const { t } = useTranslation()
   const { workspaceId, workspacePlan, user } = useAuthStore()
   const plan = (workspacePlan as PlanType) || 'free'
   const router = useRouter()
@@ -90,12 +92,12 @@ export default function ExpensesPage() {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Dépenses</h1>
+          <h1 className="text-2xl font-bold">{t('nav.expenses', 'Dépenses')}</h1>
           <p className="text-muted-foreground text-sm mt-1">Suivez vos sorties d'argent</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={exportCSV}><Download className="w-4 h-4 mr-2" />Exporter</Button>
-          <Button onClick={() => setOpen(true)}><Plus className="w-4 h-4 mr-2" />Nouvelle Dépense</Button>
+          <Button variant="outline" onClick={exportCSV}><Download className="w-4 h-4 mr-2" />{t('common.import', 'Exporter').replace('Import', 'Export')}</Button>
+          <Button onClick={() => setOpen(true)}><Plus className="w-4 h-4 mr-2" />{t('common.add', 'Nouvelle')} {t('nav.expenses', 'Dépenses').toLowerCase()}</Button>
         </div>
       </div>
 
@@ -103,14 +105,14 @@ export default function ExpensesPage() {
         <div className="p-4 border-b border-border/50">
           <div className="relative max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input className="pl-9 bg-card" placeholder="Rechercher une dépense..." value={search} onChange={e => setSearch(e.target.value)} />
+            <Input className="pl-9 bg-card" placeholder={t('common.search', 'Rechercher...')} value={search} onChange={e => setSearch(e.target.value)} />
           </div>
         </div>
         <CardContent className="p-0">
           {expenses.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground flex flex-col items-center">
               <Receipt className="w-12 h-12 mb-4 opacity-20" />
-              <p>Aucune dépense trouvée</p>
+              <p>{t('common.noData', 'Aucune dépense trouvée')}</p>
             </div>
           ) : (
             <table className="w-full text-sm">
@@ -145,7 +147,7 @@ export default function ExpensesPage() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Nouvelle Dépense</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t('common.add', 'Nouvelle')} {t('nav.expenses', 'Dépenses').toLowerCase()}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2"><Label>Titre *</Label><Input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} /></div>
             <div className="space-y-2"><Label>Montant *</Label><Input type="number" value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} /></div>
@@ -153,8 +155,8 @@ export default function ExpensesPage() {
             <div className="space-y-2"><Label>Date</Label><Input type="date" value={formData.expense_date} onChange={e => setFormData({ ...formData, expense_date: e.target.value })} /></div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
-            <Button onClick={handleSave} disabled={!formData.title || !formData.amount}>Enregistrer</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>{t('common.cancel')}</Button>
+            <Button onClick={handleSave} disabled={!formData.title || !formData.amount}>{t('common.save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

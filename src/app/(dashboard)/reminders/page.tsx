@@ -16,8 +16,10 @@ import { clientRepository } from '@/lib/repositories/client.repository'
 import { invoiceRepository } from '@/lib/repositories/invoice.repository'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { useTranslation } from 'react-i18next'
 
 export default function RemindersPage() {
+  const { t } = useTranslation()
   const { workspaceId } = useAuthStore()
   const [reminders, setReminders] = useState<Reminder[]>([])
   const [clients, setClients] = useState<any[]>([])
@@ -95,11 +97,11 @@ export default function RemindersPage() {
     <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Relances & Rappels</h1>
+          <h1 className="text-3xl font-bold">{t('nav.reminders', 'Relances & Rappels')}</h1>
           <p className="text-muted-foreground mt-1">Gérez vos rappels de paiement et rendez-vous.</p>
         </div>
         <Button onClick={() => setIsModalOpen(true)} className="bg-primary hover:bg-primary/90">
-          <Plus className="w-4 h-4 mr-2" /> Nouveau Rappel
+          <Plus className="w-4 h-4 mr-2" /> {t('common.add', 'Nouveau')} {t('nav.reminders', 'Rappel').toLowerCase().replace('s', '')}
         </Button>
       </div>
 
@@ -107,7 +109,7 @@ export default function RemindersPage() {
         <CardHeader className="pb-3 border-b border-border/50">
           <div className="relative max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input placeholder="Rechercher..." className="pl-9 bg-card" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input placeholder={t('common.search', 'Rechercher...')} className="pl-9 bg-card" value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
         </CardHeader>
         <CardContent className="pt-6">
@@ -120,19 +122,19 @@ export default function RemindersPage() {
               <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto text-muted-foreground">
                 <Bell className="w-6 h-6" />
               </div>
-              <h3 className="font-medium">Aucun rappel</h3>
+              <h3 className="font-medium">{t('common.noData', 'Aucun rappel')}</h3>
               <p className="text-sm text-muted-foreground">Vous n'avez aucun rappel planifié pour le moment.</p>
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/30">
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Date Prévue</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.date')} Prévue</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">Type</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Client</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.client')}</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">Message</th>
-                  <th className="text-center py-3 px-4 font-medium text-muted-foreground">Statut</th>
-                  <th className="text-center py-3 px-4 font-medium text-muted-foreground">Actions</th>
+                  <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('invoices.status')}</th>
+                  <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('common.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -209,8 +211,8 @@ export default function RemindersPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Annuler</Button>
-            <Button onClick={handleSave} disabled={!formData.invoice_id}>Enregistrer</Button>
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>{t('common.cancel')}</Button>
+            <Button onClick={handleSave} disabled={!formData.invoice_id}>{t('common.save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

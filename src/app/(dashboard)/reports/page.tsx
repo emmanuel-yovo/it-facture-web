@@ -9,10 +9,12 @@ import { formatCurrency } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
 import { reportRepository } from '@/lib/repositories/report.repository'
 import { hasPermission, PERMISSIONS } from '@/lib/permissions'
+import { useTranslation } from 'react-i18next'
 
 const COLORS = ['#6366f1', '#f43f5e', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4']
 
 export default function ReportsPage() {
+  const { t } = useTranslation()
   const { workspaceId, user } = useAuthStore()
   const [financialData, setFinancialData] = useState<any[]>([])
   const [topClients, setTopClients] = useState<any[]>([])
@@ -64,12 +66,12 @@ export default function ReportsPage() {
     <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Analyses Financières</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('nav.reports', 'Analyses Financières')}</h1>
           <p className="text-muted-foreground mt-1">Suivez la performance et la rentabilité de votre entreprise.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button onClick={handleExportComptable} className="bg-primary hover:bg-primary/90 text-white shadow-md">
-            <Download className="w-4 h-4 mr-2" /> Pack Comptable
+            <Download className="w-4 h-4 mr-2" /> {t('common.import', 'Exporter').replace('Import', 'Pack Comptable')}
           </Button>
         </div>
       </div>
@@ -78,7 +80,7 @@ export default function ReportsPage() {
         <Card className="bg-indigo-500/5 border-indigo-500/20 shadow-none">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-indigo-700 dark:text-indigo-400 flex items-center justify-between">
-              Chiffre d'Affaires <DollarSign className="w-4 h-4" />
+              {t('dashboard.totalRevenue', "Chiffre d'Affaires")} <DollarSign className="w-4 h-4" />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -90,7 +92,7 @@ export default function ReportsPage() {
         <Card className="bg-rose-500/5 border-rose-500/20 shadow-none">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-rose-700 dark:text-rose-400 flex items-center justify-between">
-              Total Dépenses <Briefcase className="w-4 h-4" />
+              Total {t('nav.expenses', 'Dépenses')} <Briefcase className="w-4 h-4" />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -114,7 +116,7 @@ export default function ReportsPage() {
         <Card className="bg-amber-500/5 border-amber-500/20 shadow-none">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-400 flex items-center justify-between">
-              Clients Actifs <Users className="w-4 h-4" />
+              {t('dashboard.activeClients', 'Clients Actifs')} <Users className="w-4 h-4" />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -177,11 +179,11 @@ export default function ReportsPage() {
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-sm">{formatCurrency(client.total_spent)}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{client.invoice_count} Factures</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{client.invoice_count} {t('nav.invoices', 'Factures')}</p>
                   </div>
                 </div>
               ))}
-              {topClients.length === 0 && <p className="text-center text-muted-foreground py-10">Aucune donnée.</p>}
+              {topClients.length === 0 && <p className="text-center text-muted-foreground py-10">{t('common.noData', 'Aucune donnée.')}</p>}
             </div>
           </CardContent>
         </Card>

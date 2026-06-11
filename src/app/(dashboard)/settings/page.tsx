@@ -17,8 +17,10 @@ import { useAuthStore } from '@/store/authStore'
 import { settingsRepository } from '@/lib/repositories/settings.repository'
 import { supabase } from '@/lib/supabase'
 import { storageService } from '@/lib/services/storage.service'
+import { useTranslation } from 'react-i18next'
 
 export default function SettingsPage() {
+  const { t } = useTranslation()
   const router = useRouter()
   const { user: authUser, workspaceId, logout } = useAuthStore()
   const [settings, setSettings] = useState<any>({})
@@ -124,14 +126,14 @@ export default function SettingsPage() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Paramètres</h1>
-        <p className="text-muted-foreground text-sm mt-1">Configurez votre entreprise et votre application</p>
+        <h1 className="text-2xl font-bold">{t('settings.title')}</h1>
+        <p className="text-muted-foreground text-sm mt-1">{t('settings.subtitle', 'Configurez votre entreprise et votre application')}</p>
       </div>
 
       <Tabs defaultValue={['admin', 'superadmin'].includes(authUser?.role as string) ? "company" : "account"} className="space-y-6">
         <TabsList className="bg-card border border-border">
           {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
-            <TabsTrigger value="company"><Building className="w-4 h-4 mr-2" />Entreprise</TabsTrigger>
+            <TabsTrigger value="company"><Building className="w-4 h-4 mr-2" />{t('settings.companyInfo', 'Entreprise')}</TabsTrigger>
           )}
           {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
             <TabsTrigger value="email"><Mail className="w-4 h-4 mr-2" />Emails (SMTP)</TabsTrigger>
@@ -142,29 +144,29 @@ export default function SettingsPage() {
           {hasPermission(authUser?.role, PERMISSIONS.MANAGE_FEDAPAY) && (
             <TabsTrigger value="payments"><CreditCard className="w-4 h-4 mr-2" />FedaPay (Paiements)</TabsTrigger>
           )}
-          <TabsTrigger value="account"><LogOut className="w-4 h-4 mr-2" />Compte</TabsTrigger>
+          <TabsTrigger value="account"><LogOut className="w-4 h-4 mr-2" />{t('settings.account', 'Compte')}</TabsTrigger>
         </TabsList>
 
         {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
           <TabsContent value="company">
             <Card className="border border-border shadow-sm">
-              <CardHeader><CardTitle>Informations de l'entreprise</CardTitle></CardHeader>
+              <CardHeader><CardTitle>{t('settings.companyInfo')}</CardTitle></CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2 space-y-2">
-                    <Label>Nom de l'entreprise</Label>
+                    <Label>{t('settings.companyName')}</Label>
                     <Input value={settings.company_name || ''} onChange={(e) => setSettings((s: any) => ({ ...s, company_name: e.target.value }))} />
                   </div>
                   <div className="col-span-2 space-y-2">
-                    <Label>Adresse postale</Label>
+                    <Label>{t('settings.companyAddress')}</Label>
                     <Input value={settings.company_address || ''} onChange={(e) => setSettings((s: any) => ({ ...s, company_address: e.target.value }))} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Téléphone</Label>
+                    <Label>{t('settings.companyPhone')}</Label>
                     <Input value={settings.company_phone || ''} onChange={(e) => setSettings((s: any) => ({ ...s, company_phone: e.target.value }))} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Email de contact</Label>
+                    <Label>{t('settings.companyEmail')}</Label>
                     <Input type="email" value={settings.company_email || ''} onChange={(e) => setSettings((s: any) => ({ ...s, company_email: e.target.value }))} />
                   </div>
                   <div className="col-span-2 space-y-2">
@@ -189,7 +191,7 @@ export default function SettingsPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>TVA/Taxe par défaut (%)</Label>
+                    <Label>{t('settings.defaultVat')}</Label>
                     <Input type="number" step="0.01" value={settings.tax_rate || ''} onChange={(e) => setSettings((s: any) => ({ ...s, tax_rate: e.target.value }))} />
                   </div>
                   <div className="space-y-2">
@@ -252,7 +254,7 @@ export default function SettingsPage() {
 
                 <div className="flex justify-end">
                   <Button onClick={handleSave} disabled={loading} className="min-w-[140px]">
-                    {saved ? <><Check className="w-4 h-4 mr-2" />Enregistré</> : <><Save className="w-4 h-4 mr-2" />Enregistrer</>}
+                    {saved ? <><Check className="w-4 h-4 mr-2" />{t('settings.saved')}</> : <><Save className="w-4 h-4 mr-2" />{t('settings.save')}</>}
                   </Button>
                 </div>
               </CardContent>

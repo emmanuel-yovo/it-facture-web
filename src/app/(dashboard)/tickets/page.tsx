@@ -17,8 +17,10 @@ import { clientRepository } from '@/lib/repositories/client.repository'
 import { canAccessFeature, PlanType } from '@/lib/limits'
 import { Lock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 
 export default function TicketsPage() {
+  const { t } = useTranslation()
   const { workspaceId, workspacePlan, user } = useAuthStore()
   const plan = (workspacePlan as PlanType) || 'free'
   const router = useRouter()
@@ -135,11 +137,11 @@ export default function TicketsPage() {
     <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Interventions / Tickets</h1>
+          <h1 className="text-3xl font-bold">{t('nav.tickets', 'Interventions / Tickets')}</h1>
           <p className="text-muted-foreground mt-1">Gérez vos interventions techniques et leur facturation.</p>
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)} className="bg-primary hover:bg-primary/90">
-          <Plus className="w-4 h-4 mr-2" /> Nouveau Ticket
+          <Plus className="w-4 h-4 mr-2" /> {t('common.add', 'Nouveau')} {t('nav.tickets', 'Ticket').replace('s', '').replace('Maintenance', 'Ticket')}
         </Button>
       </div>
 
@@ -148,7 +150,7 @@ export default function TicketsPage() {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Rechercher un ticket ou un client..." className="pl-9 bg-card" value={search} onChange={(e) => setSearch(e.target.value)} />
+              <Input placeholder={t('common.search', 'Rechercher...')} className="pl-9 bg-card" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
             <div className="flex gap-2">
               <Button variant={statusFilter === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter('all')}>Tous</Button>
@@ -167,7 +169,7 @@ export default function TicketsPage() {
               <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto text-muted-foreground">
                 <Wrench className="w-6 h-6" />
               </div>
-              <h3 className="font-medium">Aucun ticket trouvé</h3>
+              <h3 className="font-medium">{t('common.noData', 'Aucun ticket trouvé')}</h3>
               <p className="text-sm text-muted-foreground">Commencez par créer votre première intervention de maintenance.</p>
             </div>
           ) : (

@@ -15,10 +15,12 @@ import { formatCurrency } from '@/lib/utils'
 import { Plus, Search, Pencil, Trash2, Wrench, FileUp } from 'lucide-react'
 import { serviceRepository, Service } from '@/lib/repositories/service.repository'
 import { settingsRepository } from '@/lib/repositories/settings.repository'
+import { useTranslation } from 'react-i18next'
 
 const empty = { name: '', description: '', category: '', unit_price: 0, vat_percentage: 19.25, is_active: true }
 
 export default function ServicesPage() {
+  const { t } = useTranslation()
   const { user, workspaceId } = useAuthStore()
   const [services, setServices] = useState<Service[]>([])
   const [total, setTotal] = useState(0)
@@ -72,7 +74,7 @@ export default function ServicesPage() {
       load()
     } catch (err) {
       console.error(err)
-      alert("Erreur lors de l'enregistrement du service.")
+      alert(t('common.error', "Erreur lors de l'enregistrement du service."))
     }
   }
 
@@ -85,7 +87,7 @@ export default function ServicesPage() {
         load()
       } catch (err) {
         console.error(err)
-        alert("Erreur lors de la suppression.")
+        alert(t('common.error', "Erreur lors de la suppression."))
       }
     }
   }
@@ -111,18 +113,18 @@ export default function ServicesPage() {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Services & Produits</h1>
-          <p className="text-muted-foreground text-sm mt-1">{total} services</p>
+          <h1 className="text-2xl font-bold">{t('services.title')}</h1>
+          <p className="text-muted-foreground text-sm mt-1">{total} {t('nav.services').toLowerCase()}</p>
         </div>
         {['admin', 'superadmin'].includes(user?.role as string) && (
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleImport}>
               <FileUp className="w-4 h-4 mr-2" />
-              Importer
+              {t('common.import', 'Importer')}
             </Button>
             <Button onClick={openNew}>
               <Plus className="w-4 h-4 mr-2" />
-              Nouveau Service
+              {t('services.addService')}
             </Button>
           </div>
         )}
@@ -131,10 +133,10 @@ export default function ServicesPage() {
       <div className="flex gap-3 flex-wrap">
         <div className="relative max-w-md flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Rechercher un service..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-card border-border" />
+          <Input placeholder={t('services.search', 'Rechercher un service...')} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-card border-border" />
         </div>
         <div className="flex gap-1 flex-wrap">
-          <Button variant={catFilter === '' ? 'default' : 'outline'} size="sm" onClick={() => setCatFilter('')}>Toutes les catégories</Button>
+          <Button variant={catFilter === '' ? 'default' : 'outline'} size="sm" onClick={() => setCatFilter('')}>{t('services.allCategories', 'Toutes les catégories')}</Button>
           {categories.map(cat => (
             <Button key={cat} variant={catFilter === cat ? 'default' : 'outline'} size="sm" onClick={() => setCatFilter(cat)}>{cat}</Button>
           ))}
@@ -146,12 +148,12 @@ export default function ServicesPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead><tr className="border-b border-border bg-muted/30">
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Nom & Description</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Catégorie</th>
-                <th className="text-right py-3 px-4 font-medium text-muted-foreground">Prix unitaire</th>
-                <th className="text-center py-3 px-4 font-medium text-muted-foreground">TVA</th>
-                <th className="text-center py-3 px-4 font-medium text-muted-foreground">Statut</th>
-                <th className="text-center py-3 px-4 font-medium text-muted-foreground">Actions</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('services.name')}</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('services.category')}</th>
+                <th className="text-right py-3 px-4 font-medium text-muted-foreground">{t('services.unitPrice')}</th>
+                <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('services.vatPercentage')}</th>
+                <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('invoices.status', 'Statut')}</th>
+                <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('common.actions')}</th>
               </tr></thead>
               <tbody>
                 {services.map(s => (
@@ -162,7 +164,7 @@ export default function ServicesPage() {
                     <td className="py-3 px-4 text-center text-muted-foreground">{s.vat_percentage}%</td>
                     <td className="py-3 px-4 text-center">
                       <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${s.is_active ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}>
-                        {s.is_active ? 'Actif' : 'Inactif'}
+                        {s.is_active ? t('services.active') : t('services.inactive')}
                       </div>
                     </td>
                     <td className="py-3 px-4 text-center">
@@ -182,7 +184,7 @@ export default function ServicesPage() {
                   </tr>
                 ))}
                 {services.length === 0 && (
-                  <tr><td colSpan={6} className="py-12 text-center text-muted-foreground"><Wrench className="w-12 h-12 mx-auto mb-3 opacity-30" /><p>Aucun service trouvé.</p></td></tr>
+                  <tr><td colSpan={6} className="py-12 text-center text-muted-foreground"><Wrench className="w-12 h-12 mx-auto mb-3 opacity-30" /><p>{t('services.noServices')}</p></td></tr>
                 )}
               </tbody>
             </table>
@@ -192,26 +194,26 @@ export default function ServicesPage() {
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>{editing ? "Modifier le service" : "Nouveau service"}</DialogTitle><DialogDescription>Configurez le service ou produit</DialogDescription></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? t('services.editService') : t('services.addService')}</DialogTitle><DialogDescription>Configurez le service ou produit</DialogDescription></DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-4">
-            <div className="col-span-2 space-y-2"><Label>Nom *</Label><Input value={form.name || ''} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} /></div>
-            <div className="col-span-2 space-y-2"><Label>Description</Label><Textarea value={form.description || ''} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} rows={2} /></div>
-            <div className="space-y-2"><Label>Catégorie</Label><Input value={form.category || ''} onChange={(e) => setForm(f => ({ ...f, category: e.target.value }))} placeholder="Ex: Réseau, Conseil..." /></div>
-            <div className="space-y-2"><Label>Prix unitaire ({localStorage.getItem('currency_symbol') || 'FCFA'})</Label><Input type="number" value={form.unit_price} onChange={(e) => setForm(f => ({ ...f, unit_price: Number(e.target.value) }))} /></div>
-            <div className="space-y-2"><Label>TVA (%)</Label><Input type="number" step="0.01" value={form.vat_percentage} onChange={(e) => setForm(f => ({ ...f, vat_percentage: Number(e.target.value) }))} /></div>
-            <div className="flex items-center gap-3 pt-6"><Switch checked={form.is_active} onCheckedChange={(v) => setForm(f => ({ ...f, is_active: v }))} /><Label>Service actif</Label></div>
+            <div className="col-span-2 space-y-2"><Label>{t('services.name')} *</Label><Input value={form.name || ''} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} /></div>
+            <div className="col-span-2 space-y-2"><Label>{t('services.description')}</Label><Textarea value={form.description || ''} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} rows={2} /></div>
+            <div className="space-y-2"><Label>{t('services.category')}</Label><Input value={form.category || ''} onChange={(e) => setForm(f => ({ ...f, category: e.target.value }))} placeholder="Ex: Réseau, Conseil..." /></div>
+            <div className="space-y-2"><Label>{t('services.unitPrice')} ({localStorage.getItem('currency_symbol') || 'FCFA'})</Label><Input type="number" value={form.unit_price} onChange={(e) => setForm(f => ({ ...f, unit_price: Number(e.target.value) }))} /></div>
+            <div className="space-y-2"><Label>{t('services.vatPercentage')}</Label><Input type="number" step="0.01" value={form.vat_percentage} onChange={(e) => setForm(f => ({ ...f, vat_percentage: Number(e.target.value) }))} /></div>
+            <div className="flex items-center gap-3 pt-6"><Switch checked={form.is_active} onCheckedChange={(v) => setForm(f => ({ ...f, is_active: v }))} /><Label>{t('services.active')}</Label></div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setModalOpen(false)}>Annuler</Button>
-            <Button onClick={handleSave} disabled={!form.name || form.unit_price === undefined}>Enregistrer</Button>
+            <Button variant="outline" onClick={() => setModalOpen(false)}>{t('common.cancel')}</Button>
+            <Button onClick={handleSave} disabled={!form.name || form.unit_price === undefined}>{t('common.save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle>Supprimer le service</DialogTitle><DialogDescription>Êtes-vous sûr de vouloir supprimer ce service ? Il sera archivé et rendu inactif.</DialogDescription></DialogHeader>
-          <DialogFooter><Button variant="outline" onClick={() => setDeleteOpen(false)}>Annuler</Button><Button variant="destructive" onClick={handleDelete}>Supprimer</Button></DialogFooter>
+          <DialogHeader><DialogTitle>{t('services.deleteService')}</DialogTitle><DialogDescription>Êtes-vous sûr de vouloir supprimer ce service ? Il sera archivé et rendu inactif.</DialogDescription></DialogHeader>
+          <DialogFooter><Button variant="outline" onClick={() => setDeleteOpen(false)}>{t('common.cancel')}</Button><Button variant="destructive" onClick={handleDelete}>{t('common.delete')}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
     </motion.div>

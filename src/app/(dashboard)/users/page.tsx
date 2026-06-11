@@ -12,6 +12,7 @@ import { useAuthStore } from '@/store/authStore'
 import { hasPermission, PERMISSIONS } from '@/lib/permissions'
 import { supabase } from '@/lib/supabase'
 import { Badge } from '@/components/ui/badge'
+import { useTranslation } from 'react-i18next'
 
 type Profile = {
   id: string
@@ -21,6 +22,7 @@ type Profile = {
 }
 
 export default function UsersPage() {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
@@ -113,7 +115,7 @@ export default function UsersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Users className="w-8 h-8 text-primary" /> Équipe
+            <Users className="w-8 h-8 text-primary" /> {t('nav.users', 'Équipe')}
           </h1>
           <p className="text-muted-foreground mt-1">Gérez les membres de votre entreprise et leurs accès.</p>
         </div>
@@ -161,7 +163,7 @@ export default function UsersPage() {
               </div>
 
               <div className="flex justify-end pt-4 gap-2">
-                <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Annuler</Button>
+                <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t('common.cancel')}</Button>
                 <Button type="submit" disabled={isInviting}>
                   {isInviting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Mail className="w-4 h-4 mr-2" />}
                   Envoyer l'invitation
@@ -182,7 +184,7 @@ export default function UsersPage() {
                 <tr className="border-b bg-muted/30">
                   <th className="py-3 px-6 font-medium text-muted-foreground">Nom / Email</th>
                   <th className="py-3 px-6 font-medium text-muted-foreground">Rôle</th>
-                  <th className="py-3 px-6 font-medium text-muted-foreground">Statut</th>
+                  <th className="py-3 px-6 font-medium text-muted-foreground">{t('invoices.status')}</th>
                 </tr>
               </thead>
               <tbody>

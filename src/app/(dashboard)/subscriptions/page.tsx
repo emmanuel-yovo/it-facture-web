@@ -15,8 +15,10 @@ import { Switch } from '@/components/ui/switch'
 import { useAuthStore } from '@/store/authStore'
 import { subscriptionRepository, Subscription } from '@/lib/repositories/subscription.repository'
 import { clientRepository } from '@/lib/repositories/client.repository'
+import { useTranslation } from 'react-i18next'
 
 export default function SubscriptionsPage() {
+  const { t } = useTranslation()
   const { workspaceId } = useAuthStore()
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [clients, setClients] = useState<any[]>([])
@@ -80,36 +82,36 @@ export default function SubscriptionsPage() {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Abonnements</h1>
+          <h1 className="text-2xl font-bold">{t('nav.subscriptions', 'Abonnements')}</h1>
           <p className="text-muted-foreground text-sm mt-1">Gérez vos revenus récurrents</p>
         </div>
-        <Button onClick={() => setOpen(true)}><Plus className="w-4 h-4 mr-2" />Nouvel Abonnement</Button>
+        <Button onClick={() => setOpen(true)}><Plus className="w-4 h-4 mr-2" />{t('common.add', 'Nouvel')} {t('nav.subscriptions', 'Abonnement').toLowerCase().replace('s', '')}</Button>
       </div>
 
       <Card className="border-border shadow-sm">
         <div className="p-4 border-b border-border/50">
           <div className="relative max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input className="pl-9 bg-card" placeholder="Rechercher..." value={search} onChange={e => setSearch(e.target.value)} />
+            <Input className="pl-9 bg-card" placeholder={t('common.search', 'Rechercher...')} value={search} onChange={e => setSearch(e.target.value)} />
           </div>
         </div>
         <CardContent className="p-0">
           {subscriptions.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground flex flex-col items-center">
               <Repeat className="w-12 h-12 mb-4 opacity-20" />
-              <p>Aucun abonnement trouvé</p>
+              <p>{t('common.noData', 'Aucun abonnement trouvé')}</p>
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/30">
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Client</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.client')}</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">Titre</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">Fréquence</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">Prochaine Facture</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Statut</th>
-                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">Montant</th>
-                  <th className="text-center py-3 px-4 font-medium text-muted-foreground">Actions</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.status')}</th>
+                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">{t('payments.amount')}</th>
+                  <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('common.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -126,7 +128,7 @@ export default function SubscriptionsPage() {
                         </span>
                       </td>
                       <td className="py-3 px-4">
-                        <Badge variant={s.is_active ? 'success' : 'outline'}>{s.is_active ? 'Actif' : 'Inactif'}</Badge>
+                        <Badge variant={s.is_active ? 'success' : 'outline'}>{s.is_active ? t('common.active') : t('common.inactive')}</Badge>
                       </td>
                       <td className="py-3 px-4 text-right font-semibold">{formatCurrency(s.amount)}</td>
                       <td className="py-3 px-4 text-center">
@@ -145,7 +147,7 @@ export default function SubscriptionsPage() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Nouvel Abonnement</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t('common.add', 'Nouvel')} {t('nav.subscriptions', 'Abonnement').toLowerCase().replace('s', '')}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Client *</Label>
@@ -172,8 +174,8 @@ export default function SubscriptionsPage() {
             <div className="flex items-center gap-3"><Switch checked={formData.is_active} onCheckedChange={(v) => setFormData({ ...formData, is_active: v })} /><Label>Abonnement actif</Label></div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
-            <Button onClick={handleSave} disabled={!formData.client_id || !formData.title || !formData.amount}>Enregistrer</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>{t('common.cancel')}</Button>
+            <Button onClick={handleSave} disabled={!formData.client_id || !formData.title || !formData.amount}>{t('common.save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
