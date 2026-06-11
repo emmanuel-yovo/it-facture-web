@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuthStore } from '@/store/authStore'
+import { useAuth } from '@/hooks/useAuth'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Building, KeyRound, AlertCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -15,6 +16,7 @@ import { useTranslation } from 'react-i18next'
 export default function OnboardingPage() {
   const { t } = useTranslation()
   const router = useRouter()
+  const { loading: authLoading } = useAuth() // Permet de recharger la session si on rafraîchit la page
   const { workspaceId, user } = useAuthStore()
   
   const [activeTab, setActiveTab] = useState('create')
@@ -41,35 +43,52 @@ export default function OnboardingPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!workspaceId || !user) return
+    if (!user) return
     
     setLoading(true)
     setError('')
     try {
       const newCompanyCode = generateCompanyCode()
+      let currentWorkspaceId = workspaceId
 
-      // 1. Mettre à jour le workspace actuel (auto-créé par Supabase) avec le nom et le nouveau code
-      await supabase
-        .from('workspaces')
-        .update({ 
-          name: companyName || 'Mon Entreprise',
-          company_code: newCompanyCode
-        })
-        .eq('id', workspaceId)
+      if (!currentWorkspaceId) {
+        // 1a. Créer un nouveau workspace
+        const { data: newWs, error: wsError } = await supabase
+          .from('workspaces')
+          .insert({ 
+            name: companyName || 'Mon Entreprise',
+            company_code: newCompanyCode,
+            owner_id: user.id
+          })
+          .select('id')
+          .single()
 
-      // 2. Mettre à jour le profil pour assigner le rôle 'admin'
+        if (wsError) throw wsError
+        currentWorkspaceId = newWs.id
+      } else {
+        // 1b. Mettre à jour le workspace actuel (si auto-créé par Supabase)
+        await supabase
+          .from('workspaces')
+          .update({ 
+            name: companyName || 'Mon Entreprise',
+            company_code: newCompanyCode
+          })
+          .eq('id', currentWorkspaceId)
+      }
+
+      // 2. Mettre à jour le profil pour assigner le rôle 'admin' et le workspace_id
       await supabase
         .from('profiles')
-        .update({ role: 'admin' })
+        .update({ role: 'admin', workspace_id: currentWorkspaceId })
         .eq('id', user.id)
 
       // 3. Sauvegarder les settings initiaux
       await supabase
         .from('settings')
         .upsert([
-          { workspace_id: workspaceId, key: 'company_name', value: companyName },
-          { workspace_id: workspaceId, key: 'country', value: country },
-          { workspace_id: workspaceId, key: 'currency', value: currency }
+          { workspace_id: currentWorkspaceId, key: 'company_name', value: companyName },
+          { workspace_id: currentWorkspaceId, key: 'country', value: country },
+          { workspace_id: currentWorkspaceId, key: 'currency', value: currency }
         ])
 
       // Rediriger vers le dashboard
@@ -192,7 +211,7 @@ export default function OnboardingPage() {
                 </div>
               )}
 
-              <Button type="submit" className="w-full mt-6" disabled={loading}>
+              <Button type="submit" className="w-full mt-6" disabled={loading || authLoading}>
                 {loading ? t('onboarding.btnCreating', "Configuration en cours...") : t('onboarding.btnCreate', "Créer et commencer")}
               </Button>
             </form>
@@ -222,7 +241,7 @@ export default function OnboardingPage() {
                 </div>
               )}
 
-              <Button type="submit" className="w-full mt-6" disabled={loading || !joinCode}>
+              <Button type="submit" className="w-full mt-6" disabled={loading || authLoading || !joinCode}>
                 {loading ? t('onboarding.btnJoining', "Vérification...") : t('onboarding.btnJoin', "Rejoindre l'entreprise")}
               </Button>
             </form>

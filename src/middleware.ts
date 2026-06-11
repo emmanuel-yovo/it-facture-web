@@ -35,9 +35,10 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const isAuthRoute = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register')
+  const isCallbackRoute = request.nextUrl.pathname.startsWith('/api/auth/callback')
 
   // Si l'utilisateur n'est pas connecté et essaie d'accéder à une route protégée
-  if (!user && !isAuthRoute) {
+  if (!user && !isAuthRoute && !isCallbackRoute) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
