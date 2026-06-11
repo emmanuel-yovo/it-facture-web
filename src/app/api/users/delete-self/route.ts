@@ -21,7 +21,7 @@ export async function DELETE(req: Request) {
 
     if (deleteError) {
       console.error('Erreur suppression de son propre compte:', deleteError)
-      return NextResponse.json({ error: "Erreur lors de la suppression du compte." }, { status: 500 })
+      return NextResponse.json({ error: `Erreur DB: ${deleteError.message} / ${deleteError.details}` }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
