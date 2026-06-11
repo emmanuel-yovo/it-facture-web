@@ -14,8 +14,10 @@ import { formatCurrency, formatDate, getStatusColor, getStatusLabel } from '@/li
 import { Plus, Search, Eye, Printer, Download, Trash2, FileText, ChevronLeft, ChevronRight, Lock } from 'lucide-react'
 import { invoiceRepository, Invoice } from '@/lib/repositories/invoice.repository'
 import { canCreateInvoice, PlanType } from '@/lib/limits'
+import { useTranslation } from 'react-i18next'
 
 export default function InvoicesPage() {
+  const { t } = useTranslation()
   const router = useRouter()
   const { user, workspaceId, workspacePlan } = useAuthStore()
   const plan = (workspacePlan as PlanType) || 'free'
@@ -61,7 +63,7 @@ export default function InvoicesPage() {
         load()
       } catch (err) {
         console.error(err)
-        alert('Erreur lors de la suppression')
+        alert(t('common.error', 'Erreur lors de la suppression'))
       }
     }
   }
@@ -80,30 +82,30 @@ export default function InvoicesPage() {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Factures</h1>
-          <p className="text-muted-foreground text-sm mt-1">{total} factures</p>
+          <h1 className="text-2xl font-bold">{t('invoices.title')}</h1>
+          <p className="text-muted-foreground text-sm mt-1">{total} {t('nav.invoices').toLowerCase()}</p>
         </div>
         <Button 
           onClick={() => isLimitReached ? router.push('/upgrade') : router.push('/invoices/new')}
           className={isLimitReached ? 'bg-orange-500 hover:bg-orange-600 text-white' : ''}
         >
           {isLimitReached ? <Lock className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
-          {isLimitReached ? 'Passez à Essential' : 'Nouvelle Facture'}
+          {isLimitReached ? 'Passez à Essential' : t('invoices.newInvoice')}
         </Button>
       </div>
 
       <div className="flex gap-3 flex-wrap">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Rechercher une facture..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} className="pl-10 bg-card border-border" />
+          <Input placeholder={t('invoices.search', 'Rechercher une facture...')} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} className="pl-10 bg-card border-border" />
         </div>
         <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1) }}>
           <SelectTrigger className="w-40 bg-card border-border"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tous les statuts</SelectItem>
-            <SelectItem value="paid">Payée</SelectItem>
-            <SelectItem value="unpaid">Non payée</SelectItem>
-            <SelectItem value="partial">Partielle</SelectItem>
+            <SelectItem value="all">{t('common.all')} {t('invoices.status').toLowerCase()}</SelectItem>
+            <SelectItem value="paid">{t('invoices.paid')}</SelectItem>
+            <SelectItem value="unpaid">{t('invoices.unpaid')}</SelectItem>
+            <SelectItem value="partial">{t('invoices.partial')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -113,12 +115,12 @@ export default function InvoicesPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead><tr className="border-b border-border bg-muted/30">
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Numéro</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Client</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Date</th>
-                <th className="text-right py-3 px-4 font-medium text-muted-foreground">Total</th>
-                <th className="text-center py-3 px-4 font-medium text-muted-foreground">Statut</th>
-                <th className="text-center py-3 px-4 font-medium text-muted-foreground">Actions</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.invoiceNumber')}</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.client')}</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.date')}</th>
+                <th className="text-right py-3 px-4 font-medium text-muted-foreground">{t('invoices.total')}</th>
+                <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('invoices.status')}</th>
+                <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('invoices.actions')}</th>
               </tr></thead>
               <tbody>
                 {invoices.map((inv: any) => (
@@ -145,14 +147,14 @@ export default function InvoicesPage() {
                   </tr>
                 ))}
                 {invoices.length === 0 && (
-                  <tr><td colSpan={6} className="py-12 text-center text-muted-foreground"><FileText className="w-12 h-12 mx-auto mb-3 opacity-30" /><p>Aucune facture trouvée.</p></td></tr>
+                  <tr><td colSpan={6} className="py-12 text-center text-muted-foreground"><FileText className="w-12 h-12 mx-auto mb-3 opacity-30" /><p>{t('invoices.noInvoices')}</p></td></tr>
                 )}
               </tbody>
             </table>
           </div>
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-border">
-              <p className="text-sm text-muted-foreground">Page {page} sur {totalPages}</p>
+              <p className="text-sm text-muted-foreground">{t('common.page')} {page} {t('common.of')} {totalPages}</p>
               <div className="flex gap-1">
                 <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}><ChevronLeft className="w-4 h-4" /></Button>
                 <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}><ChevronRight className="w-4 h-4" /></Button>
@@ -164,8 +166,8 @@ export default function InvoicesPage() {
 
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle>Supprimer la facture</DialogTitle><DialogDescription>Cette action supprimera définitivement cette facture.</DialogDescription></DialogHeader>
-          <DialogFooter><Button variant="outline" onClick={() => setDeleteOpen(false)}>Annuler</Button><Button variant="destructive" onClick={handleDelete}>Supprimer</Button></DialogFooter>
+          <DialogHeader><DialogTitle>{t('invoices.deleteInvoice')}</DialogTitle><DialogDescription>Cette action supprimera définitivement cette facture.</DialogDescription></DialogHeader>
+          <DialogFooter><Button variant="outline" onClick={() => setDeleteOpen(false)}>{t('common.cancel')}</Button><Button variant="destructive" onClick={handleDelete}>{t('common.delete')}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
     </motion.div>

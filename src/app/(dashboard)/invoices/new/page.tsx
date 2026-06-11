@@ -19,12 +19,14 @@ import { serviceRepository } from '@/lib/repositories/service.repository'
 import { discountRepository } from '@/lib/repositories/discount.repository'
 import { settingsRepository } from '@/lib/repositories/settings.repository'
 import { invoiceRepository } from '@/lib/repositories/invoice.repository'
+import { useTranslation } from 'react-i18next'
 
 interface SelectedItem { service_id: string; service_name: string; description: string | null; quantity: number; unit_price: number; vat_percentage: number; discount_id: string | null; discount_value: number }
 
 const steps = ['selectClient', 'selectServices', 'applyDiscounts', 'review']
 
 function InvoiceForm() {
+  const { t } = useTranslation()
   const router = useRouter()
   const searchParams = useSearchParams()
   const docType = searchParams.get('type') === 'quote' ? 'quote' : 'invoice'
@@ -132,28 +134,24 @@ function InvoiceForm() {
   }
 
   const stepIcons = [User, Wrench, Percent, FileText]
-  const labels = ['Client', 'Services', 'Remises', 'Aperçu']
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">{docType === 'quote' ? 'Nouveau Devis' : 'Nouvelle Facture'}</h1>
-      </div>
-
-      <div className="flex items-center gap-2">
-        {steps.map((s, i) => {
-          const Icon = stepIcons[i]
-          return (
-            <div key={s} className="flex items-center gap-2">
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${i === step ? 'bg-primary text-primary-foreground' : i < step ? 'bg-emerald-500/10 text-emerald-500' : 'bg-muted text-muted-foreground'}`}>
-                {i < step ? <Check className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
-                <span className="hidden md:inline">{labels[i]}</span>
+            <h1 className="text-2xl font-bold">{docType === 'quote' ? t('nav.quotes') : t('invoices.newInvoice')}</h1>
+            <p className="text-muted-foreground text-sm mt-1">{t('invoices.step')} {step + 1} {t('common.of')} 4</p>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground hidden sm:flex">
+            {steps.map((s, i) => (
+              <div key={s} className="flex items-center">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium mr-2 transition-colors ${i === step ? 'bg-primary text-primary-foreground' : i < step ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                  {i < step ? <Check className="w-3 h-3" /> : i + 1}
+                </div>
+                <span className={i === step ? 'text-foreground font-medium' : ''}>{t(`invoices.${s}`, s)}</span>
+                {i < steps.length - 1 && <ChevronRight className="w-4 h-4 mx-2 opacity-50" />}
               </div>
-              {i < steps.length - 1 && <ChevronRight className="w-4 h-4 text-muted-foreground" />}
-            </div>
-          )
-        })}
-      </div>
+            ))}
+          </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
@@ -296,15 +294,14 @@ function InvoiceForm() {
           </AnimatePresence>
 
           <div className="flex justify-between mt-4">
-            <Button variant="outline" onClick={() => setStep(s => s - 1)} disabled={step === 0}><ChevronLeft className="w-4 h-4 mr-2" />Précédent</Button>
+            <Button variant="outline" onClick={() => setStep(s => s - 1)} disabled={step === 0}><ChevronLeft className="w-4 h-4 mr-2" />{t('invoices.previous')}</Button>
             {step < 3 ? (
-              <Button onClick={() => setStep(s => s + 1)} disabled={(step === 0 && !selectedClient) || (step === 1 && selectedItems.length === 0)}>
-                Suivant<ChevronRight className="w-4 h-4 ml-2" />
+              <Button onClick={() => { if (step === 0 && !selectedClient) return; if (step === 1 && selectedItems.length === 0) return; setStep(s => s + 1) }}>
+                {t('invoices.next')} <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <Button variant="success" className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleSave} disabled={saving}>
-                <Check className="w-4 h-4 mr-2" />
-                {docType === 'quote' ? 'Générer le devis' : 'Générer la facture'}
+              <Button onClick={handleSave} disabled={saving || !selectedClient || selectedItems.length === 0} className="shadow-lg shadow-primary/20">
+                {saving ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Check className="w-4 h-4 mr-2" />{docType === 'quote' ? t('common.save') : t('invoices.generate')}</>}
               </Button>
             )}
           </div>
