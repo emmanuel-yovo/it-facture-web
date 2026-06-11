@@ -274,7 +274,8 @@ function InvoiceForm() {
                       <p className="font-medium">{selectedClient?.full_name}</p>
                       {selectedClient?.company_name && <p className="text-sm text-muted-foreground">{selectedClient.company_name}</p>}
                     </div>
-                    <table className="w-full text-sm">
+                    <div className="overflow-x-auto">
+<table className="w-full text-sm">
                       <thead><tr className="border-b"><th className="text-left py-2">Service</th><th className="text-center py-2">Qté</th><th className="text-right py-2">Prix unitaire</th><th className="text-right py-2">Total Ligne</th></tr></thead>
                       <tbody>
                         {selectedItems.map(item => (
@@ -287,6 +288,7 @@ function InvoiceForm() {
                         ))}
                       </tbody>
                     </table>
+</div>
                   </CardContent>
                 </Card>
               </motion.div>

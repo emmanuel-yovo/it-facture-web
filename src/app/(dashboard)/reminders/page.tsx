@@ -126,7 +126,8 @@ export default function RemindersPage() {
               <p className="text-sm text-muted-foreground">{t("reminders.noDataDesc", "Vous n'avez aucun rappel planifié pour le moment.")}</p>
             </div>
           ) : (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+<table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/30">
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.date')} {t("common.planned", "Prévue")}</th>
@@ -171,6 +172,7 @@ export default function RemindersPage() {
                 ))}
               </tbody>
             </table>
+</div>
           )}
         </CardContent>
       </Card>

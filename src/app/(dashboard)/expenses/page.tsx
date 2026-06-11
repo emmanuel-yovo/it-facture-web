@@ -115,7 +115,8 @@ export default function ExpensesPage() {
               <p>{t('common.noData', 'Aucune dépense trouvée')}</p>
             </div>
           ) : (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+<table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/30">
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("common.date", "Date")}</th>
@@ -141,6 +142,7 @@ export default function ExpensesPage() {
                 ))}
               </tbody>
             </table>
+</div>
           )}
         </CardContent>
       </Card>

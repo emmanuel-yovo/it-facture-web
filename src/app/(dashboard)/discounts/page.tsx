@@ -115,7 +115,8 @@ export default function DiscountsPage() {
 
       <Card className="border-border shadow-sm">
         <CardContent className="p-0">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+<table className="w-full text-sm">
             <thead><tr className="border-b border-border bg-muted/30">
               <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('discounts.name')}</th>
               <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('discounts.type')}</th>
@@ -145,6 +146,7 @@ export default function DiscountsPage() {
               {discounts.length === 0 && <tr><td colSpan={7} className="py-12 text-center text-muted-foreground"><Percent className="w-12 h-12 mx-auto mb-3 opacity-30" /><p>{t('discounts.noDiscounts', 'Aucune remise configurée.')}</p></td></tr>}
             </tbody>
           </table>
+</div>
         </CardContent>
       </Card>
 

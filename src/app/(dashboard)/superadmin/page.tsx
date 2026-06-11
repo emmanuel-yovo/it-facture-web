@@ -132,7 +132,8 @@ export default function SuperAdminPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <table className="w-full text-sm text-left">
+          <div className="overflow-x-auto">
+<table className="w-full text-sm text-left">
             <thead>
               <tr className="border-b bg-muted/30">
                 <th className="py-3 px-4 font-medium text-muted-foreground">Nom de l'entreprise</th>
@@ -177,6 +178,7 @@ export default function SuperAdminPage() {
               ))}
             </tbody>
           </table>
+</div>
         </CardContent>
       </Card>
     </motion.div>

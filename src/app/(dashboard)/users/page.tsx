@@ -215,7 +215,8 @@ export default function UsersPage() {
           {loading ? (
             <div className="p-12 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
           ) : (
-            <table className="w-full text-sm text-left">
+            <div className="overflow-x-auto">
+<table className="w-full text-sm text-left">
               <thead>
                 <tr className="border-b bg-muted/30">
                   <th className="py-3 px-6 font-medium text-muted-foreground">{t('users.nameEmail', 'Nom / Email')}</th>
@@ -253,6 +254,7 @@ export default function UsersPage() {
                 )}
               </tbody>
             </table>
+</div>
           )}
         </CardContent>
       </Card>

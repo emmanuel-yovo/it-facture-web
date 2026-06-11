@@ -299,7 +299,8 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
           <Card>
             <CardHeader><CardTitle className="text-base">Services</CardTitle></CardHeader>
             <CardContent className="p-0">
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto">
+<table className="w-full text-sm">
                 <thead><tr className="border-b bg-muted/30">
                   <th className="text-left py-3 px-4">#</th>
                   <th className="text-left py-3 px-4">Service</th>
@@ -319,6 +320,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                   ))}
                 </tbody>
               </table>
+</div>
             </CardContent>
           </Card>
 
