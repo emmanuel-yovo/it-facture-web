@@ -61,7 +61,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, url: token.url })
 
   } catch (error: any) {
-    console.error('Erreur FedaPay SaaS:', error)
-    return NextResponse.json({ error: error.message || 'Erreur lors de la génération du lien' }, { status: 500 })
+    console.error('Erreur FedaPay SaaS:', error.response?.data || error)
+    
+    let errorDetails = error.message
+    if (error.response?.data) {
+      const data = error.response.data
+      errorDetails = data.message || errorDetails
+      if (data.errors) {
+        // Formater les erreurs imbriquées (ex: { amount: ["Le montant maximum..."] })
+        const details = Object.entries(data.errors)
+          .map(([key, msgs]) => `${key}: ${(msgs as string[]).join(', ')}`)
+          .join(' | ')
+        errorDetails += ` (${details})`
+      }
+    }
+    
+    return NextResponse.json({ error: `Erreur FedaPay: ${errorDetails}` }, { status: 500 })
   }
 }
