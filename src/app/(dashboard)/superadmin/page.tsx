@@ -10,6 +10,7 @@ import { Building, Receipt, Users, ArrowUpRight, Loader2 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
 
 export default function SuperAdminPage() {
   const { user } = useAuthStore()
@@ -143,7 +144,7 @@ export default function SuperAdminPage() {
               </tr>
             </thead>
             <tbody>
-              {stats?.workspaces
+              {(stats?.workspaces || [])
                 .filter((w: any) => filter === 'all' ? true : filter === 'free' ? w.plan === 'free' : w.plan !== 'free')
                 .map((w: any) => (
                 <tr key={w.id} className="border-b border-border/50 hover:bg-muted/10 transition-colors">
