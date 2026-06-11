@@ -186,7 +186,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
           <Button variant="ghost" size="icon" onClick={() => router.back()}><ArrowLeft className="w-5 h-5" /></Button>
           <div>
             <h1 className="text-2xl font-bold">{invoice.invoice_number}</h1>
@@ -218,7 +218,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         </div>
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           {invoice.document_type === 'quote' && invoice.status === 'accepted' && (
-            <Button variant="default" className="bg-emerald-600 hover:bg-emerald-700" onClick={async () => {
+            <Button variant="default" className="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700" onClick={async () => {
               await invoiceRepository.update(invoice.id, { document_type: 'invoice', status: 'unpaid' })
               load()
             }}>
@@ -227,15 +227,15 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
           )}
           {invoice.document_type === 'invoice' && invoice.status !== 'paid' && (
             <>
-              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setPaymentOpen(true)}><CreditCard className="w-4 h-4 mr-2" />Ajouter un paiement</Button>
+              <Button className="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setPaymentOpen(true)}><CreditCard className="w-4 h-4 mr-2" />Ajouter un paiement</Button>
             </>
           )}
-          <Button variant="outline" onClick={() => setEmailOpen(true)}>
+          <Button variant="outline" className="flex-1 sm:flex-none" onClick={() => setEmailOpen(true)}>
             <Mail className="w-4 h-4 mr-2" />
             Envoyer
           </Button>
-          <Button variant="outline" onClick={handlePrint}><Printer className="w-4 h-4 mr-2" />Imprimer</Button>
-          <Button variant="outline" onClick={handleDownload}><Download className="w-4 h-4 mr-2" />PDF</Button>
+          <Button variant="outline" className="flex-1 sm:flex-none" onClick={handlePrint}><Printer className="w-4 h-4 mr-2" />Imprimer</Button>
+          <Button variant="outline" className="flex-1 sm:flex-none" onClick={handleDownload}><Download className="w-4 h-4 mr-2" />PDF</Button>
         </div>
       </div>
 
@@ -287,7 +287,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
           <Card>
             <CardHeader><CardTitle className="text-base">Client</CardTitle></CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div><p className="text-xs text-muted-foreground">Nom</p><p className="font-medium">{(invoice as any).client?.full_name}</p></div>
                 {(invoice as any).client?.company_name && <div><p className="text-xs text-muted-foreground">Entreprise</p><p className="font-medium">{(invoice as any).client?.company_name}</p></div>}
                 {(invoice as any).client?.phone && <div><p className="text-xs text-muted-foreground">Tél</p><p>{(invoice as any).client?.phone}</p></div>}
@@ -344,7 +344,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         </div>
 
         <div>
-          <Card className="sticky top-6">
+          <Card className="lg:sticky lg:top-6">
             <CardHeader><CardTitle className="text-base">Résumé</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Sous-total HT</span><span>{formatCurrency(invoice.subtotal)}</span></div>
