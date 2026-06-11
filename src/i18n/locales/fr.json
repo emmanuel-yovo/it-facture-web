@@ -144,6 +144,43 @@
     "remaining": "Restant à payer",
     "noPayments": "Aucun paiement trouvé"
   },
+  "subscriptions": {
+    "subtitle": "Gérez vos revenus récurrents",
+    "titleCol": "Titre",
+    "frequencyCol": "Fréquence",
+    "nextBillingCol": "Prochaine Facture",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "deleteConfirm": "Voulez-vous vraiment supprimer cet abonnement ?",
+    "selectClient": "Sélectionner un client",
+    "formTitle": "Titre (Ex: Hébergement web) *",
+    "amount": "Montant *",
+    "activeSub": "Abonnement actif",
+    "errorCreate": "Erreur lors de la création de l'abonnement."
+  },
+  "users": {
+    "subtitle": "Gérez les membres de votre entreprise et leurs accès.",
+    "inviteBtn": "Inviter un membre",
+    "inviteTitle": "Inviter un nouveau collaborateur",
+    "tempPassword": "Mot de passe (Provisoire)",
+    "passwordHint": "L'utilisateur pourra le modifier plus tard.",
+    "role": "Rôle",
+    "roleUser": "Utilisateur (Création de factures, Devis)",
+    "roleAccountant": "Comptable (Consultation globale)",
+    "roleWarning": "Note : Vous ne pouvez pas créer d'autres Administrateurs pour des raisons de sécurité.",
+    "sendInvite": "Envoyer l'invitation",
+    "nameEmail": "Nom / Email",
+    "cloudAccount": "Compte Cloud Supabase"
+  },
+  "upgrade": {
+    "title": "Débloquez tout le potentiel de IT-Facture",
+    "subtitle": "Choisissez le plan qui correspond à la taille de votre entreprise. Mettez à niveau à tout moment pour accéder à des fonctionnalités exclusives.",
+    "currentPlan": "Plan Actuel",
+    "upgradeTo": "Passer à",
+    "redirecting": "Redirection...",
+    "howItWorks": "Comment se passe le paiement ?",
+    "howItWorksDesc": "Les abonnements sont gérés de manière sécurisée. Vous serez redirigé vers notre partenaire FedaPay pour finaliser votre abonnement. Vous pourrez l'annuler à tout moment depuis vos paramètres."
+  },
   "settings": {
     "title": "Paramètres",
     "companyInfo": "Informations de l'entreprise",

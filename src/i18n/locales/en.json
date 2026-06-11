@@ -144,6 +144,43 @@
     "remaining": "Remaining Balance",
     "noPayments": "No payments found"
   },
+  "subscriptions": {
+    "subtitle": "Manage your recurring revenue",
+    "titleCol": "Title",
+    "frequencyCol": "Frequency",
+    "nextBillingCol": "Next Invoice",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "deleteConfirm": "Are you sure you want to delete this subscription?",
+    "selectClient": "Select a client",
+    "formTitle": "Title (e.g. Web Hosting) *",
+    "amount": "Amount *",
+    "activeSub": "Active Subscription",
+    "errorCreate": "Error creating subscription."
+  },
+  "users": {
+    "subtitle": "Manage your team members and their access.",
+    "inviteBtn": "Invite Member",
+    "inviteTitle": "Invite a new collaborator",
+    "tempPassword": "Temporary Password",
+    "passwordHint": "The user can change it later.",
+    "role": "Role",
+    "roleUser": "User (Create Invoices, Quotes)",
+    "roleAccountant": "Accountant (Global View)",
+    "roleWarning": "Note: You cannot create other Administrators for security reasons.",
+    "sendInvite": "Send Invitation",
+    "nameEmail": "Name / Email",
+    "cloudAccount": "Supabase Cloud Account"
+  },
+  "upgrade": {
+    "title": "Unlock the full potential of IT-Facture",
+    "subtitle": "Choose the plan that fits your business size. Upgrade at any time to access exclusive features.",
+    "currentPlan": "Current Plan",
+    "upgradeTo": "Upgrade to",
+    "redirecting": "Redirecting...",
+    "howItWorks": "How does payment work?",
+    "howItWorksDesc": "Subscriptions are managed securely. You will be redirected to our partner FedaPay to finalize your subscription. You can cancel at any time from your settings."
+  },
   "settings": {
     "title": "Settings",
     "companyInfo": "Company Information",

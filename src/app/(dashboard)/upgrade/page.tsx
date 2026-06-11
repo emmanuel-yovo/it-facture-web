@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/authStore'
 import { Badge } from '@/components/ui/badge'
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useTranslation } from 'react-i18next'
 
 const PLANS = [
   {
@@ -50,6 +51,7 @@ const PLANS = [
 ]
 
 export default function UpgradePage() {
+  const { t } = useTranslation()
   const { workspacePlan, workspaceId } = useAuthStore()
   const currentPlan = workspacePlan || 'free'
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
@@ -84,9 +86,9 @@ export default function UpgradePage() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-6 space-y-8 max-w-6xl mx-auto">
       <div className="text-center space-y-3">
-        <h1 className="text-4xl font-bold">Débloquez tout le potentiel de IT-Facture</h1>
+        <h1 className="text-4xl font-bold">{t('upgrade.title', 'Débloquez tout le potentiel de IT-Facture')}</h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Choisissez le plan qui correspond à la taille de votre entreprise. Mettez à niveau à tout moment pour accéder à des fonctionnalités exclusives.
+          {t('upgrade.subtitle', 'Choisissez le plan qui correspond à la taille de votre entreprise. Mettez à niveau à tout moment pour accéder à des fonctionnalités exclusives.')}
         </p>
       </div>
 
@@ -127,11 +129,11 @@ export default function UpgradePage() {
                 onClick={() => handleUpgrade(plan.type)}
               >
                 {loadingPlan === plan.type ? (
-                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Redirection...</>
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {t('upgrade.redirecting', 'Redirection...')}</>
                 ) : plan.isCurrent(currentPlan) ? (
-                  'Plan Actuel'
+                  t('upgrade.currentPlan', 'Plan Actuel')
                 ) : (
-                  <>{plan.buttonText} <Zap className="w-4 h-4 ml-2" /></>
+                  <>{t('upgrade.upgradeTo', 'Passer à')} {plan.name} <Zap className="w-4 h-4 ml-2" /></>
                 )}
               </Button>
             </CardFooter>
@@ -142,9 +144,9 @@ export default function UpgradePage() {
       <div className="mt-12 bg-muted/30 border border-border rounded-xl p-6 flex items-start gap-4">
         <AlertCircle className="w-6 h-6 text-blue-500 shrink-0 mt-1" />
         <div>
-          <h3 className="font-semibold text-lg">Comment se passe le paiement ?</h3>
+          <h3 className="font-semibold text-lg">{t('upgrade.howItWorks', 'Comment se passe le paiement ?')}</h3>
           <p className="text-muted-foreground mt-1">
-            Les abonnements sont gérés de manière sécurisée. Vous serez redirigé vers notre partenaire FedaPay pour finaliser votre abonnement. Vous pourrez l'annuler à tout moment depuis vos paramètres.
+            {t('upgrade.howItWorksDesc', "Les abonnements sont gérés de manière sécurisée. Vous serez redirigé vers notre partenaire FedaPay pour finaliser votre abonnement. Vous pourrez l'annuler à tout moment depuis vos paramètres.")}
           </p>
         </div>
       </div>

@@ -117,48 +117,48 @@ export default function UsersPage() {
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Users className="w-8 h-8 text-primary" /> {t('nav.users', 'Équipe')}
           </h1>
-          <p className="text-muted-foreground mt-1">Gérez les membres de votre entreprise et leurs accès.</p>
+          <p className="text-muted-foreground mt-1">{t('users.subtitle', 'Gérez les membres de votre entreprise et leurs accès.')}</p>
         </div>
         
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button className="bg-primary text-white">
-              <UserPlus className="w-4 h-4 mr-2" /> Inviter un membre
+              <UserPlus className="w-4 h-4 mr-2" /> {t('users.inviteBtn', 'Inviter un membre')}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Inviter un nouveau collaborateur</DialogTitle>
+              <DialogTitle>{t('users.inviteTitle', 'Inviter un nouveau collaborateur')}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleInvite} className="space-y-4 pt-4">
               {inviteError && <div className="p-3 bg-red-50 text-red-500 text-sm rounded-md">{inviteError}</div>}
               
               <div className="space-y-2">
-                <label className="text-sm font-medium">Nom complet</label>
+                <label className="text-sm font-medium">{t('clients.fullName', 'Nom complet')}</label>
                 <Input required value={inviteName} onChange={e => setInviteName(e.target.value)} placeholder="Ex: Jean Dupont" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Adresse Email</label>
+                <label className="text-sm font-medium">{t('clients.email', 'Adresse Email')}</label>
                 <Input required type="email" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="jean@entreprise.com" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Mot de passe (Provisoire)</label>
+                <label className="text-sm font-medium">{t('users.tempPassword', 'Mot de passe (Provisoire)')}</label>
                 <Input required type="text" value={invitePassword} onChange={e => setInvitePassword(e.target.value)} placeholder="Mot de passe sécurisé..." />
-                <p className="text-xs text-muted-foreground">L'utilisateur pourra le modifier plus tard.</p>
+                <p className="text-xs text-muted-foreground">{t('users.passwordHint', "L'utilisateur pourra le modifier plus tard.")}</p>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Rôle</label>
+                <label className="text-sm font-medium">{t('users.role', 'Rôle')}</label>
                 <Select value={inviteRole} onValueChange={setInviteRole}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="user">Utilisateur (Création de factures, Devis)</SelectItem>
-                    <SelectItem value="comptable">Comptable (Consultation globale)</SelectItem>
+                    <SelectItem value="user">{t('users.roleUser', 'Utilisateur (Création de factures, Devis)')}</SelectItem>
+                    <SelectItem value="comptable">{t('users.roleAccountant', 'Comptable (Consultation globale)')}</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground pt-1">
-                  Note : Vous ne pouvez pas créer d'autres Administrateurs pour des raisons de sécurité.
+                  {t('users.roleWarning', "Note : Vous ne pouvez pas créer d'autres Administrateurs pour des raisons de sécurité.")}
                 </p>
               </div>
 
@@ -166,7 +166,7 @@ export default function UsersPage() {
                 <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t('common.cancel')}</Button>
                 <Button type="submit" disabled={isInviting}>
                   {isInviting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Mail className="w-4 h-4 mr-2" />}
-                  Envoyer l'invitation
+                  {t('users.sendInvite', "Envoyer l'invitation")}
                 </Button>
               </div>
             </form>
@@ -182,8 +182,8 @@ export default function UsersPage() {
             <table className="w-full text-sm text-left">
               <thead>
                 <tr className="border-b bg-muted/30">
-                  <th className="py-3 px-6 font-medium text-muted-foreground">Nom / Email</th>
-                  <th className="py-3 px-6 font-medium text-muted-foreground">Rôle</th>
+                  <th className="py-3 px-6 font-medium text-muted-foreground">{t('users.nameEmail', 'Nom / Email')}</th>
+                  <th className="py-3 px-6 font-medium text-muted-foreground">{t('users.role', 'Rôle')}</th>
                   <th className="py-3 px-6 font-medium text-muted-foreground">{t('invoices.status')}</th>
                 </tr>
               </thead>
@@ -192,7 +192,7 @@ export default function UsersPage() {
                   <tr key={p.id} className="border-b border-border/50 hover:bg-muted/10 transition-colors">
                     <td className="py-4 px-6">
                       <div className="font-medium text-foreground">{p.full_name}</div>
-                      <div className="text-xs text-muted-foreground">Compte Cloud Supabase</div>
+                      <div className="text-xs text-muted-foreground">{t('users.cloudAccount', 'Compte Cloud Supabase')}</div>
                     </td>
                     <td className="py-4 px-6">{getRoleBadge(p.role)}</td>
                     <td className="py-4 px-6"><Badge variant="outline" className="text-emerald-500 border-emerald-500">Actif</Badge></td>

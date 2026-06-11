@@ -61,12 +61,12 @@ export default function SubscriptionsPage() {
       load()
     } catch (err) {
       console.error(err)
-      alert("Erreur lors de la création de l'abonnement.")
+      alert(t('subscriptions.errorCreate', "Erreur lors de la création de l'abonnement."))
     }
   }
 
   const handleDelete = async (id: string) => {
-    if (confirm("Voulez-vous vraiment supprimer cet abonnement ?")) {
+    if (confirm(t('subscriptions.deleteConfirm', "Voulez-vous vraiment supprimer cet abonnement ?"))) {
       try {
         await subscriptionRepository.delete(id)
         load()
@@ -83,7 +83,7 @@ export default function SubscriptionsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">{t('nav.subscriptions', 'Abonnements')}</h1>
-          <p className="text-muted-foreground text-sm mt-1">Gérez vos revenus récurrents</p>
+          <p className="text-muted-foreground text-sm mt-1">{t('subscriptions.subtitle', 'Gérez vos revenus récurrents')}</p>
         </div>
         <Button onClick={() => setOpen(true)}><Plus className="w-4 h-4 mr-2" />{t('common.add', 'Nouvel')} {t('nav.subscriptions', 'Abonnement').toLowerCase().replace('s', '')}</Button>
       </div>
@@ -106,9 +106,9 @@ export default function SubscriptionsPage() {
               <thead>
                 <tr className="border-b bg-muted/30">
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.client')}</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Titre</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Fréquence</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Prochaine Facture</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('subscriptions.titleCol', 'Titre')}</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('subscriptions.frequencyCol', 'Fréquence')}</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('subscriptions.nextBillingCol', 'Prochaine Facture')}</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.status')}</th>
                   <th className="text-right py-3 px-4 font-medium text-muted-foreground">{t('payments.amount')}</th>
                   <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('common.actions')}</th>
@@ -121,7 +121,7 @@ export default function SubscriptionsPage() {
                     <tr key={s.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                       <td className="py-3 px-4 font-medium">{s.client?.full_name}</td>
                       <td className="py-3 px-4">{s.title}</td>
-                      <td className="py-3 px-4 text-muted-foreground">{s.frequency === 'monthly' ? 'Mensuel' : 'Annuel'}</td>
+                      <td className="py-3 px-4 text-muted-foreground">{s.frequency === 'monthly' ? t('subscriptions.monthly', 'Mensuel') : t('subscriptions.yearly', 'Annuel')}</td>
                       <td className="py-3 px-4">
                         <span className={`flex items-center ${isDue ? 'text-red-400 font-medium' : 'text-muted-foreground'}`}>
                           <Calendar className="w-3 h-3 mr-1" /> {formatDate(s.next_billing_date)}
@@ -152,26 +152,26 @@ export default function SubscriptionsPage() {
             <div className="space-y-2">
               <Label>Client *</Label>
               <Select value={formData.client_id} onValueChange={v => setFormData({ ...formData, client_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner un client" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t('subscriptions.selectClient', 'Sélectionner un client')} /></SelectTrigger>
                 <SelectContent>
                   {clients.map(c => <SelectItem key={c.id} value={c.id}>{c.full_name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2"><Label>Titre (Ex: Hébergement web) *</Label><Input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} /></div>
-            <div className="space-y-2"><Label>Montant *</Label><Input type="number" value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} /></div>
+            <div className="space-y-2"><Label>{t('subscriptions.formTitle', 'Titre (Ex: Hébergement web) *')}</Label><Input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} /></div>
+            <div className="space-y-2"><Label>{t('subscriptions.amount', 'Montant *')}</Label><Input type="number" value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} /></div>
             <div className="space-y-2">
-              <Label>Fréquence</Label>
+              <Label>{t('subscriptions.frequencyCol', 'Fréquence')}</Label>
               <Select value={formData.frequency} onValueChange={v => setFormData({ ...formData, frequency: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="monthly">Mensuel</SelectItem>
-                  <SelectItem value="yearly">Annuel</SelectItem>
+                  <SelectItem value="monthly">{t('subscriptions.monthly', 'Mensuel')}</SelectItem>
+                  <SelectItem value="yearly">{t('subscriptions.yearly', 'Annuel')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2"><Label>Date de prochaine facture</Label><Input type="date" value={formData.next_billing_date} onChange={e => setFormData({ ...formData, next_billing_date: e.target.value })} /></div>
-            <div className="flex items-center gap-3"><Switch checked={formData.is_active} onCheckedChange={(v) => setFormData({ ...formData, is_active: v })} /><Label>Abonnement actif</Label></div>
+            <div className="space-y-2"><Label>{t('subscriptions.nextBillingCol', 'Date de prochaine facture')}</Label><Input type="date" value={formData.next_billing_date} onChange={e => setFormData({ ...formData, next_billing_date: e.target.value })} /></div>
+            <div className="flex items-center gap-3"><Switch checked={formData.is_active} onCheckedChange={(v) => setFormData({ ...formData, is_active: v })} /><Label>{t('subscriptions.activeSub', 'Abonnement actif')}</Label></div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>{t('common.cancel')}</Button>
