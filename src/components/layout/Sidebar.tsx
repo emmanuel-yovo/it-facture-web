@@ -95,9 +95,9 @@ export function Sidebar({ className, layoutIdPrefix = '' }: { className?: string
           const isLocked = item.feature ? !canAccessFeature(plan, item.feature as any, user?.role) : false
           
           return (
-            <button
+            <Link
               key={item.to}
-              onClick={() => router.push(isLocked ? '/upgrade' : item.to)}
+              href={isLocked ? '/upgrade' : item.to}
               className={cn(
                 'w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group relative',
                 isActive
@@ -134,7 +134,7 @@ export function Sidebar({ className, layoutIdPrefix = '' }: { className?: string
               {!sidebarCollapsed && isLocked && (
                 <Lock className="w-4 h-4 text-muted-foreground/60 ml-auto" />
               )}
-            </button>
+            </Link>
           )
         })}
       </nav>
