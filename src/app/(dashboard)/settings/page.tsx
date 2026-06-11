@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator'
 import { Building, Upload, Save, Check, LogOut, ShieldCheck, Mail, FileText, Languages, CreditCard, Users, Copy, Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { hasPermission, PERMISSIONS } from '@/lib/permissions'
 import { useAuthStore } from '@/store/authStore'
 import { settingsRepository } from '@/lib/repositories/settings.repository'
@@ -27,6 +27,50 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false)
   const [loading, setLoading] = useState(false)
   const [companyCode, setCompanyCode] = useState<string>('')
+  const searchParams = useSearchParams()
+
+  // Vérification FedaPay au retour de la page de paiement
+  useEffect(() => {
+    const upgradeStatus = searchParams.get('upgrade')
+    const transactionId = searchParams.get('id')
+    const fedapayStatus = searchParams.get('status')
+
+    if (upgradeStatus === 'success' && transactionId && workspaceId) {
+      if (fedapayStatus === 'declined') {
+        alert("La transaction a été refusée par FedaPay. Veuillez réessayer.")
+        router.replace('/settings')
+        return
+      }
+
+      const verifyTransaction = async () => {
+        setLoading(true)
+        try {
+          const { data: { session } } = await supabase.auth.getSession()
+          const res = await fetch('/api/fedapay/verify-transaction', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session?.access_token}`
+            },
+            body: JSON.stringify({ transaction_id: transactionId })
+          })
+          const data = await res.json()
+          
+          if (data.success) {
+            alert(`Paiement réussi ! Votre workspace est maintenant au plan ${data.plan}.`)
+            window.location.href = '/settings' // Force reload to fetch new plan
+          } else if (data.status === 'declined') {
+            alert("La transaction a été refusée par FedaPay.")
+          }
+        } catch (e) {
+          console.error(e)
+        } finally {
+          setLoading(false)
+        }
+      }
+      verifyTransaction()
+    }
+  }, [searchParams, workspaceId])
 
   useEffect(() => {
     if (!workspaceId) return
