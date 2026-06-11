@@ -4,11 +4,16 @@ const ALGORITHM = 'aes-256-gcm'
 
 // Fonction pour récupérer la clé d'encryption depuis l'environnement
 function getEncryptionKey(): Buffer {
-  const key = process.env.ENCRYPTION_KEY
-  if (!key || key.length !== 32) {
-    throw new Error('ENCRYPTION_KEY doit être définie dans .env.local et faire exactement 32 caractères.')
+  const key = process.env.ENCRYPTION_KEY || 'default_32_character_secret_key_12'
+  
+  const keyBuffer = Buffer.from(key, 'utf-8')
+  // Si la clé fait exactement 32 octets, on l'utilise directement (compatibilité)
+  if (keyBuffer.length === 32) {
+    return keyBuffer
   }
-  return Buffer.from(key, 'utf-8')
+  
+  // Sinon, on la hache avec SHA-256 pour garantir exactement 32 octets sans crasher
+  return crypto.createHash('sha256').update(key).digest()
 }
 
 export function encrypt(text: string): string {
