@@ -6,23 +6,56 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { superadminRepository } from '@/lib/repositories/superadmin.repository'
 import { useAuthStore } from '@/store/authStore'
 import { hasPermission, PERMISSIONS } from '@/lib/permissions'
-import { Building, Receipt, Users, ArrowUpRight } from 'lucide-react'
+import { Building, Receipt, Users, ArrowUpRight, Loader2 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 export default function SuperAdminPage() {
   const { user } = useAuthStore()
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [updating, setUpdating] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!hasPermission(user?.role, PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD)) return
-    
+  const loadStats = () => {
     superadminRepository.getDashboardStats()
       .then(setStats)
       .catch(console.error)
       .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    if (!hasPermission(user?.role, PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD)) return
+    loadStats()
   }, [user])
+
+  const handlePlanChange = async (workspaceId: string, newPlan: string) => {
+    if (!confirm(`Confirmer le passage au plan ${newPlan} ?`)) return
+    setUpdating(workspaceId)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/superadmin/update-plan', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ workspace_id: workspaceId, plan: newPlan })
+      })
+      const data = await res.json()
+      if (data.success) {
+        alert("Plan mis à jour avec succès !")
+        loadStats()
+      } else {
+        alert(data.error || "Erreur lors de la mise à jour.")
+      }
+    } catch (e) {
+      console.error(e)
+      alert("Erreur réseau.")
+    } finally {
+      setUpdating(null)
+    }
+  }
 
   if (!hasPermission(user?.role, PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD)) {
     return <div className="p-12 text-center text-red-500">Accès refusé. Réservé au SuperAdmin.</div>
@@ -89,7 +122,26 @@ export default function SuperAdminPage() {
                 <tr key={w.id} className="border-b border-border/50 hover:bg-muted/10 transition-colors">
                   <td className="py-3 px-4 font-medium">{w.name}</td>
                   <td className="py-3 px-4">{w.owner?.full_name || 'Inconnu'}</td>
-                  <td className="py-3 px-4"><Badge variant="outline">{w.plan}</Badge></td>
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-2">
+                      <Select 
+                        value={w.plan || 'free'} 
+                        onValueChange={(val) => handlePlanChange(w.id, val)}
+                        disabled={updating === w.id}
+                      >
+                        <SelectTrigger className="w-[120px] h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="free">Free</SelectItem>
+                          <SelectItem value="starter">Starter</SelectItem>
+                          <SelectItem value="business">Business</SelectItem>
+                          <SelectItem value="agency">Agency</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {updating === w.id && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+                    </div>
+                  </td>
                   <td className="py-3 px-4 text-center">{w.invoiceCount}</td>
                   <td className="py-3 px-4 text-right text-emerald-500 font-medium">{formatCurrency(w.totalRevenue)}</td>
                 </tr>
