@@ -80,6 +80,55 @@
     "allCategories": "Toutes catégories",
     "noServices": "Aucun service trouvé"
   },
+  "tickets": {
+    "title": "Interventions / Tickets",
+    "subtitle": "Gérez vos interventions techniques et leur facturation.",
+    "open": "Ouverts",
+    "inProgress": "En cours",
+    "noDataDesc": "Commencez par créer votre première intervention de maintenance.",
+    "openBadge": "Ouvert",
+    "closedBadge": "Fermé",
+    "billedBadge": "Facturé",
+    "high": "Haute",
+    "medium": "Moyenne",
+    "low": "Basse",
+    "convertToInvoice": "Convertir en facture",
+    "lockedMsg": "La gestion des tickets et interventions techniques est réservée au plan Pro et Agence."
+  },
+  "reminders": {
+    "title": "Relances & Rappels",
+    "subtitle": "Gérez vos rappels de paiement et rendez-vous.",
+    "noDataDesc": "Vous n'avez aucun rappel planifié pour le moment.",
+    "payment": "Paiement",
+    "appointment": "Rendez-vous",
+    "sent": "Envoyé",
+    "failed": "Échoué",
+    "pending": "En attente",
+    "markSent": "Marquer comme envoyé",
+    "schedule": "Programmer un rappel",
+    "invoiceRef": "Facture concernée *",
+    "paymentReminder": "Relance Paiement",
+    "customMsg": "Message personnalisé"
+  },
+  "reports": {
+    "title": "Analyses Financières",
+    "subtitle": "Suivez la performance et la rentabilité de votre entreprise.",
+    "annualTotal": "Cumul annuel",
+    "estimatedMargin": "Marge estimée",
+    "db": "Base de données",
+    "monthlyPerf": "Performance Mensuelle",
+    "monthlyPerfDesc": "Visualisation des flux de revenus et dépenses par mois.",
+    "revenues": "Revenus",
+    "topClients": "Top 5 Clients",
+    "topClientsDesc": "Basé sur le chiffre d'affaires total généré.",
+    "expenseBreakdown": "Répartition des Dépenses",
+    "expenseBreakdownDesc": "Analyse par catégorie de coûts."
+  },
+  "expenses": {
+    "exportMsg": "L'exportation CSV des dépenses sera disponible dans une prochaine mise à jour Web.",
+    "lockedMsg": "La gestion des dépenses est disponible à partir du plan Pro. Suivez vos sorties d'argent, classez-les par catégories et préparez votre comptabilité facilement.",
+    "categoryPlaceholder": "Ex: Matériel, Licences..."
+  },
   "invoices": {
     "title": "Gestion des Factures",
     "newInvoice": "Nouvelle facture",
@@ -226,7 +275,17 @@
     "page": "Page",
     "rows": "lignes",
     "showing": "Affichage de",
-    "to": "à"
+    "to": "à",
+    "draft": "Brouillon",
+    "date": "Date",
+    "title": "Titre",
+    "category": "Catégorie",
+    "amount": "Montant",
+    "planned": "Prévue",
+    "type": "Type",
+    "message": "Message",
+    "other": "Autre",
+    "individual": "Particulier"
   },
   "setup": {
     "title": "Configuration IT-Facture",

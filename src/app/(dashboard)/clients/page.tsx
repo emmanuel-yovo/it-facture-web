@@ -56,7 +56,7 @@ export default function ClientsPage() {
   useEffect(() => { load() }, [load])
 
   const handleImport = async () => {
-    alert("L'importation de fichiers CSV sera disponible prochainement dans la version Web.")
+    alert(t("clients.importMsg", "L'importation de fichiers CSV sera disponible prochainement dans la version Web."))
   }
 
   const handleSave = async () => {

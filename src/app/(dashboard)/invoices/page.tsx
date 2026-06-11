@@ -73,7 +73,7 @@ export default function InvoicesPage() {
 
   const exportToCSV = () => {
     if (invoices.length === 0) return
-    const headers = ['Numéro', 'Client', 'Date', 'Total HT', 'Total TVA', 'Total TTC', 'Statut']
+    const headers = [t('invoices.invoiceNumber', 'Numéro'), t('invoices.client', 'Client'), t('common.date', 'Date'), t('invoices.subtotal', 'Total HT'), t('invoices.vat', 'Total TVA'), t('invoices.total', 'Total TTC'), t('invoices.status', 'Statut')]
     const rows = invoices.map(inv => [
       inv.invoice_number,
       inv.client?.company_name || inv.client?.full_name || '',
@@ -89,7 +89,7 @@ export default function InvoicesPage() {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.setAttribute('download', `factures_export_${new Date().toISOString().split('T')[0]}.csv`)
+    link.setAttribute('download', `invoices_export_${new Date().toISOString().split('T')[0]}.csv`)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -195,7 +195,7 @@ export default function InvoicesPage() {
 
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle>{t('invoices.deleteInvoice')}</DialogTitle><DialogDescription>Cette action supprimera définitivement cette facture.</DialogDescription></DialogHeader>
+          <DialogHeader><DialogTitle>{t('invoices.deleteInvoice')}</DialogTitle><DialogDescription>{t('invoices.deleteWarning', 'Cette action supprimera définitivement cette facture.')}</DialogDescription></DialogHeader>
           <DialogFooter><Button variant="outline" onClick={() => setDeleteOpen(false)}>{t('common.cancel')}</Button><Button variant="destructive" onClick={handleDelete}>{t('common.delete')}</Button></DialogFooter>
         </DialogContent>
       </Dialog>

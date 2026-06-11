@@ -105,10 +105,10 @@ function InvoiceForm() {
           setGlobalDiscountValue(d.value)
         }
       } else {
-        alert("Code promo invalide ou expiré.")
+        alert(t("invoices.invalidPromo", "Code promo invalide ou expiré."))
       }
     } catch (err) {
-      alert("Erreur lors de la validation du code promo.")
+      alert(t("invoices.errorPromo", "Erreur lors de la validation du code promo."))
     }
   }
 
@@ -129,7 +129,7 @@ function InvoiceForm() {
       router.push(`/invoices/${invoice.id}`)
     } catch (e) {
       console.error(e)
-      alert("Erreur lors de la création")
+      alert(t("invoices.createError", "Erreur lors de la création"))
     } finally { setSaving(false) }
   }
 
@@ -159,9 +159,9 @@ function InvoiceForm() {
             {step === 0 && (
               <motion.div key="step0" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <Card>
-                  <CardHeader><CardTitle>Sélectionner le client</CardTitle></CardHeader>
+                  <CardHeader><CardTitle>{t("invoices.selectClient", "Sélectionner le client")}</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input placeholder="Rechercher un client..." value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className="pl-10" /></div>
+                    <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input placeholder={t("clients.search", "Rechercher un client...")} value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className="pl-10" /></div>
                     <div className="space-y-2 max-h-[400px] overflow-y-auto">
                       {filteredClients.map(c => (
                         <div key={c.id} className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedClient?.id === c.id ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`} onClick={() => setSelectedClient(c)}>
@@ -176,7 +176,7 @@ function InvoiceForm() {
                       <div className="flex items-start gap-2.5 p-3.5 mt-4 text-amber-500 bg-amber-500/10 rounded-xl border border-amber-500/20">
                         <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
                         <div>
-                          <p className="font-semibold text-sm">Client exonéré / Hors taxe</p>
+                          <p className="font-semibold text-sm">{t("invoices.clientExempt", "Client exonéré / Hors taxe")}</p>
                           <p className="text-xs text-amber-500/80 mt-1">
                             Ce client est enregistré dans un pays différent ({selectedClient.country}) de votre entreprise ({settings?.company_country || 'FR'}). 
                             Le taux de taxe ({taxLabel}) sera automatiquement initialisé à 0% conformément aux règles d'exportation / autoliquidation.
@@ -192,9 +192,9 @@ function InvoiceForm() {
             {step === 1 && (
               <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <Card>
-                  <CardHeader><CardTitle>Sélectionner les services</CardTitle></CardHeader>
+                  <CardHeader><CardTitle>{t("invoices.selectServices", "Sélectionner les services")}</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input placeholder="Rechercher un service..." value={serviceSearch} onChange={(e) => setServiceSearch(e.target.value)} className="pl-10" /></div>
+                    <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input placeholder={t("services.search", "Rechercher un service...")} value={serviceSearch} onChange={(e) => setServiceSearch(e.target.value)} className="pl-10" /></div>
                     <div className="space-y-2 max-h-[400px] overflow-y-auto">
                       {filteredServices.map(s => {
                         const isSelected = selectedItems.some(i => i.service_id === s.id)

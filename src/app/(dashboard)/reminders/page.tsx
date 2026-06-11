@@ -98,7 +98,7 @@ export default function RemindersPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold">{t('nav.reminders', 'Relances & Rappels')}</h1>
-          <p className="text-muted-foreground mt-1">Gérez vos rappels de paiement et rendez-vous.</p>
+          <p className="text-muted-foreground mt-1">{t("reminders.subtitle", "Gérez vos rappels de paiement et rendez-vous.")}</p>
         </div>
         <Button onClick={() => setIsModalOpen(true)} className="bg-primary hover:bg-primary/90">
           <Plus className="w-4 h-4 mr-2" /> {t('common.add', 'Nouveau')} {t('nav.reminders', 'Rappel').toLowerCase().replace('s', '')}
@@ -123,16 +123,16 @@ export default function RemindersPage() {
                 <Bell className="w-6 h-6" />
               </div>
               <h3 className="font-medium">{t('common.noData', 'Aucun rappel')}</h3>
-              <p className="text-sm text-muted-foreground">Vous n'avez aucun rappel planifié pour le moment.</p>
+              <p className="text-sm text-muted-foreground">{t("reminders.noDataDesc", "Vous n'avez aucun rappel planifié pour le moment.")}</p>
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/30">
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.date')} Prévue</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Type</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.date')} {t("common.planned", "Prévue")}</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("common.type", "Type")}</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.client')}</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Message</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("common.message", "Message")}</th>
                   <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('invoices.status')}</th>
                   <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('common.actions')}</th>
                 </tr>
@@ -144,21 +144,21 @@ export default function RemindersPage() {
                       {r.sent_at ? format(new Date(r.sent_at), 'dd MMM yyyy', { locale: fr }) : '-'}
                     </td>
                     <td className="py-3 px-4">
-                      {r.reminder_type === 'payment' && <Badge variant="outline" className="bg-rose-500/10 text-rose-500">Paiement</Badge>}
-                      {r.reminder_type === 'appointment' && <Badge variant="outline" className="bg-blue-500/10 text-blue-500">Rendez-vous</Badge>}
-                      {r.reminder_type === 'custom' && <Badge variant="outline" className="bg-slate-500/10 text-slate-500">Autre</Badge>}
+                      {r.reminder_type === 'payment' && <Badge variant="outline" className="bg-rose-500/10 text-rose-500">{t("reminders.payment", "Paiement")}</Badge>}
+                      {r.reminder_type === 'appointment' && <Badge variant="outline" className="bg-blue-500/10 text-blue-500">{t("reminders.appointment", "Rendez-vous")}</Badge>}
+                      {r.reminder_type === 'custom' && <Badge variant="outline" className="bg-slate-500/10 text-slate-500">{t("common.other", "Autre")}</Badge>}
                     </td>
                     <td className="py-3 px-4 font-medium">{r.invoice?.client?.full_name || '-'}</td>
                     <td className="py-3 px-4 text-muted-foreground truncate max-w-xs">{r.notes}</td>
                     <td className="py-3 px-4 text-center">
                       <Badge variant={r.status === 'sent' ? 'success' : r.status === 'failed' ? 'destructive' : 'secondary'}>
-                        {r.status === 'sent' ? 'Envoyé' : r.status === 'failed' ? 'Échoué' : 'En attente'}
+                        {r.status === 'sent' ? t('reminders.sent', 'Envoyé') : r.status === 'failed' ? t('reminders.failed', 'Échoué') : t('reminders.pending', 'En attente')}
                       </Badge>
                     </td>
                     <td className="py-3 px-4 text-center">
                       <div className="flex justify-center gap-2">
                         {r.status === 'pending' && (
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500" onClick={() => markAsSent(r.id)} title="Marquer comme envoyé">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500" onClick={() => markAsSent(r.id)} title={t("reminders.markSent", "Marquer comme envoyé")}>
                             <CheckCircle2 className="w-4 h-4" />
                           </Button>
                         )}
@@ -177,10 +177,10 @@ export default function RemindersPage() {
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Programmer un rappel</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t("reminders.schedule", "Programmer un rappel")}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Facture concernée *</Label>
+              <Label>{t("reminders.invoiceRef", "Facture concernée *")}</Label>
               <Select value={formData.invoice_id} onValueChange={(val) => setFormData({...formData, invoice_id: val})}>
                 <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
                 <SelectContent>
@@ -195,9 +195,9 @@ export default function RemindersPage() {
               <Select value={formData.reminder_type} onValueChange={(val) => setFormData({...formData, reminder_type: val})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="payment">Relance Paiement</SelectItem>
+                  <SelectItem value="payment">{t("reminders.paymentReminder", "Relance Paiement")}</SelectItem>
                   <SelectItem value="appointment">Rendez-vous</SelectItem>
-                  <SelectItem value="custom">Message personnalisé</SelectItem>
+                  <SelectItem value="custom">{t("reminders.customMsg", "Message personnalisé")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

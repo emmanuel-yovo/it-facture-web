@@ -66,7 +66,7 @@ export default function ExpensesPage() {
   }
 
   const exportCSV = async () => {
-    alert("L'exportation CSV des dépenses sera disponible dans une prochaine mise à jour Web.")
+    alert(t('expenses.exportMsg', 'L\'exportation CSV des dépenses sera disponible dans une prochaine mise à jour Web.'))
   }
 
   if (loading) return <div className="h-96 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>
@@ -77,9 +77,9 @@ export default function ExpensesPage() {
         <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-2">
           <Lock className="w-8 h-8 text-muted-foreground" />
         </div>
-        <h2 className="text-2xl font-bold">Fonctionnalité Verrouillée</h2>
+        <h2 className="text-2xl font-bold">{t('upgrade.locked', 'Fonctionnalité Verrouillée')}</h2>
         <p className="text-muted-foreground">
-          La gestion des dépenses est disponible à partir du plan Pro. Suivez vos sorties d'argent, classez-les par catégories et préparez votre comptabilité facilement.
+          {t('expenses.lockedMsg', 'La gestion des dépenses est disponible à partir du plan Pro. Suivez vos sorties d\'argent, classez-les par catégories et préparez votre comptabilité facilement.')}
         </p>
         <Button onClick={() => router.push('/upgrade')} className="mt-4 bg-blue-500 hover:bg-blue-600 text-white">
           Passer à la version Pro
@@ -118,11 +118,11 @@ export default function ExpensesPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/30">
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Date</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Titre</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Catégorie</th>
-                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">Montant</th>
-                  <th className="text-center py-3 px-4 font-medium text-muted-foreground">Actions</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("common.date", "Date")}</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("common.title", "Titre")}</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("common.category", "Catégorie")}</th>
+                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">{t("common.amount", "Montant")}</th>
+                  <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t("common.actions", "Actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -149,10 +149,10 @@ export default function ExpensesPage() {
         <DialogContent>
           <DialogHeader><DialogTitle>{t('common.add', 'Nouvelle')} {t('nav.expenses', 'Dépenses').toLowerCase()}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2"><Label>Titre *</Label><Input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} /></div>
-            <div className="space-y-2"><Label>Montant *</Label><Input type="number" value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} /></div>
-            <div className="space-y-2"><Label>Catégorie</Label><Input value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} placeholder="Ex: Matériel, Licences..." /></div>
-            <div className="space-y-2"><Label>Date</Label><Input type="date" value={formData.expense_date} onChange={e => setFormData({ ...formData, expense_date: e.target.value })} /></div>
+            <div className="space-y-2"><Label>{t("common.title", "Titre")} *</Label><Input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} /></div>
+            <div className="space-y-2"><Label>{t("common.amount", "Montant")} *</Label><Input type="number" value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} /></div>
+            <div className="space-y-2"><Label>{t("common.category", "Catégorie")}</Label><Input value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} placeholder={t("expenses.categoryPlaceholder", "Ex: Matériel, Licences...")} /></div>
+            <div className="space-y-2"><Label>{t("common.date", "Date")}</Label><Input type="date" value={formData.expense_date} onChange={e => setFormData({ ...formData, expense_date: e.target.value })} /></div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>{t('common.cancel')}</Button>

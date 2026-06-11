@@ -84,7 +84,7 @@ export default function QuotesPage() {
                       <td className="py-3 px-4 text-muted-foreground">{formatDate(q.created_at)}</td>
                       <td className="py-3 px-4">
                         <Badge variant={q.status === 'accepted' ? 'success' : q.status === 'rejected' ? 'danger' : 'outline'}>
-                          {q.status === 'accepted' ? t('common.yes', 'Accepté') : q.status === 'rejected' ? t('common.no', 'Refusé') : 'Brouillon'}
+                          {q.status === 'accepted' ? t('common.yes', 'Accepté') : q.status === 'rejected' ? t('common.no', 'Refusé') : t('common.draft', 'Brouillon')}
                         </Badge>
                       </td>
                       <td className="py-3 px-4 text-right font-semibold">{formatCurrency(q.grand_total)}</td>

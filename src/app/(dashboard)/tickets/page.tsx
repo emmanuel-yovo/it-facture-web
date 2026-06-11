@@ -99,19 +99,19 @@ export default function TicketsPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'open': return <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20">Ouvert</Badge>
-      case 'in_progress': return <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20">En cours</Badge>
-      case 'closed': return <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">Fermé</Badge>
-      case 'billed': return <Badge variant="outline" className="bg-purple-500/10 text-purple-500 border-purple-500/20">Facturé</Badge>
+      case 'open': return <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20">{t("tickets.openBadge", "Ouvert")}</Badge>
+      case 'in_progress': return <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20">{t("tickets.inProgress", "En cours")}</Badge>
+      case 'closed': return <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">{t("tickets.closedBadge", "Fermé")}</Badge>
+      case 'billed': return <Badge variant="outline" className="bg-purple-500/10 text-purple-500 border-purple-500/20">{t("tickets.billedBadge", "Facturé")}</Badge>
       default: return <Badge>{status}</Badge>
     }
   }
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
-      case 'high': return <Badge className="bg-red-500 border-none text-white">Haute</Badge>
-      case 'medium': return <Badge className="bg-amber-500 border-none text-white">Moyenne</Badge>
-      case 'low': return <Badge className="bg-slate-500 border-none text-white">Basse</Badge>
+      case 'high': return <Badge className="bg-red-500 border-none text-white">{t("tickets.high", "Haute")}</Badge>
+      case 'medium': return <Badge className="bg-amber-500 border-none text-white">{t("tickets.medium", "Moyenne")}</Badge>
+      case 'low': return <Badge className="bg-slate-500 border-none text-white">{t("tickets.low", "Basse")}</Badge>
       default: return <Badge>{priority}</Badge>
     }
   }
@@ -122,9 +122,9 @@ export default function TicketsPage() {
         <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-2">
           <Lock className="w-8 h-8 text-muted-foreground" />
         </div>
-        <h2 className="text-2xl font-bold">Fonctionnalité Verrouillée</h2>
+        <h2 className="text-2xl font-bold">{t('upgrade.locked', 'Fonctionnalité Verrouillée')}</h2>
         <p className="text-muted-foreground">
-          La gestion des tickets et interventions techniques est réservée au plan Pro et Agence. Gérez vos maintenances et facturez vos interventions facilement.
+          {t('tickets.lockedMsg', 'La gestion des tickets et interventions techniques est réservée au plan Pro et Agence. Gérez vos maintenances et facturez vos interventions facilement.')}
         </p>
         <Button onClick={() => router.push('/upgrade')} className="mt-4 bg-blue-500 hover:bg-blue-600 text-white">
           Passer à la version Pro
@@ -138,7 +138,7 @@ export default function TicketsPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold">{t('nav.tickets', 'Interventions / Tickets')}</h1>
-          <p className="text-muted-foreground mt-1">Gérez vos interventions techniques et leur facturation.</p>
+          <p className="text-muted-foreground mt-1">{t("tickets.subtitle", "Gérez vos interventions techniques et leur facturation.")}</p>
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)} className="bg-primary hover:bg-primary/90">
           <Plus className="w-4 h-4 mr-2" /> {t('common.add', 'Nouveau')} {t('nav.tickets', 'Ticket').replace('s', '').replace('Maintenance', 'Ticket')}
@@ -153,8 +153,8 @@ export default function TicketsPage() {
               <Input placeholder={t('common.search', 'Rechercher...')} className="pl-9 bg-card" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
             <div className="flex gap-2">
-              <Button variant={statusFilter === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter('all')}>Tous</Button>
-              <Button variant={statusFilter === 'open' ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter('open')}>Ouverts</Button>
+              <Button variant={statusFilter === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter('all')}>{t("common.all", "Tous")}</Button>
+              <Button variant={statusFilter === 'open' ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter('open')}>{t("tickets.open", "Ouverts")}</Button>
               <Button variant={statusFilter === 'in_progress' ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter('in_progress')}>En cours</Button>
             </div>
           </div>
@@ -170,7 +170,7 @@ export default function TicketsPage() {
                 <Wrench className="w-6 h-6" />
               </div>
               <h3 className="font-medium">{t('common.noData', 'Aucun ticket trouvé')}</h3>
-              <p className="text-sm text-muted-foreground">Commencez par créer votre première intervention de maintenance.</p>
+              <p className="text-sm text-muted-foreground">{t("tickets.noDataDesc", "Commencez par créer votre première intervention de maintenance.")}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

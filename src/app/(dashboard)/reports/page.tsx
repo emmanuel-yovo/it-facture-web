@@ -67,7 +67,7 @@ export default function ReportsPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{t('nav.reports', 'Analyses Financières')}</h1>
-          <p className="text-muted-foreground mt-1">Suivez la performance et la rentabilité de votre entreprise.</p>
+          <p className="text-muted-foreground mt-1">{t("reports.subtitle", "Suivez la performance et la rentabilité de votre entreprise.")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button onClick={handleExportComptable} className="bg-primary hover:bg-primary/90 text-white shadow-md">
@@ -121,15 +121,15 @@ export default function ReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-amber-700 dark:text-amber-400">{topClients.length}</div>
-            <p className="text-xs text-amber-600/80 dark:text-amber-400/80 mt-1 flex items-center"><Calendar className="w-3 h-3 mr-1" />Base de données</p>
+            <p className="text-xs text-amber-600/80 dark:text-amber-400/80 mt-1 flex items-center"><Calendar className="w-3 h-3 mr-1" />{t("reports.db", "Base de données")}</p>
           </CardContent>
         </Card>
       </div>
 
       <Card className="border-border shadow-sm">
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2"><PieChart className="w-5 h-5 text-primary" /> Performance Mensuelle</CardTitle>
-          <CardDescription>Visualisation des flux de revenus et dépenses par mois.</CardDescription>
+          <CardTitle className="text-lg flex items-center gap-2"><PieChart className="w-5 h-5 text-primary" /> {t("reports.monthlyPerf", "Performance Mensuelle")}</CardTitle>
+          <CardDescription>{t("reports.monthlyPerfDesc", "Visualisation des flux de revenus et dépenses par mois.")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[350px] w-full pt-4">
@@ -150,8 +150,8 @@ export default function ReportsPage() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" opacity={0.5} />
                 <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} formatter={(value: any) => formatCurrency(value)} />
                 <Legend verticalAlign="top" height={36}/>
-                <Area name="Revenus" type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
-                <Area name="Dépenses" type="monotone" dataKey="expenses" stroke="#f43f5e" strokeWidth={3} fillOpacity={1} fill="url(#colorExp)" />
+                <Area name={t("reports.revenues", "Revenus")} type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
+                <Area name={t("nav.expenses", "Dépenses")} type="monotone" dataKey="expenses" stroke="#f43f5e" strokeWidth={3} fillOpacity={1} fill="url(#colorExp)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -161,8 +161,8 @@ export default function ReportsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="border-border shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2"><Users className="w-5 h-5 text-primary" /> Top 5 Clients</CardTitle>
-            <CardDescription>Basé sur le chiffre d'affaires total généré.</CardDescription>
+            <CardTitle className="text-lg flex items-center gap-2"><Users className="w-5 h-5 text-primary" /> {t("reports.topClients", "Top 5 Clients")}</CardTitle>
+            <CardDescription>{t("reports.topClientsDesc", "Basé sur le chiffre d'affaires total généré.")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
@@ -190,8 +190,8 @@ export default function ReportsPage() {
 
         <Card className="border-border shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2"><PieChart className="w-5 h-5 text-primary" /> Répartition des Dépenses</CardTitle>
-            <CardDescription>Analyse par catégorie de coûts.</CardDescription>
+            <CardTitle className="text-lg flex items-center gap-2"><PieChart className="w-5 h-5 text-primary" /> {t("reports.expenseBreakdown", "Répartition des Dépenses")}</CardTitle>
+            <CardDescription>{t("reports.expenseBreakdownDesc", "Analyse par catégorie de coûts.")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[280px]">

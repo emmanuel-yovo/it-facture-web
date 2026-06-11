@@ -80,6 +80,55 @@
     "allCategories": "All Categories",
     "noServices": "No services found"
   },
+  "tickets": {
+    "title": "Interventions / Tickets",
+    "subtitle": "Manage your technical interventions and billing.",
+    "open": "Open",
+    "inProgress": "In Progress",
+    "noDataDesc": "Start by creating your first maintenance intervention.",
+    "openBadge": "Open",
+    "closedBadge": "Closed",
+    "billedBadge": "Billed",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "convertToInvoice": "Convert to invoice",
+    "lockedMsg": "Ticket and technical intervention management is reserved for the Pro and Agency plans."
+  },
+  "reminders": {
+    "title": "Reminders",
+    "subtitle": "Manage your payment reminders and appointments.",
+    "noDataDesc": "You have no reminders scheduled at the moment.",
+    "payment": "Payment",
+    "appointment": "Appointment",
+    "sent": "Sent",
+    "failed": "Failed",
+    "pending": "Pending",
+    "markSent": "Mark as sent",
+    "schedule": "Schedule a reminder",
+    "invoiceRef": "Related Invoice *",
+    "paymentReminder": "Payment Reminder",
+    "customMsg": "Custom Message"
+  },
+  "reports": {
+    "title": "Financial Analysis",
+    "subtitle": "Track your business performance and profitability.",
+    "annualTotal": "Annual Total",
+    "estimatedMargin": "Estimated Margin",
+    "db": "Database",
+    "monthlyPerf": "Monthly Performance",
+    "monthlyPerfDesc": "Visualization of revenue and expense streams per month.",
+    "revenues": "Revenues",
+    "topClients": "Top 5 Clients",
+    "topClientsDesc": "Based on total revenue generated.",
+    "expenseBreakdown": "Expense Breakdown",
+    "expenseBreakdownDesc": "Analysis by cost category."
+  },
+  "expenses": {
+    "exportMsg": "CSV export for expenses will be available in an upcoming Web update.",
+    "lockedMsg": "Expense management is available from the Pro plan. Track your cash outflows, classify them by categories, and easily prepare your accounting.",
+    "categoryPlaceholder": "Ex: Equipment, Licenses..."
+  },
   "invoices": {
     "title": "Invoice Management",
     "newInvoice": "New Invoice",
@@ -226,7 +275,17 @@
     "page": "Page",
     "rows": "rows",
     "showing": "Showing",
-    "to": "to"
+    "to": "to",
+    "draft": "Draft",
+    "date": "Date",
+    "title": "Title",
+    "category": "Category",
+    "amount": "Amount",
+    "planned": "Planned",
+    "type": "Type",
+    "message": "Message",
+    "other": "Other",
+    "individual": "Individual"
   },
   "setup": {
     "title": "IT-Facture Setup",
