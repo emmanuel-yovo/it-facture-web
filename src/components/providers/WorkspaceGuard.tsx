@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
 import { useAuth } from '@/hooks/useAuth'
+import { supabase } from '@/lib/supabase'
 
 export function WorkspaceGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter()
@@ -24,6 +25,26 @@ export function WorkspaceGuard({ children }: { children: React.ReactNode }) {
       router.push('/onboarding')
     }
   }, [mounted, loading, user, workspaceId, pathname, router])
+
+  // PING d'activité : Mettre à jour last_seen_at toutes les 5 minutes
+  useEffect(() => {
+    if (!workspaceId) return
+
+    const pingActivity = async () => {
+      await supabase
+        .from('workspaces')
+        .update({ last_seen_at: new Date().toISOString() })
+        .eq('id', workspaceId)
+    }
+
+    // Ping immédiat au montage
+    pingActivity()
+
+    // Ping toutes les 5 minutes (300 000 ms)
+    const interval = setInterval(pingActivity, 300000)
+    
+    return () => clearInterval(interval)
+  }, [workspaceId])
 
   // Ne pas afficher le contenu si ça charge, ou si pas de workspace (pour éviter les clignotements/crash)
   if (!mounted || loading) {

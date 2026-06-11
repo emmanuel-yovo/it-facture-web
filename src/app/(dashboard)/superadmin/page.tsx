@@ -16,6 +16,25 @@ export default function SuperAdminPage() {
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState<string | null>(null)
+  const [filter, setFilter] = useState<'all' | 'paid' | 'free'>('all')
+
+  const formatRelativeTime = (dateString: string | null) => {
+    if (!dateString) return <span className="text-muted-foreground">Inconnu</span>
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / 60000)
+    
+    if (diffInMinutes < 5) {
+      return <span className="flex items-center text-emerald-500 font-medium"><div className="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse" /> En ligne</span>
+    }
+    
+    if (diffInMinutes < 60) return `Il y a ${diffInMinutes} min`
+    const diffInHours = Math.floor(diffInMinutes / 60)
+    if (diffInHours < 24) return `Il y a ${diffInHours} h`
+    const diffInDays = Math.floor(diffInHours / 24)
+    if (diffInDays === 1) return `Hier`
+    return `Il y a ${diffInDays} jours`
+  }
 
   const loadStats = () => {
     superadminRepository.getDashboardStats()
@@ -103,8 +122,13 @@ export default function SuperAdminPage() {
       </div>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle>Liste des Entreprises</CardTitle>
+          <div className="flex gap-2">
+            <Button variant={filter === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('all')}>Toutes</Button>
+            <Button variant={filter === 'paid' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('paid')}>Abonnés Payants</Button>
+            <Button variant={filter === 'free' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('free')}>Comptes Gratuits</Button>
+          </div>
         </CardHeader>
         <CardContent>
           <table className="w-full text-sm text-left">
@@ -112,16 +136,20 @@ export default function SuperAdminPage() {
               <tr className="border-b bg-muted/30">
                 <th className="py-3 px-4 font-medium text-muted-foreground">Nom de l'entreprise</th>
                 <th className="py-3 px-4 font-medium text-muted-foreground">Propriétaire</th>
+                <th className="py-3 px-4 font-medium text-muted-foreground">Dernière Activité</th>
                 <th className="py-3 px-4 font-medium text-muted-foreground">Plan</th>
                 <th className="py-3 px-4 font-medium text-muted-foreground text-center">Factures créées</th>
                 <th className="py-3 px-4 font-medium text-muted-foreground text-right">CA Total Encaissé</th>
               </tr>
             </thead>
             <tbody>
-              {stats?.workspaces.map((w: any) => (
+              {stats?.workspaces
+                .filter((w: any) => filter === 'all' ? true : filter === 'free' ? w.plan === 'free' : w.plan !== 'free')
+                .map((w: any) => (
                 <tr key={w.id} className="border-b border-border/50 hover:bg-muted/10 transition-colors">
                   <td className="py-3 px-4 font-medium">{w.name}</td>
                   <td className="py-3 px-4">{w.owner?.full_name || 'Inconnu'}</td>
+                  <td className="py-3 px-4 text-sm">{formatRelativeTime(w.last_seen_at)}</td>
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-2">
                       <Select 
