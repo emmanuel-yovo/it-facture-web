@@ -105,6 +105,12 @@ export default function ServicesPage() {
     setModalOpen(true)
   }
 
+  const openNew = () => {
+    setEditing(null)
+    setForm({ ...empty, vat_percentage: defaultVat })
+    setModalOpen(true)
+  }
+
   if (initialLoading) {
     return <div className="h-96 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>
   }

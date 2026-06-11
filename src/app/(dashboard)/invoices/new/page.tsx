@@ -178,8 +178,8 @@ function InvoiceForm() {
                         <div>
                           <p className="font-semibold text-sm">{t("invoices.clientExempt", "Client exonéré / Hors taxe")}</p>
                           <p className="text-xs text-amber-500/80 mt-1">
-                            Ce client est enregistré dans un pays différent ({selectedClient.country}) de votre entreprise ({settings?.company_country || 'FR'}). 
-                            Le taux de taxe ({taxLabel}) sera automatiquement initialisé à 0% conformément aux règles d'exportation / autoliquidation.
+                            {t("invoices.exemptDesc1", "Ce client est enregistré dans un pays différent")} ({selectedClient.country}) {t("invoices.exemptDesc2", "de votre entreprise")} ({settings?.company_country || 'FR'}). 
+                            Le taux de taxe ({taxLabel}) sera automatiquement initialisé à 0% conformément aux règles d&apos;exportation / autoliquidation.
                           </p>
                         </div>
                       </div>
@@ -347,7 +347,7 @@ function InvoiceForm() {
 
 export default function NewInvoicePage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center">{t("common.loading", "Chargement de l'interface...")}</div>}>
+    <Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>
       <InvoiceForm />
     </Suspense>
   )
