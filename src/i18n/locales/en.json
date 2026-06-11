@@ -18,7 +18,7 @@
     "reports": "Reports",
     "audit": "Security",
     "users": "Users",
-    "superadmin": "Global Admin"
+    "superadmin": "SaaS Admin"
   },
   "reports": {
     "annualTotal": "Annual Total",

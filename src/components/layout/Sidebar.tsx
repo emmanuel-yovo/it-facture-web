@@ -126,7 +126,7 @@ export function Sidebar({ className }: { className?: string }) {
                       exit={{ opacity: 0 }}
                       className="truncate"
                     >
-                      {item.permission === PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD ? item.label : t(item.label)}
+                      {t(item.label)}
                     </motion.span>
                   )}
                 </AnimatePresence>

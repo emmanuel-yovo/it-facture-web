@@ -18,7 +18,7 @@
     "reports": "Analyses",
     "audit": "Sécurité",
     "users": "Utilisateurs",
-    "superadmin": "Administration Globale"
+    "superadmin": "Admin SaaS"
   },
   "reports": {
     "annualTotal": "Cumul annuel",
