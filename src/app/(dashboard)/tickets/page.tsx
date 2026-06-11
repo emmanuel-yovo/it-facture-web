@@ -155,7 +155,7 @@ export default function TicketsPage() {
             <div className="flex gap-2">
               <Button variant={statusFilter === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter('all')}>{t("common.all", "Tous")}</Button>
               <Button variant={statusFilter === 'open' ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter('open')}>{t("tickets.open", "Ouverts")}</Button>
-              <Button variant={statusFilter === 'in_progress' ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter('in_progress')}>En cours</Button>
+              <Button variant={statusFilter === 'in_progress' ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter('in_progress')}>{t("tickets.inProgress", "En cours")}</Button>
             </div>
           </div>
         </CardHeader>

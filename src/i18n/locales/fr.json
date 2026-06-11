@@ -95,6 +95,19 @@
     "convertToInvoice": "Convertir en facture",
     "lockedMsg": "La gestion des tickets et interventions techniques est réservée au plan Pro et Agence."
   },
+  "audit": {
+    "title": "Journal d'Activité",
+    "accessDeniedDesc": "Vous n'avez pas les droits pour voir le journal d'activité.",
+    "subtitleGlobal": "Historique global des actions (Vue SuperAdmin)",
+    "subtitleWorkspace": "Historique des actions effectuées sur votre espace de travail.",
+    "dateTime": "Date & Heure",
+    "user": "Utilisateur",
+    "action": "Action",
+    "resource": "Ressource",
+    "details": "Détails",
+    "system": "Système",
+    "noData": "Aucune activité enregistrée."
+  },
   "reminders": {
     "title": "Relances & Rappels",
     "subtitle": "Gérez vos rappels de paiement et rendez-vous.",
@@ -296,7 +309,9 @@
     "message": "Message",
     "other": "Autre",
     "individual": "Particulier",
-    "loading": "Chargement de l'interface..."
+    "loading": "Chargement de l'interface...",
+    "accessDenied": "Accès Refusé",
+    "accessDeniedAdmin": "Accès restreint aux administrateurs."
   },
   "setup": {
     "title": "Configuration IT-Facture",

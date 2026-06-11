@@ -47,7 +47,7 @@ export default function ReportsPage() {
   }
 
   if (!hasPermission(user?.role, PERMISSIONS.VIEW_REPORTS)) {
-    return <div className="p-12 text-center text-muted-foreground"><p>Accès restreint aux administrateurs.</p></div>
+    return <div className="p-12 text-center text-muted-foreground"><p>{t("common.accessDeniedAdmin", "Accès restreint aux administrateurs.")}</p></div>
   }
 
   if (isLoading) {

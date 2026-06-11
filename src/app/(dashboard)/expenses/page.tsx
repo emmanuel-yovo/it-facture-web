@@ -93,7 +93,7 @@ export default function ExpensesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">{t('nav.expenses', 'Dépenses')}</h1>
-          <p className="text-muted-foreground text-sm mt-1">Suivez vos sorties d'argent</p>
+          <p className="text-muted-foreground text-sm mt-1">{t("expenses.subtitle", "Suivez vos sorties d'argent")}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={exportCSV}><Download className="w-4 h-4 mr-2" />{t('common.import', 'Exporter').replace('Import', 'Export')}</Button>

@@ -95,6 +95,19 @@
     "convertToInvoice": "Convert to invoice",
     "lockedMsg": "Ticket and technical intervention management is reserved for the Pro and Agency plans."
   },
+  "audit": {
+    "title": "Activity Log",
+    "accessDeniedDesc": "You do not have permission to view the activity log.",
+    "subtitleGlobal": "Global action history (SuperAdmin View)",
+    "subtitleWorkspace": "History of actions performed on your workspace.",
+    "dateTime": "Date & Time",
+    "user": "User",
+    "action": "Action",
+    "resource": "Resource",
+    "details": "Details",
+    "system": "System",
+    "noData": "No activity recorded."
+  },
   "reminders": {
     "title": "Reminders",
     "subtitle": "Manage your payment reminders and appointments.",
@@ -296,7 +309,9 @@
     "message": "Message",
     "other": "Other",
     "individual": "Individual",
-    "loading": "Loading interface..."
+    "loading": "Loading interface...",
+    "accessDenied": "Access Denied",
+    "accessDeniedAdmin": "Access restricted to administrators."
   },
   "setup": {
     "title": "IT-Facture Setup",

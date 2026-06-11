@@ -9,9 +9,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { formatDate } from '@/lib/utils'
 import { Activity, Search, ShieldAlert, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { auditRepository, AuditLog } from '@/lib/repositories/audit.repository'
 
 export default function AuditPage() {
+  const { t } = useTranslation()
   const router = useRouter()
   const { user, workspaceId } = useAuthStore()
   
@@ -54,8 +56,8 @@ export default function AuditPage() {
     return (
       <div className="h-96 flex flex-col items-center justify-center space-y-4">
         <ShieldAlert className="w-16 h-16 text-red-500/50" />
-        <h2 className="text-2xl font-bold">Accès Refusé</h2>
-        <p className="text-muted-foreground">Vous n'avez pas les droits pour voir le journal d'activité.</p>
+        <h2 className="text-2xl font-bold">{t("common.accessDenied", "Accès Refusé")}</h2>
+        <p className="text-muted-foreground">{t("audit.accessDeniedDesc", "Vous n'avez pas les droits pour voir le journal d'activité.")}</p>
       </div>
     )
   }
@@ -83,8 +85,8 @@ export default function AuditPage() {
         </h1>
         <p className="text-muted-foreground text-sm">
           {user?.role === 'superadmin' 
-            ? "Historique global des actions (Vue SuperAdmin)" 
-            : "Historique des actions effectuées sur votre espace de travail."}
+            ? t("audit.subtitleGlobal", "Historique global des actions (Vue SuperAdmin)") 
+            : t("audit.subtitleWorkspace", "Historique des actions effectuées sur votre espace de travail.")}
         </p>
       </div>
 
@@ -94,11 +96,11 @@ export default function AuditPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/30">
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground w-40">Date & Heure</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Utilisateur</th>
-                  <th className="text-center py-3 px-4 font-medium text-muted-foreground w-28">Action</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Ressource</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Détails</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground w-40">{t("audit.dateTime", "Date & Heure")}</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("audit.user", "Utilisateur")}</th>
+                  <th className="text-center py-3 px-4 font-medium text-muted-foreground w-28">{t("audit.action", "Action")}</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("audit.resource", "Ressource")}</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("audit.details", "Détails")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -107,7 +109,7 @@ export default function AuditPage() {
                     <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
                       {new Date(log.timestamp).toLocaleString('fr-FR')}
                     </td>
-                    <td className="py-3 px-4 font-medium">{log.user?.full_name || 'Système'}</td>
+                    <td className="py-3 px-4 font-medium">{log.user?.full_name || t("audit.system", "Système")}</td>
                     <td className="py-3 px-4 text-center">
                       <Badge variant="outline" className={`text-[10px] uppercase font-bold tracking-wider ${getActionColor(log.action)}`}>
                         {log.action}
@@ -120,7 +122,7 @@ export default function AuditPage() {
                 {logs.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-12 text-center text-muted-foreground">
-                      Aucune activité enregistrée.
+                      {t("audit.noData", "Aucune activité enregistrée.")}
                     </td>
                   </tr>
                 )}
@@ -130,7 +132,7 @@ export default function AuditPage() {
           
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-border">
-              <p className="text-sm text-muted-foreground">Page {page} sur {totalPages}</p>
+              <p className="text-sm text-muted-foreground">{t("common.page", "Page")} {page} {t("common.of", "sur")} {totalPages}</p>
               <div className="flex gap-1">
                 <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
                   <ChevronLeft className="w-4 h-4" />
