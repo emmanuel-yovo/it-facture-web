@@ -309,7 +309,7 @@ function InvoiceForm() {
 
         <div className="hidden lg:block">
           <Card className="sticky top-6">
-            <CardHeader><CardTitle className="text-base">Aperçu rapide</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">{t("invoices.quickPreview", "Aperçu rapide")}</CardTitle></CardHeader>
             <CardContent className="text-xs space-y-3">
               <div className="p-3 bg-muted/30 rounded-lg">
                 <p className="font-bold text-primary text-sm">IT-Facture</p>
@@ -328,14 +328,14 @@ function InvoiceForm() {
                     </div>
                   ))}
                 </div>
-              ) : <p className="text-muted-foreground text-center py-3">Aucun service sélectionné</p>}
+              ) : <p className="text-muted-foreground text-center py-3">{t("invoices.noServicesSelected", "Aucun service sélectionné")}</p>}
               <Separator />
               <div className="space-y-1">
-                <div className="flex justify-between"><span>Sous-total HT</span><span>{formatVal(subtotal)}</span></div>
+                <div className="flex justify-between"><span>{t("invoices.subtotalHT", "Sous-total HT")}</span><span>{formatVal(subtotal)}</span></div>
                 <div className="flex justify-between"><span>{taxLabel}</span><span>{formatVal(vatTotal)}</span></div>
-                {totalDiscounts > 0 && <div className="flex justify-between text-red-400"><span>Remises</span><span>-{formatVal(totalDiscounts)}</span></div>}
+                {totalDiscounts > 0 && <div className="flex justify-between text-red-400"><span>{t("nav.discounts", "Remises")}</span><span>-{formatVal(totalDiscounts)}</span></div>}
                 <Separator />
-                <div className="flex justify-between font-bold text-base"><span>Total TTC</span><span className="text-primary">{formatVal(grandTotal)}</span></div>
+                <div className="flex justify-between font-bold text-base"><span>{t("invoices.totalTTC", "Total TTC")}</span><span className="text-primary">{formatVal(grandTotal)}</span></div>
               </div>
             </CardContent>
           </Card>
@@ -347,7 +347,7 @@ function InvoiceForm() {
 
 export default function NewInvoicePage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center">Chargement de l'interface...</div>}>
+    <Suspense fallback={<div className="p-12 text-center">{t("common.loading", "Chargement de l'interface...")}</div>}>
       <InvoiceForm />
     </Suspense>
   )
