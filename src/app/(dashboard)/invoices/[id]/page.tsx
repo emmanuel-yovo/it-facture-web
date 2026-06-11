@@ -115,9 +115,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       } else {
         alert(data.error || "Erreur lors de l'envoi de l'email")
       }
-    } catch (e) {
-      console.error(e)
-      alert("Erreur lors de l'envoi de l'email")
+    } catch (e: any) {
+      console.error("Détail de l'erreur catch:", e)
+      alert(`Erreur technique: ${e.message || "Erreur lors de l'envoi de l'email"}`)
     } finally {
       setLoading(false)
     }
