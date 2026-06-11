@@ -160,6 +160,29 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     }
   }
 
+  const handleKkiapayInvoicePayment = () => {
+    if (!settings.kkiapay_public_key) {
+      alert("La clé publique KkiaPay de l'entreprise n'est pas configurée dans les paramètres.")
+      return
+    }
+
+    const state = JSON.stringify({
+      type: 'invoice_payment',
+      workspace_id: workspaceId,
+      invoice_id: invoice.id
+    })
+
+    window.openKkiapayWidget({
+      amount: remaining,
+      position: "center",
+      callback: `${window.location.origin}/invoices/${invoice.id}?payment=success`,
+      data: state,
+      theme: "#10b981", // Vert
+      sandbox: settings.kkiapay_environment !== 'live',
+      key: settings.kkiapay_public_key
+    })
+  }
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div className="flex items-center justify-between">
@@ -381,8 +404,27 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPaymentOpen(false)}>Annuler</Button>
-            <Button onClick={handlePayment} disabled={!paymentAmount || Number(paymentAmount) <= 0}>Enregistrer le paiement</Button>
+            <Button onClick={handlePayment} disabled={!paymentAmount || Number(paymentAmount) <= 0}>Enregistrer le paiement manuel</Button>
           </DialogFooter>
+          
+          <div className="flex flex-col gap-2 mt-4 pt-4 border-t">
+            <p className="text-sm text-center text-muted-foreground font-medium mb-2">Ou encaisser en ligne immédiatement :</p>
+            <Button 
+              variant="outline" 
+              className="w-full bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border-blue-200"
+              onClick={generateFedaPayLink}
+              disabled={fedaPayLoading}
+            >
+              Générer lien FedaPay
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 border-emerald-200"
+              onClick={handleKkiapayInvoicePayment}
+            >
+              Payer maintenant avec KkiaPay
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 

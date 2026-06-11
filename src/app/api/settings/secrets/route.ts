@@ -31,7 +31,7 @@ export async function GET(req: Request) {
       .from('settings')
       .select('key, value')
       .eq('workspace_id', profile.workspace_id)
-      .in('key', ['fedapay_secret_key', 'smtp_pass'])
+      .in('key', ['fedapay_secret_key', 'kkiapay_private_key', 'kkiapay_secret_key', 'smtp_pass'])
 
     if (error) throw error
 
@@ -40,7 +40,7 @@ export async function GET(req: Request) {
       const decrypted = decrypt(row.value)
       // On masque la valeur déchiffrée
       if (decrypted) {
-        if (row.key === 'fedapay_secret_key') {
+        if (row.key === 'fedapay_secret_key' || row.key === 'kkiapay_private_key' || row.key === 'kkiapay_secret_key') {
           secrets[row.key] = decrypted.substring(0, 8) + '********' + decrypted.slice(-4)
         } else {
           secrets[row.key] = '••••••••••••'
@@ -88,6 +88,22 @@ export async function POST(req: Request) {
         workspace_id: profile.workspace_id,
         key: 'fedapay_secret_key',
         value: encrypt(body.fedapay_secret_key)
+      })
+    }
+
+    if (body.kkiapay_private_key && !body.kkiapay_private_key.includes('********')) {
+      recordsToUpsert.push({
+        workspace_id: profile.workspace_id,
+        key: 'kkiapay_private_key',
+        value: encrypt(body.kkiapay_private_key)
+      })
+    }
+
+    if (body.kkiapay_secret_key && !body.kkiapay_secret_key.includes('********')) {
+      recordsToUpsert.push({
+        workspace_id: profile.workspace_id,
+        key: 'kkiapay_secret_key',
+        value: encrypt(body.kkiapay_secret_key)
       })
     }
 

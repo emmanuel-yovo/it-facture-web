@@ -29,15 +29,18 @@ export default function SettingsPage() {
   const [companyCode, setCompanyCode] = useState<string>('')
   const searchParams = useSearchParams()
 
-  // Vérification FedaPay au retour de la page de paiement
+  // Vérification FedaPay ou KkiaPay au retour de la page de paiement
   useEffect(() => {
     const upgradeStatus = searchParams.get('upgrade')
-    const transactionId = searchParams.get('id')
+    const fedapayId = searchParams.get('id')
+    const kkiapayId = searchParams.get('transaction_id')
     const fedapayStatus = searchParams.get('status')
+    
+    const transactionId = fedapayId || kkiapayId
 
     if (upgradeStatus === 'success' && transactionId && workspaceId) {
       if (fedapayStatus === 'declined') {
-        alert("La transaction a été refusée par FedaPay. Veuillez réessayer.")
+        alert("La transaction a été refusée par la passerelle de paiement. Veuillez réessayer.")
         router.replace('/settings')
         return
       }
@@ -46,7 +49,9 @@ export default function SettingsPage() {
         setLoading(true)
         try {
           const { data: { session } } = await supabase.auth.getSession()
-          const res = await fetch('/api/fedapay/verify-transaction', {
+          const apiRoute = kkiapayId ? '/api/kkiapay/verify' : '/api/fedapay/verify-transaction'
+          
+          const res = await fetch(apiRoute, {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',
@@ -59,8 +64,8 @@ export default function SettingsPage() {
           if (data.success) {
             alert(`Paiement réussi ! Votre workspace est maintenant au plan ${data.plan}.`)
             window.location.href = '/settings' // Force reload to fetch new plan
-          } else if (data.status === 'declined') {
-            alert("La transaction a été refusée par FedaPay.")
+          } else if (data.status === 'declined' || data.status === 'FAILED') {
+            alert("La transaction a été refusée par la passerelle de paiement.")
           }
         } catch (e) {
           console.error(e)
@@ -70,7 +75,7 @@ export default function SettingsPage() {
       }
       verifyTransaction()
     }
-  }, [searchParams, workspaceId])
+  }, [searchParams, workspaceId, router])
 
   useEffect(() => {
     if (!workspaceId) return
@@ -146,6 +151,8 @@ export default function SettingsPage() {
         },
         body: JSON.stringify({
           fedapay_secret_key: settings.fedapay_secret_key,
+          kkiapay_private_key: settings.kkiapay_private_key,
+          kkiapay_secret_key: settings.kkiapay_secret_key,
           smtp_pass: settings.smtp_pass
         })
       })
@@ -516,7 +523,7 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Environnement</Label>
+                  <Label>Environnement FedaPay</Label>
                   <Select value={settings.fedapay_environment || 'sandbox'} onValueChange={(val) => setSettings((s: any) => ({ ...s, fedapay_environment: val }))}>
                     <SelectTrigger>
                       <SelectValue />
@@ -527,6 +534,49 @@ export default function SettingsPage() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                <Separator className="my-6" />
+                <CardTitle className="text-lg">Configuration KkiaPay</CardTitle>
+                <CardDescription>Acceptez les paiements Mobile Money avec KkiaPay.</CardDescription>
+                <div className="space-y-2">
+                  <Label>KkiaPay Public Key (Clé Publique)</Label>
+                  <Input 
+                    placeholder="ex: 98acdef06..." 
+                    value={settings.kkiapay_public_key || ''} 
+                    onChange={(e) => setSettings((s: any) => ({ ...s, kkiapay_public_key: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>KkiaPay Private Key (Clé Privée)</Label>
+                  <Input 
+                    type="password" 
+                    placeholder="tpk_..." 
+                    value={settings.kkiapay_private_key || ''} 
+                    onChange={(e) => setSettings((s: any) => ({ ...s, kkiapay_private_key: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>KkiaPay Secret Key (Clé Secrète)</Label>
+                  <Input 
+                    type="password" 
+                    placeholder="tsk_..." 
+                    value={settings.kkiapay_secret_key || ''} 
+                    onChange={(e) => setSettings((s: any) => ({ ...s, kkiapay_secret_key: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Environnement KkiaPay</Label>
+                  <Select value={settings.kkiapay_environment || 'sandbox'} onValueChange={(val) => setSettings((s: any) => ({ ...s, kkiapay_environment: val }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sandbox">Sandbox (Tests)</SelectItem>
+                      <SelectItem value="live">Live (Production)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="flex justify-end pt-4">
                   <Button onClick={handleSave} disabled={loading}>
                     {saved ? <><Check className="w-4 h-4 mr-2" />Enregistré</> : <><Save className="w-4 h-4 mr-2" />Enregistrer</>}

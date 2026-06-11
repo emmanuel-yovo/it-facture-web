@@ -61,6 +61,13 @@ export default function UpgradePage() {
   const currentPlan = workspacePlan || 'free'
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const [isYearly, setIsYearly] = useState(false)
+  
+  // Custom type declaration for the global kkiapay function
+  declare global {
+    interface Window {
+      openKkiapayWidget: (config: any) => void;
+    }
+  }
 
   const handleUpgrade = async (planType: string) => {
     if (!workspaceId || planType === 'free') return
@@ -91,6 +98,32 @@ export default function UpgradePage() {
     } finally {
       setLoadingPlan(null)
     }
+  }
+
+  const handleKkiapayUpgrade = (planType: string, amount: number) => {
+    if (!workspaceId || planType === 'free') return
+    const pubKey = process.env.NEXT_PUBLIC_KKIAPAY_PUBLIC_KEY
+    if (!pubKey) {
+      alert("La clé KkiaPay n'est pas configurée.")
+      return
+    }
+
+    const state = JSON.stringify({
+      type: 'saas_subscription',
+      workspace_id: workspaceId,
+      plan: planType,
+      interval: isYearly ? 'yearly' : 'monthly'
+    })
+
+    window.openKkiapayWidget({
+      amount: amount,
+      position: "center",
+      callback: `${window.location.origin}/settings?upgrade=success`,
+      data: state, // Transmis dans le custom data 'state'
+      theme: "#10b981", // Vert émeraude
+      sandbox: true,
+      key: pubKey
+    })
   }
 
   return (
@@ -150,7 +183,7 @@ export default function UpgradePage() {
                   ))}
                 </ul>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="flex flex-col gap-2">
                 <Button 
                   variant={plan.isCurrent(currentPlan) ? 'outline' : (plan.popular ? 'default' : 'secondary')}
                   className={`w-full font-bold ${plan.popular ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
@@ -164,9 +197,19 @@ export default function UpgradePage() {
                   ) : plan.type === 'free' ? (
                     'Inclus par défaut'
                   ) : (
-                    <>Passer à {plan.name} <Zap className="w-4 h-4 ml-2" /></>
+                    <>Payer par FedaPay <Zap className="w-4 h-4 ml-2" /></>
                   )}
                 </Button>
+                
+                {plan.type !== 'free' && !plan.isCurrent(currentPlan) && (
+                  <Button 
+                    variant="outline"
+                    className="w-full text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+                    onClick={() => handleKkiapayUpgrade(plan.type, price)}
+                  >
+                    Payer par KkiaPay
+                  </Button>
+                )}
               </CardFooter>
             </Card>
           )
