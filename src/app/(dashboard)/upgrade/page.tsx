@@ -9,44 +9,49 @@ import { Badge } from '@/components/ui/badge'
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useTranslation } from 'react-i18next'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 
 const PLANS = [
   {
-    name: 'Freemium',
-    price: '0',
-    description: 'Pour démarrer',
-    features: ['3 Clients max', '5 Factures max', '1 Utilisateur', 'Filigrane sur les PDF'],
+    name: 'Free',
+    price: { monthly: 0, yearly: 0 },
+    description: 'Pour tester et découvrir',
+    features: ['Jusqu\'à 5 factures/mois', 'Base de 3 clients', 'Envoi par PDF', 'Support communautaire'],
     type: 'free',
     buttonText: 'Plan actuel',
-    isCurrent: (plan: string) => plan === 'free'
+    isCurrent: (plan: string) => plan === 'free',
+    popular: false
   },
   {
-    name: 'Essential',
-    price: '14',
-    description: 'Idéal pour les indépendants',
-    features: ['Factures illimitées', 'Clients illimités', '1 Utilisateur', 'Sans filigrane', 'Support par email'],
-    type: 'essential',
-    buttonText: 'Passer à Essential',
-    isCurrent: (plan: string) => plan === 'essential',
+    name: 'Starter',
+    price: { monthly: 4900, yearly: 49000 },
+    description: 'L\'essentiel pour se lancer sereinement.',
+    features: ['Jusqu\'à 50 factures/mois', 'Base de 50 clients', 'Envoi par PDF professionnel', 'Support par E-mail'],
+    type: 'starter',
+    buttonText: 'Passer à Starter',
+    isCurrent: (plan: string) => plan === 'starter',
+    popular: false
+  },
+  {
+    name: 'Business',
+    price: { monthly: 14900, yearly: 149000 },
+    description: 'La machine de guerre pour PME.',
+    features: ['Clients & Factures Illimités', 'Paiement en ligne via FedaPay', 'Gestion des Dépenses', 'Gestion des Tickets SAV', 'Jusqu\'à 3 collaborateurs'],
+    type: 'business',
+    buttonText: 'Passer à Business',
+    isCurrent: (plan: string) => plan === 'business',
     popular: true
   },
   {
-    name: 'Pro',
-    price: '29',
-    description: 'Pour les PME',
-    features: ['Tout de Essential', 'Gestion des Dépenses', 'Module Tickets (SAV)', 'Multi-devises (13 devises)', 'Jusqu\'à 3 utilisateurs'],
-    type: 'pro',
-    buttonText: 'Passer à Pro',
-    isCurrent: (plan: string) => plan === 'pro'
-  },
-  {
-    name: 'Agence',
-    price: '69',
-    description: 'Pour les grandes équipes',
-    features: ['Tout de Pro', 'Utilisateurs illimités', 'API E-commerce', 'Personnalisation avancée', 'Account Manager dédié'],
+    name: 'Agency',
+    price: { monthly: 29000, yearly: 290000 },
+    description: 'Pour les grandes équipes sans compromis.',
+    features: ['Tout du plan Business', 'Utilisateurs illimités (Équipe)', 'Tableau de bord multi-agences', 'Account Manager dédié'],
     type: 'agency',
-    buttonText: 'Passer à Agence',
-    isCurrent: (plan: string) => plan === 'agency'
+    buttonText: 'Passer à Agency',
+    isCurrent: (plan: string) => plan === 'agency',
+    popular: false
   }
 ]
 
@@ -55,9 +60,10 @@ export default function UpgradePage() {
   const { workspacePlan, workspaceId } = useAuthStore()
   const currentPlan = workspacePlan || 'free'
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
+  const [isYearly, setIsYearly] = useState(false)
 
   const handleUpgrade = async (planType: string) => {
-    if (!workspaceId) return
+    if (!workspaceId || planType === 'free') return
     setLoadingPlan(planType)
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -67,7 +73,11 @@ export default function UpgradePage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`
         },
-        body: JSON.stringify({ plan: planType, workspace_id: workspaceId })
+        body: JSON.stringify({ 
+          plan: planType, 
+          workspace_id: workspaceId,
+          interval: isYearly ? 'yearly' : 'monthly'
+        })
       })
       const data = await res.json()
       if (data.url) {
@@ -84,61 +94,83 @@ export default function UpgradePage() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-6 space-y-8 max-w-6xl mx-auto">
-      <div className="text-center space-y-3">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-6 space-y-8 max-w-7xl mx-auto">
+      <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold">{t('upgrade.title', 'Débloquez tout le potentiel de IT-Facture')}</h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          {t('upgrade.subtitle', 'Choisissez le plan qui correspond à la taille de votre entreprise. Mettez à niveau à tout moment pour accéder à des fonctionnalités exclusives.')}
+          {t('upgrade.subtitle', 'Choisissez le plan qui correspond à la taille de votre entreprise. Encaissez vos clients plus vite et gagnez un temps précieux.')}
         </p>
+
+        {/* Toggle Annuel / Mensuel */}
+        <div className="flex items-center justify-center gap-4 mt-8">
+          <Label htmlFor="billing-toggle" className={`text-lg ${!isYearly ? 'font-bold text-foreground' : 'text-muted-foreground'}`}>Mensuel</Label>
+          <Switch 
+            id="billing-toggle" 
+            checked={isYearly} 
+            onCheckedChange={setIsYearly} 
+            className="data-[state=checked]:bg-primary"
+          />
+          <Label htmlFor="billing-toggle" className={`text-lg flex items-center gap-2 ${isYearly ? 'font-bold text-foreground' : 'text-muted-foreground'}`}>
+            Annuel
+            <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-emerald-200">2 Mois Offerts</Badge>
+          </Label>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-8">
-        {PLANS.map((plan) => (
-          <Card 
-            key={plan.name} 
-            className={`relative flex flex-col ${plan.isCurrent(currentPlan) ? 'border-primary shadow-md' : 'border-border'} ${plan.popular ? 'border-blue-500 shadow-blue-500/10 shadow-xl scale-105 z-10' : ''}`}
-          >
-            {plan.popular && (
-              <div className="absolute -top-3 left-0 right-0 flex justify-center">
-                <Badge className="bg-blue-500 hover:bg-blue-600">Recommandé</Badge>
-              </div>
-            )}
-            <CardHeader>
-              <CardTitle className="text-xl">{plan.name}</CardTitle>
-              <CardDescription>{plan.description}</CardDescription>
-              <div className="pt-4 pb-2">
-                <span className="text-4xl font-bold">{plan.price} €</span>
-                <span className="text-muted-foreground"> / mois</span>
-              </div>
-            </CardHeader>
-            <CardContent className="flex-1">
-              <ul className="space-y-3">
-                {plan.features.map((feature, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                    <span className="text-foreground/80">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                variant={plan.isCurrent(currentPlan) ? 'outline' : (plan.popular ? 'default' : 'secondary')}
-                className={`w-full ${plan.popular ? 'bg-blue-500 hover:bg-blue-600 text-white' : ''}`}
-                disabled={plan.isCurrent(currentPlan) || loadingPlan !== null}
-                onClick={() => handleUpgrade(plan.type)}
-              >
-                {loadingPlan === plan.type ? (
-                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {t('upgrade.redirecting', 'Redirection...')}</>
-                ) : plan.isCurrent(currentPlan) ? (
-                  t('upgrade.currentPlan', 'Plan Actuel')
-                ) : (
-                  <>{t('upgrade.upgradeTo', 'Passer à')} {plan.name} <Zap className="w-4 h-4 ml-2" /></>
-                )}
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+        {PLANS.map((plan) => {
+          const price = isYearly ? plan.price.yearly : plan.price.monthly
+          
+          return (
+            <Card 
+              key={plan.name} 
+              className={`relative flex flex-col ${plan.isCurrent(currentPlan) ? 'border-primary shadow-md' : 'border-border'} ${plan.popular ? 'border-blue-500 shadow-blue-500/10 shadow-xl scale-105 z-10' : ''}`}
+            >
+              {plan.popular && (
+                <div className="absolute -top-3 left-0 right-0 flex justify-center">
+                  <Badge className="bg-blue-500 hover:bg-blue-600 border-none px-3 py-1">Le plus populaire 🔥</Badge>
+                </div>
+              )}
+              <CardHeader>
+                <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                <CardDescription className="min-h-[40px] mt-2">{plan.description}</CardDescription>
+                <div className="pt-4 pb-2 flex items-end gap-1">
+                  <span className="text-4xl font-black">{price.toLocaleString('fr-FR')}</span>
+                  <span className="text-lg font-bold text-muted-foreground mb-1">FCFA</span>
+                  <span className="text-sm text-muted-foreground mb-1"> / {isYearly ? 'an' : 'mois'}</span>
+                </div>
+              </CardHeader>
+              <CardContent className="flex-1">
+                <ul className="space-y-3">
+                  {plan.features.map((feature, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm font-medium">
+                      <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <span className="text-foreground/80 leading-tight">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  variant={plan.isCurrent(currentPlan) ? 'outline' : (plan.popular ? 'default' : 'secondary')}
+                  className={`w-full font-bold ${plan.popular ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
+                  disabled={plan.isCurrent(currentPlan) || loadingPlan !== null || plan.type === 'free'}
+                  onClick={() => handleUpgrade(plan.type)}
+                >
+                  {loadingPlan === plan.type ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Redirection...</>
+                  ) : plan.isCurrent(currentPlan) ? (
+                    'Plan Actuel'
+                  ) : plan.type === 'free' ? (
+                    'Inclus par défaut'
+                  ) : (
+                    <>Passer à {plan.name} <Zap className="w-4 h-4 ml-2" /></>
+                  )}
+                </Button>
+              </CardFooter>
+            </Card>
+          )
+        })}
       </div>
 
       <div className="mt-12 bg-muted/30 border border-border rounded-xl p-6 flex items-start gap-4">
@@ -146,7 +178,7 @@ export default function UpgradePage() {
         <div>
           <h3 className="font-semibold text-lg">{t('upgrade.howItWorks', 'Comment se passe le paiement ?')}</h3>
           <p className="text-muted-foreground mt-1">
-            {t('upgrade.howItWorksDesc', "Les abonnements sont gérés de manière sécurisée. Vous serez redirigé vers notre partenaire FedaPay pour finaliser votre abonnement. Vous pourrez l'annuler à tout moment depuis vos paramètres.")}
+            Les abonnements sont gérés de manière sécurisée via FedaPay. Vous pouvez payer par <strong>Mobile Money (MoMo, Flooz)</strong> ou par <strong>Carte Bancaire</strong>. Vous serez redirigé vers leur plateforme sécurisée pour finaliser l'abonnement.
           </p>
         </div>
       </div>

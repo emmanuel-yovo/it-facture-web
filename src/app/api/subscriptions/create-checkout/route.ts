@@ -6,10 +6,10 @@ import { supabase } from '@/lib/supabase'
 const PLATFORM_FEDAPAY_SECRET_KEY = process.env.FEDAPAY_SECRET_KEY
 const PLATFORM_FEDAPAY_ENV = process.env.FEDAPAY_ENVIRONMENT || 'sandbox'
 
-const PLAN_PRICES: Record<string, number> = {
-  essential: 14000, // Prix en FCFA (approx 14€)
-  pro: 29000, // Prix en FCFA (approx 29€)
-  agency: 69000 // Prix en FCFA (approx 69€)
+const PLAN_PRICES: Record<string, { monthly: number, yearly: number }> = {
+  starter: { monthly: 4900, yearly: 49000 },
+  business: { monthly: 14900, yearly: 149000 },
+  agency: { monthly: 29000, yearly: 290000 }
 }
 
 export async function POST(req: Request) {
@@ -24,11 +24,14 @@ export async function POST(req: Request) {
     if (authError || !user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
     const body = await req.json()
-    const { plan, workspace_id } = body
+    const { plan, interval = 'monthly', workspace_id } = body
 
     if (!plan || !PLAN_PRICES[plan] || !workspace_id) {
       return NextResponse.json({ error: 'Plan invalide ou workspace manquant' }, { status: 400 })
     }
+
+    const isYearly = interval === 'yearly'
+    const amount = isYearly ? PLAN_PRICES[plan].yearly : PLAN_PRICES[plan].monthly
 
     if (!PLATFORM_FEDAPAY_SECRET_KEY) {
       return NextResponse.json({ error: 'La plateforme n\'a pas configuré sa clé FedaPay globale.' }, { status: 500 })
@@ -40,15 +43,16 @@ export async function POST(req: Request) {
 
     // Créer la transaction FedaPay
     const transaction = await Transaction.create({
-      description: `Abonnement IT-Facture - Plan ${plan.toUpperCase()}`,
-      amount: PLAN_PRICES[plan],
+      description: `Abonnement IT-Facture - Plan ${plan.toUpperCase()} (${isYearly ? 'Annuel' : 'Mensuel'})`,
+      amount: amount,
       currency: { iso: 'XOF' },
       callback_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/settings?upgrade=success`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/upgrade?upgrade=canceled`,
       custom_metadata: {
         type: 'saas_subscription',
         workspace_id: workspace_id,
-        plan: plan
+        plan: plan,
+        interval: interval
       },
       customer: {
         firstname: user.user_metadata?.full_name || 'Client',

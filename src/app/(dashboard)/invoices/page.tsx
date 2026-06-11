@@ -118,7 +118,7 @@ export default function InvoicesPage() {
             className={isLimitReached ? 'bg-orange-500 hover:bg-orange-600 text-white' : ''}
           >
             {isLimitReached ? <Lock className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
-            {isLimitReached ? 'Passez à Essential' : t('invoices.newInvoice')}
+            {isLimitReached ? 'Passez au plan Starter' : t('invoices.newInvoice')}
           </Button>
         </div>
       </div>

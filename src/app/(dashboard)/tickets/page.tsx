@@ -124,10 +124,10 @@ export default function TicketsPage() {
         </div>
         <h2 className="text-2xl font-bold">{t('upgrade.locked', 'Fonctionnalité Verrouillée')}</h2>
         <p className="text-muted-foreground">
-          {t('tickets.lockedMsg', 'La gestion des tickets et interventions techniques est réservée au plan Pro et Agence. Gérez vos maintenances et facturez vos interventions facilement.')}
+          {t('tickets.lockedMsg', 'La gestion des tickets et interventions techniques est réservée au plan Business et Agence. Gérez vos maintenances et facturez vos interventions facilement.')}
         </p>
         <Button onClick={() => router.push('/upgrade')} className="mt-4 bg-blue-500 hover:bg-blue-600 text-white">
-          Passer à la version Pro
+          Passer au plan Business
         </Button>
       </div>
     )

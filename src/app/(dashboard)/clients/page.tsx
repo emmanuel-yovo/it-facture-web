@@ -140,7 +140,7 @@ export default function ClientsPage() {
             className={isLimitReached ? 'bg-orange-500 hover:bg-orange-600 text-white' : ''}
           >
             {isLimitReached ? <Lock className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
-            {isLimitReached ? 'Passez à Essential' : t('clients.addClient')}
+            {isLimitReached ? 'Passez au plan Starter' : t('clients.addClient')}
           </Button>
         </div>
       </div>

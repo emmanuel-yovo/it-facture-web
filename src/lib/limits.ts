@@ -1,4 +1,4 @@
-export type PlanType = 'free' | 'essential' | 'pro' | 'agency'
+export type PlanType = 'free' | 'starter' | 'business' | 'agency'
 
 export const PLAN_LIMITS = {
   free: {
@@ -8,14 +8,14 @@ export const PLAN_LIMITS = {
     canAccessTickets: false,
     maxUsers: 1
   },
-  essential: {
-    maxClients: Infinity,
-    maxInvoices: Infinity,
+  starter: {
+    maxClients: 50,
+    maxInvoices: 50,
     canAccessExpenses: false,
     canAccessTickets: false,
     maxUsers: 1
   },
-  pro: {
+  business: {
     maxClients: Infinity,
     maxInvoices: Infinity,
     canAccessExpenses: true,

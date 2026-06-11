@@ -79,10 +79,10 @@ export default function ExpensesPage() {
         </div>
         <h2 className="text-2xl font-bold">{t('upgrade.locked', 'Fonctionnalité Verrouillée')}</h2>
         <p className="text-muted-foreground">
-          {t('expenses.lockedMsg', 'La gestion des dépenses est disponible à partir du plan Pro. Suivez vos sorties d\'argent, classez-les par catégories et préparez votre comptabilité facilement.')}
+          {t('expenses.lockedMsg', 'La gestion des dépenses est réservée au plan Business. Suivez vos sorties d\'argent, classez-les par catégories et préparez votre comptabilité facilement.')}
         </p>
         <Button onClick={() => router.push('/upgrade')} className="mt-4 bg-blue-500 hover:bg-blue-600 text-white">
-          Passer à la version Pro
+          Passer au plan Business
         </Button>
       </div>
     )
