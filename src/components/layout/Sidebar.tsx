@@ -46,7 +46,7 @@ export const navItems: NavItem[] = [
   { to: '/superadmin', icon: ShieldCheck, label: 'nav.superadmin', permission: PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD },
 ]
 
-export function Sidebar({ className }: { className?: string }) {
+export function Sidebar({ className, layoutIdPrefix = '' }: { className?: string, layoutIdPrefix?: string }) {
   const { t } = useTranslation()
   const pathname = usePathname()
   const router = useRouter()
@@ -109,7 +109,7 @@ export function Sidebar({ className }: { className?: string }) {
             >
               {isActive && (
                 <motion.div
-                  layoutId="sidebar-active"
+                  layoutId={`${layoutIdPrefix}sidebar-active`}
                   className={cn("absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full", item.permission === PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD ? "bg-purple-500" : "bg-primary")}
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 />

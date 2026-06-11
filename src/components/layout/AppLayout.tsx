@@ -45,7 +45,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Desktop Sidebar */}
-      <Sidebar className="hidden md:flex" />
+      <Sidebar className="hidden md:flex" layoutIdPrefix="desktop-" />
       
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
@@ -74,7 +74,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 }
               }}
             >
-              <Sidebar className="flex" />
+              <Sidebar className="flex" layoutIdPrefix="mobile-" />
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -172,7 +172,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="p-6"
+            className="p-4 md:p-6"
           >
             {children}
           </motion.div>
