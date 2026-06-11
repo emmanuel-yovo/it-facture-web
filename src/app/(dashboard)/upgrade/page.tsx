@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Check, Zap, AlertCircle, Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
@@ -61,6 +62,8 @@ export default function UpgradePage() {
   const currentPlan = workspacePlan || 'free'
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const [isYearly, setIsYearly] = useState(false)
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false)
+  const [selectedPlanToUpgrade, setSelectedPlanToUpgrade] = useState<{planType: string, amount: number, name: string} | null>(null)
   
   // Custom type declaration for the global kkiapay function
   declare global {
@@ -97,6 +100,7 @@ export default function UpgradePage() {
       alert("Erreur de connexion au serveur de paiement.")
     } finally {
       setLoadingPlan(null)
+      setPaymentModalOpen(false)
     }
   }
 
@@ -124,6 +128,7 @@ export default function UpgradePage() {
       sandbox: true,
       key: pubKey
     })
+    setPaymentModalOpen(false)
   }
 
   return (
@@ -188,28 +193,21 @@ export default function UpgradePage() {
                   variant={plan.isCurrent(currentPlan) ? 'outline' : (plan.popular ? 'default' : 'secondary')}
                   className={`w-full font-bold ${plan.popular ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
                   disabled={plan.isCurrent(currentPlan) || loadingPlan !== null || plan.type === 'free'}
-                  onClick={() => handleUpgrade(plan.type)}
+                  onClick={() => {
+                    setSelectedPlanToUpgrade({ planType: plan.type, amount: price, name: plan.name })
+                    setPaymentModalOpen(true)
+                  }}
                 >
                   {loadingPlan === plan.type ? (
-                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Redirection...</>
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Préparation...</>
                   ) : plan.isCurrent(currentPlan) ? (
                     'Plan Actuel'
                   ) : plan.type === 'free' ? (
                     'Inclus par défaut'
                   ) : (
-                    <>Payer par FedaPay <Zap className="w-4 h-4 ml-2" /></>
+                    <>Passer à {plan.name} <Zap className="w-4 h-4 ml-2" /></>
                   )}
                 </Button>
-                
-                {plan.type !== 'free' && !plan.isCurrent(currentPlan) && (
-                  <Button 
-                    variant="outline"
-                    className="w-full text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
-                    onClick={() => handleKkiapayUpgrade(plan.type, price)}
-                  >
-                    Payer par KkiaPay
-                  </Button>
-                )}
               </CardFooter>
             </Card>
           )
@@ -221,10 +219,36 @@ export default function UpgradePage() {
         <div>
           <h3 className="font-semibold text-lg">{t('upgrade.howItWorks', 'Comment se passe le paiement ?')}</h3>
           <p className="text-muted-foreground mt-1">
-            Les abonnements sont gérés de manière sécurisée via FedaPay. Vous pouvez payer par <strong>Mobile Money (MoMo, Flooz)</strong> ou par <strong>Carte Bancaire</strong>. Vous serez redirigé vers leur plateforme sécurisée pour finaliser l'abonnement.
+            Les abonnements sont gérés de manière sécurisée via FedaPay ou KkiaPay. Vous pouvez payer par <strong>Mobile Money (MoMo, Flooz)</strong> ou par <strong>Carte Bancaire</strong>.
           </p>
         </div>
       </div>
+
+      <Dialog open={paymentModalOpen} onOpenChange={setPaymentModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Choisissez votre méthode de paiement</DialogTitle>
+            <DialogDescription>
+              Comment souhaitez-vous régler votre abonnement au plan <strong>{selectedPlanToUpgrade?.name}</strong> ?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 mt-4">
+            <Button 
+              className="w-full h-14 text-lg font-bold bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={() => selectedPlanToUpgrade && handleUpgrade(selectedPlanToUpgrade.planType)}
+            >
+              Payer via FedaPay
+            </Button>
+            <Button 
+              variant="outline"
+              className="w-full h-14 text-lg font-bold text-emerald-600 border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
+              onClick={() => selectedPlanToUpgrade && handleKkiapayUpgrade(selectedPlanToUpgrade.planType, selectedPlanToUpgrade.amount)}
+            >
+              Payer via KkiaPay
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   )
 }
