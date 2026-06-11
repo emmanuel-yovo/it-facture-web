@@ -27,7 +27,7 @@ type NavItem = {
   feature?: string
 }
 
-const navItems: NavItem[] = [
+export const navItems: NavItem[] = [
   { to: '/', icon: LayoutDashboard, label: 'nav.dashboard' },
   { to: '/invoices', icon: FileText, label: 'nav.invoices' },
   { to: '/quotes', icon: FileText, label: 'Devis' },
@@ -47,7 +47,7 @@ const navItems: NavItem[] = [
   { to: '/superadmin', icon: ShieldCheck, label: 'Administration Globale', permission: PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD },
 ]
 
-export function Sidebar() {
+export function Sidebar({ className }: { className?: string }) {
   const { t } = useTranslation()
   const pathname = usePathname()
   const router = useRouter()
@@ -64,7 +64,7 @@ export function Sidebar() {
       initial={false}
       animate={{ width: sidebarCollapsed ? 72 : 260 }}
       transition={{ duration: 0.2, ease: 'easeInOut' }}
-      className="h-screen bg-sidebar border-r border-sidebar-border flex flex-col no-select"
+      className={cn("h-screen bg-sidebar border-r border-sidebar-border flex flex-col no-select", className)}
     >
       {/* Logo */}
       <div className="h-16 flex items-center px-4 gap-3">

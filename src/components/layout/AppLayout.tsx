@@ -8,7 +8,7 @@ import { useAppStore } from '@/store/appStore'
 import { useAuthStore } from '@/store/authStore'
 import { useAuth } from '@/hooks/useAuth'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Languages, Sun, Moon, Sparkles } from 'lucide-react'
+import { Languages, Sun, Moon, Sparkles, Menu, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -22,6 +22,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
 
   const [mounted, setMounted] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -43,11 +44,63 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Desktop Sidebar */}
+      <Sidebar className="hidden md:flex" />
+      
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-50 md:hidden flex">
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
+              onClick={() => setMobileMenuOpen(false)} 
+            />
+            {/* Drawer */}
+            <motion.div 
+              initial={{ x: '-100%' }} 
+              animate={{ x: 0 }} 
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="relative z-50 flex shadow-2xl"
+              onClick={(e) => {
+                // Si on clique sur un lien, on veut fermer le menu
+                if ((e.target as HTMLElement).tagName === 'BUTTON' || (e.target as HTMLElement).tagName === 'A') {
+                  // Petit délai pour laisser l'animation de clic se faire
+                  setTimeout(() => setMobileMenuOpen(false), 100)
+                }
+              }}
+            >
+              <Sidebar className="flex" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="absolute top-2 right-2 text-muted-foreground hover:bg-muted" 
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <div className="flex-1 flex flex-col overflow-hidden w-full">
         {/* Top Bar */}
-        <header className="h-14 border-b border-border flex items-center justify-between px-6 bg-background/80 backdrop-blur-sm">
-          <div />
+        <header className="h-14 border-b border-border flex items-center justify-between px-4 md:px-6 bg-background/80 backdrop-blur-sm z-30 relative">
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="md:hidden" 
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+          </div>
           <div className="flex items-center gap-4">
             
             {/* Upgrade Button */}
