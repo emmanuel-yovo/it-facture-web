@@ -19,7 +19,13 @@ export class PdfService {
         scale: 2, // Higher resolution
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        ignoreElements: (node) => {
+          if (element === node || element.contains(node)) return false;
+          if (node === document.body || node === document.documentElement) return false;
+          if (node.tagName === 'HEAD' || document.head.contains(node)) return false;
+          return true;
+        }
       })
 
       const imgData = canvas.toDataURL('image/jpeg', 1.0)
@@ -54,7 +60,13 @@ export class PdfService {
         scale: 2,
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        ignoreElements: (node) => {
+          if (element === node || element.contains(node)) return false;
+          if (node === document.body || node === document.documentElement) return false;
+          if (node.tagName === 'HEAD' || document.head.contains(node)) return false;
+          return true;
+        }
       })
 
       const imgData = canvas.toDataURL('image/jpeg', 1.0)
