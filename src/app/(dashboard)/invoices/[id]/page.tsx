@@ -129,9 +129,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     try {
       const filename = `${invoice.document_type === 'quote' ? 'Devis' : 'Facture'}_${invoice.invoice_number}.pdf`
       await pdfService.downloadPdfFromElement('invoice-pdf-container', filename)
-    } catch (e) {
+    } catch (e: any) {
       console.error(e)
-      alert("Erreur lors de la génération du PDF")
+      alert(`Erreur PDF: ${e.message || "Erreur inconnue"}`)
     } finally {
       setLoading(false)
     }

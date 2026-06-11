@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf'
-import html2canvas from 'html2canvas'
+import domtoimage from 'dom-to-image'
 import { storageService } from './storage.service'
 
 export class PdfService {
@@ -15,20 +15,20 @@ export class PdfService {
     element.classList.add('pdf-render-mode')
 
     try {
-      const canvas = await html2canvas(element, {
-        scale: 2, // Higher resolution
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        ignoreElements: (node) => {
-          if (element === node || element.contains(node)) return false;
-          if (node === document.body || node === document.documentElement) return false;
-          if (node.tagName === 'HEAD' || document.head.contains(node)) return false;
-          return true;
-        }
+      // Create a clean image using the browser's native rendering
+      const imgData = await domtoimage.toJpeg(element, {
+        quality: 0.95,
+        bgcolor: '#ffffff',
+        style: {
+          transform: 'scale(2)',
+          transformOrigin: 'top left',
+          width: element.offsetWidth + 'px',
+          height: element.offsetHeight + 'px'
+        },
+        width: element.offsetWidth * 2,
+        height: element.offsetHeight * 2
       })
 
-      const imgData = canvas.toDataURL('image/jpeg', 1.0)
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -36,10 +36,13 @@ export class PdfService {
       })
 
       const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+      const pdfHeight = (element.offsetHeight * pdfWidth) / element.offsetWidth
 
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight)
       pdf.save(filename)
+    } catch (error) {
+      console.error("dom-to-image failed:", error)
+      throw error
     } finally {
       element.className = originalClass
     }
@@ -56,20 +59,19 @@ export class PdfService {
     element.classList.add('pdf-render-mode')
 
     try {
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        ignoreElements: (node) => {
-          if (element === node || element.contains(node)) return false;
-          if (node === document.body || node === document.documentElement) return false;
-          if (node.tagName === 'HEAD' || document.head.contains(node)) return false;
-          return true;
-        }
+      const imgData = await domtoimage.toJpeg(element, {
+        quality: 0.95,
+        bgcolor: '#ffffff',
+        style: {
+          transform: 'scale(2)',
+          transformOrigin: 'top left',
+          width: element.offsetWidth + 'px',
+          height: element.offsetHeight + 'px'
+        },
+        width: element.offsetWidth * 2,
+        height: element.offsetHeight * 2
       })
 
-      const imgData = canvas.toDataURL('image/jpeg', 1.0)
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -77,7 +79,7 @@ export class PdfService {
       })
 
       const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+      const pdfHeight = (element.offsetHeight * pdfWidth) / element.offsetWidth
 
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight)
       
@@ -87,6 +89,9 @@ export class PdfService {
       // Upload to Supabase Storage
       const path = await storageService.uploadInvoicePdf(pdfBlob, workspaceId, invoiceId)
       return path
+    } catch (error) {
+      console.error("dom-to-image upload failed:", error)
+      throw error
     } finally {
       element.className = originalClass
     }
