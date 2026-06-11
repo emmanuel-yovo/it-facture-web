@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import '@/i18n'
 import { Sidebar } from './Sidebar'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAppStore } from '@/store/appStore'
 import { useAuthStore } from '@/store/authStore'
 import { useAuth } from '@/hooks/useAuth'
