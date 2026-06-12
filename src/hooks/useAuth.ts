@@ -8,7 +8,7 @@ import { useAuthStore } from '@/store/authStore'
 export function useAuth() {
   const [user, setLocalUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const { setUser, setWorkspaceId, setWorkspacePlan } = useAuthStore()
+  const { setUser, setWorkspaceId, setWorkspacePlan, setSubscriptionEndDate } = useAuthStore()
 
   useEffect(() => {
     // Obtenir la session actuelle
@@ -32,6 +32,7 @@ export function useAuth() {
           setUser(null)
           setWorkspaceId(null)
           setWorkspacePlan(null)
+          setSubscriptionEndDate(null)
           setLoading(false)
         }
       }
@@ -45,7 +46,7 @@ export function useAuth() {
       // 1. Récupérer le profil et le plan du workspace
       const { data: profile } = await supabase
         .from('profiles')
-        .select('*, workspaces(plan)')
+        .select('*, workspaces(plan, subscription_end_date)')
         .eq('id', userId)
         .single()
 
@@ -61,7 +62,18 @@ export function useAuth() {
           setWorkspaceId(profile.workspace_id)
           // Le join avec workspaces retourne un objet si on le récupère
           if (profile.workspaces && typeof profile.workspaces === 'object') {
-            setWorkspacePlan((profile.workspaces as any).plan || 'free')
+            let currentPlan = (profile.workspaces as any).plan || 'free'
+            const endDateStr = (profile.workspaces as any).subscription_end_date
+            
+            if (currentPlan !== 'free' && endDateStr) {
+              const endDate = new Date(endDateStr)
+              if (endDate < new Date()) {
+                currentPlan = 'free' // Abonnement expiré, on repasse en free !
+              }
+            }
+            
+            setWorkspacePlan(currentPlan)
+            setSubscriptionEndDate(endDateStr || null)
           }
         }
       }

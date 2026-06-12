@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     // 2. Vérifier que l'utilisateur est admin ou superadmin de son workspace
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('role, workspace_id, workspaces(plan)')
+      .select('role, workspace_id, workspaces(plan, subscription_end_date)')
       .eq('id', user.id)
       .single()
 
@@ -29,7 +29,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Droits insuffisants pour inviter un membre' }, { status: 403 })
     }
 
-    const plan = (profile.workspaces as any)?.plan || 'free'
+    let plan = (profile.workspaces as any)?.plan || 'free'
+    const endDateStr = (profile.workspaces as any)?.subscription_end_date
+
+    if (plan !== 'free' && endDateStr) {
+      const endDate = new Date(endDateStr)
+      if (endDate < new Date()) {
+        plan = 'free' // Abonnement expiré
+      }
+    }
 
     // 3. Vérifier la limite d'utilisateurs
     const { count } = await supabaseAdmin

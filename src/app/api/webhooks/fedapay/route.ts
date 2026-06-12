@@ -27,13 +27,27 @@ export async function POST(req: Request) {
         
         // 1. Cas d'un abonnement SaaS IT-Facture
         if (metadata?.type === 'saas_subscription' && metadata?.workspace_id && metadata?.plan) {
+          // Calcul de la date d'expiration
+          const interval = metadata.interval || 'monthly'
+          const endDate = new Date()
+          if (interval === 'yearly') {
+            endDate.setFullYear(endDate.getFullYear() + 1)
+          } else {
+            endDate.setMonth(endDate.getMonth() + 1)
+          }
+
           const { error: workspaceError } = await supabaseAdmin
             .from('workspaces')
-            .update({ plan: metadata.plan })
+            .update({ 
+              plan: metadata.plan,
+              subscription_end_date: endDate.toISOString(),
+              subscription_interval: interval,
+              subscription_status: 'active'
+            })
             .eq('id', metadata.workspace_id)
             
           if (workspaceError) throw workspaceError
-          console.log(`Workspace ${metadata.workspace_id} passé au plan ${metadata.plan} avec succès.`)
+          console.log(`Workspace ${metadata.workspace_id} passé au plan ${metadata.plan} jusqu'au ${endDate.toISOString()}`)
           return NextResponse.json({ received: true }, { status: 200 })
         }
 

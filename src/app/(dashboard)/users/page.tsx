@@ -251,7 +251,7 @@ export default function UsersPage() {
                   <tr key={p.id} className="border-b border-border/50 hover:bg-muted/10 transition-colors">
                     <td className="py-4 px-6">
                       <div className="font-medium text-foreground">{p.full_name}</div>
-                      <div className="text-xs text-muted-foreground">{t('users.cloudAccount', 'Compte Cloud Supabase')}</div>
+                      <div className="text-xs text-muted-foreground">{p.id === user?.id ? t('users.you', '(Vous)') : ''}</div>
                     </td>
                     <td className="py-4 px-6">{getRoleBadge(p.role)}</td>
                     <td className="py-4 px-6"><Badge variant="outline" className="text-emerald-500 border-emerald-500">Actif</Badge></td>
