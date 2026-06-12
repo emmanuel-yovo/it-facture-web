@@ -506,15 +506,29 @@ export default function SettingsPage() {
 
                 <div className="bg-muted/30 p-4 rounded-lg border text-sm mt-6">
                   <h4 className="font-semibold mb-2">Guide de configuration rapide</h4>
-                  <div className="space-y-3 text-muted-foreground">
+                  <div className="space-y-4 text-muted-foreground">
                     <div>
                       <strong className="text-foreground">Avec Gmail (Recommandé) :</strong>
                       <ul className="list-disc list-inside mt-1 space-y-1">
                         <li>Serveur : <code>smtp.gmail.com</code> | Port : <code>465</code></li>
                         <li>Utilisateur : Votre adresse Gmail</li>
-                        <li>Mot de passe : <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noreferrer" className="text-primary hover:underline">Créez un "Mot de passe d'application"</a> (le mot de passe classique ne marchera pas).</li>
+                        <li>
+                          Mot de passe : <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noreferrer" className="text-primary hover:underline">Créez un "Mot de passe d'application"</a>.
+                          <div className="mt-2 p-3 bg-card border rounded-md text-xs space-y-2">
+                            <p className="font-medium text-foreground">Étapes pour créer un mot de passe d'application Gmail :</p>
+                            <ol className="list-decimal list-inside space-y-1">
+                              <li>Activez la <strong>validation en deux étapes</strong> sur votre compte Google.</li>
+                              <li>Allez sur la page <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noreferrer" className="text-primary hover:underline">Mots de passe d'application</a>.</li>
+                              <li>Dans "Sélectionner une application", choisissez <strong>Autre (Nom personnalisé)</strong> et tapez "IT-Facture".</li>
+                              <li>Cliquez sur <strong>Générer</strong>.</li>
+                              <li>Copiez le mot de passe de 16 lettres (sans espaces) et collez-le ici.</li>
+                            </ol>
+                            <p className="italic text-amber-600/80 mt-1">⚠️ Votre mot de passe de messagerie habituel ne fonctionnera pas par sécurité.</p>
+                          </div>
+                        </li>
                       </ul>
                     </div>
+                    <Separator />
                     <div>
                       <strong className="text-foreground">Avec un email Pro (Hostinger, OVH, etc.) :</strong>
                       <ul className="list-disc list-inside mt-1 space-y-1">
