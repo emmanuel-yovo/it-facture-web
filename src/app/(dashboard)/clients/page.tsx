@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import Papa from 'papaparse'
 import useSWR from 'swr'
 import { useAuthStore } from '@/store/authStore'
 import { motion } from 'framer-motion'
@@ -48,8 +49,56 @@ export default function ClientsPage() {
   const total = fetchResult?.total || 0
   const totalPages = fetchResult?.totalPages || 1
 
-  const handleImport = async () => {
-    alert(t("clients.importMsg", "L'importation de fichiers CSV sera disponible prochainement dans la version Web."))
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file || !workspaceId) return
+
+    setLoading(true)
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        try {
+          const rows = results.data as any[]
+          let imported = 0
+          for (const row of rows) {
+            const fullName = row['Nom'] || row['Nom complet'] || row['Full Name'] || row['Name'] || row['Client'] || row['full_name']
+            if (!fullName) continue
+            
+            await clientRepository.create(workspaceId, {
+              full_name: fullName,
+              email: row['Email'] || row['E-mail'] || row['Courriel'] || row['email'] || '',
+              phone: row['Téléphone'] || row['Telephone'] || row['Phone'] || row['Tel'] || row['phone'] || '',
+              company_name: row['Entreprise'] || row['Société'] || row['Company'] || row['company_name'] || '',
+              address: row['Adresse'] || row['Address'] || row['address'] || '',
+              country: 'FR',
+              is_active: true
+            })
+            imported++
+          }
+          alert(`Succès : ${imported} clients importés.`)
+          load()
+        } catch (err) {
+          console.error(err)
+          alert("Erreur lors de l'importation.")
+        } finally {
+          setLoading(false)
+          if (fileInputRef.current) fileInputRef.current.value = ''
+        }
+      },
+      error: (error) => {
+        console.error(error)
+        alert("Erreur de lecture du fichier CSV.")
+        setLoading(false)
+        if (fileInputRef.current) fileInputRef.current.value = ''
+      }
+    })
   }
 
   const handleSave = async () => {
@@ -124,9 +173,10 @@ export default function ClientsPage() {
           <p className="text-muted-foreground text-sm mt-1">{total} {t('nav.clients').toLowerCase()}</p>
         </div>
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-          <Button variant="outline" onClick={handleImport}>
+          <input type="file" accept=".csv" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
+          <Button variant="outline" onClick={handleImportClick} disabled={loading}>
             <FileUp className="w-4 h-4 mr-2" />
-            {t('common.import', 'Importer')}
+            {loading ? 'Importation...' : t('common.import', 'Importer CSV')}
           </Button>
           <Button 
             onClick={openNew}

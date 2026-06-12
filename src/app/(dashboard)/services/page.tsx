@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
+import Papa from 'papaparse'
 import { useAuthStore } from '@/store/authStore'
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
@@ -56,8 +57,55 @@ export default function ServicesPage() {
 
   useEffect(() => { load() }, [load])
 
-  const handleImport = async () => {
-    alert("L'importation de fichiers CSV sera disponible prochainement dans la version Web.")
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file || !workspaceId) return
+
+    // setLoading(true) // Wait, services page doesn't have a global loading state, let's use a local one
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        try {
+          const rows = results.data as any[]
+          let imported = 0
+          for (const row of rows) {
+            const name = row['Nom'] || row['Name'] || row['Service'] || row['Produit'] || row['name']
+            if (!name) continue
+            
+            await serviceRepository.create(workspaceId, {
+              name: name,
+              description: row['Description'] || row['description'] || '',
+              category: row['Catégorie'] || row['Categorie'] || row['Category'] || row['category'] || 'General',
+              unit_price: Number(row['Prix Unitaire'] || row['Prix'] || row['Price'] || row['unit_price'] || 0),
+              vat_percentage: Number(row['TVA'] || row['TVA (%)'] || row['VAT'] || row['vat_percentage'] || defaultVat),
+              is_active: true,
+              track_stock: false,
+              stock_quantity: 0
+            })
+            imported++
+          }
+          alert(`Succès : ${imported} services importés.`)
+          load()
+        } catch (err) {
+          console.error(err)
+          alert("Erreur lors de l'importation.")
+        } finally {
+          if (fileInputRef.current) fileInputRef.current.value = ''
+        }
+      },
+      error: (error) => {
+        console.error(error)
+        alert("Erreur de lecture du fichier CSV.")
+        if (fileInputRef.current) fileInputRef.current.value = ''
+      }
+    })
   }
 
   const handleSave = async () => {
@@ -126,9 +174,10 @@ export default function ServicesPage() {
         </div>
         {['admin', 'superadmin'].includes(user?.role as string) && (
           <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-            <Button variant="outline" onClick={handleImport}>
+            <input type="file" accept=".csv" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
+            <Button variant="outline" onClick={handleImportClick}>
               <FileUp className="w-4 h-4 mr-2" />
-              {t('common.import', 'Importer')}
+              {t('common.import', 'Importer CSV')}
             </Button>
             <Button onClick={openNew}>
               <Plus className="w-4 h-4 mr-2" />

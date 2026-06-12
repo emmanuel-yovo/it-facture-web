@@ -42,6 +42,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const [fedaPayLoading, setFedaPayLoading] = useState(false)
   const [paymentLink, setPaymentLink] = useState('')
   const [linkDialogOpen, setLinkDialogOpen] = useState(false)
+  const [isPdfLoading, setIsPdfLoading] = useState(false)
 
   const load = async () => {
     if (!id) return
@@ -124,9 +125,19 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   }
 
   const handlePrint = () => { window.print() }
-  const handleDownload = () => { 
-    // Native print dialog is the most robust way to save a perfect PDF
-    window.print() 
+  const handleDownload = async () => { 
+    setIsPdfLoading(true)
+    try {
+      await pdfService.downloadPdfFromElement(
+        'invoice-pdf-container', 
+        `${invoice.document_type === 'quote' ? 'Devis' : 'Facture'}_${invoice.invoice_number}.pdf`
+      )
+    } catch (e) {
+      console.error(e)
+      alert("Erreur lors de la génération du PDF")
+    } finally {
+      setIsPdfLoading(false)
+    }
   }
 
   const generateFedaPayLink = async () => {
@@ -239,9 +250,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               <Printer className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Imprimer</span>
             </Button>
-            <Button variant="outline" className="w-full sm:w-auto" onClick={handleDownload}>
-              <Download className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">PDF</span>
+            <Button variant="outline" className="w-full sm:w-auto" onClick={handleDownload} disabled={isPdfLoading}>
+              {isPdfLoading ? <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin sm:mr-2" /> : <Download className="w-4 h-4 sm:mr-2" />}
+              <span className="hidden sm:inline">{isPdfLoading ? 'Génération...' : 'PDF'}</span>
             </Button>
           </div>
         </div>

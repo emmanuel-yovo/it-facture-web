@@ -11,6 +11,7 @@ import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaCh
 import { dashboardRepository, DashboardStats } from '@/lib/repositories/dashboard.repository'
 import { useAuthStore } from '@/store/authStore'
 import { useTranslation } from 'react-i18next'
+import { CheckCircle2, Circle } from 'lucide-react'
 
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } }
 const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }
@@ -60,6 +61,45 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold">{t('dashboard.title')}</h1>
         <p className="text-muted-foreground text-sm mt-1">{t('dashboard.subtitle', "Vue d'ensemble de votre activité")}</p>
       </motion.div>
+
+      {/* Onboarding Checklist for new users */}
+      {stats.total_clients === 0 && stats.total_invoices === 0 && (
+        <motion.div variants={item}>
+          <Card className="border-emerald-500/20 bg-emerald-500/5 shadow-sm">
+            <CardContent className="p-6">
+              <h2 className="text-lg font-bold text-emerald-700 dark:text-emerald-400 mb-2">🚀 Bienvenue sur IT-Facture !</h2>
+              <p className="text-sm text-muted-foreground mb-4">Voici les étapes pour créer votre première facture et bien démarrer :</p>
+              
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                  <span className="text-sm font-medium line-through opacity-70">Créer votre compte</span>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <Circle className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-sm">Compléter les informations de votre entreprise dans les <strong><a href="/settings" className="text-primary hover:underline">Paramètres</a></strong></span>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <Circle className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-sm">Créer votre premier <strong><a href="/services" className="text-primary hover:underline">Produit / Service</a></strong></span>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <Circle className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-sm">Ajouter votre premier <strong><a href="/clients" className="text-primary hover:underline">Client</a></strong></span>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <Circle className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-sm">Créer et envoyer votre première <strong><a href="/invoices/new" className="text-primary hover:underline">Facture</a></strong></span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
 
       {/* Stat Cards */}
       <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
