@@ -336,17 +336,17 @@ export default function SettingsPage() {
                         <SelectValue placeholder="Sélectionnez le pays" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="FR">France 🇫🇷</SelectItem>
-                        <SelectItem value="US">États-Unis (USA) 🇺🇸</SelectItem>
-                        <SelectItem value="BJ">Bénin 🇧🇯</SelectItem>
-                        <SelectItem value="BF">Burkina Faso 🇧🇫</SelectItem>
-                        <SelectItem value="CI">Côte d'Ivoire 🇨🇮</SelectItem>
-                        <SelectItem value="GW">Guinée-Bissau 🇬🇼</SelectItem>
-                        <SelectItem value="ML">Mali 🇲🇱</SelectItem>
-                        <SelectItem value="NE">Niger 🇳🇪</SelectItem>
-                        <SelectItem value="SN">Sénégal 🇸🇳</SelectItem>
-                        <SelectItem value="TG">Togo 🇹🇬</SelectItem>
-                        <SelectItem value="OTHER">Autre pays 🌍</SelectItem>
+                        <SelectItem value="FR">France</SelectItem>
+                        <SelectItem value="US">États-Unis (USA)</SelectItem>
+                        <SelectItem value="BJ">Bénin</SelectItem>
+                        <SelectItem value="BF">Burkina Faso</SelectItem>
+                        <SelectItem value="CI">Côte d'Ivoire</SelectItem>
+                        <SelectItem value="GW">Guinée-Bissau</SelectItem>
+                        <SelectItem value="ML">Mali</SelectItem>
+                        <SelectItem value="NE">Niger</SelectItem>
+                        <SelectItem value="SN">Sénégal</SelectItem>
+                        <SelectItem value="TG">Togo</SelectItem>
+                        <SelectItem value="OTHER">Autre pays</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
