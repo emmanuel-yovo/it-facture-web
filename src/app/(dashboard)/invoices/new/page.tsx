@@ -215,17 +215,17 @@ function InvoiceForm() {
                                   <Label className="text-xs">Qté</Label>
                                   <div className="flex items-center">
                                     <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateItem(itemIdx, 'quantity', Math.max(1, selectedItems[itemIdx].quantity - 1))}><Minus className="w-3 h-3" /></Button>
-                                    <Input type="number" className="w-14 h-7 text-center mx-1" value={selectedItems[itemIdx].quantity} onChange={(e) => updateItem(itemIdx, 'quantity', Math.max(1, Number(e.target.value)))} />
+                                    <Input type="number" min="1" className="w-16 h-7 text-center mx-1" value={selectedItems[itemIdx].quantity} onChange={(e) => updateItem(itemIdx, 'quantity', Math.max(1, Number(e.target.value)))} />
                                     <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateItem(itemIdx, 'quantity', selectedItems[itemIdx].quantity + 1)}><Plus className="w-3 h-3" /></Button>
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <Label className="text-xs">Prix</Label>
-                                  <Input type="number" className="w-24 h-7" value={selectedItems[itemIdx].unit_price} onChange={(e) => updateItem(itemIdx, 'unit_price', Number(e.target.value))} />
+                                  <Input type="number" min="0" className="w-28 h-7" value={selectedItems[itemIdx].unit_price} onChange={(e) => updateItem(itemIdx, 'unit_price', Math.max(0, Number(e.target.value)))} />
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <Label className="text-xs">{taxLabel} %</Label>
-                                  <Input type="number" step="0.01" className="w-16 h-7" value={selectedItems[itemIdx].vat_percentage} onChange={(e) => updateItem(itemIdx, 'vat_percentage', Number(e.target.value))} />
+                                  <Input type="number" min="0" step="0.01" className="w-20 h-7" value={selectedItems[itemIdx].vat_percentage} onChange={(e) => updateItem(itemIdx, 'vat_percentage', Math.max(0, Number(e.target.value)))} />
                                 </div>
                               </div>
                             )}
