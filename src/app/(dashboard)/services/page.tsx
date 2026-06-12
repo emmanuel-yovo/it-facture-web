@@ -17,7 +17,7 @@ import { serviceRepository, Service } from '@/lib/repositories/service.repositor
 import { settingsRepository } from '@/lib/repositories/settings.repository'
 import { useTranslation } from 'react-i18next'
 
-const empty = { name: '', description: '', category: '', unit_price: 0, vat_percentage: 19.25, is_active: true }
+const empty = { name: '', description: '', category: '', unit_price: 0, vat_percentage: 19.25, is_active: true, track_stock: false, stock_quantity: 0 }
 
 export default function ServicesPage() {
   const { t } = useTranslation()
@@ -100,7 +100,9 @@ export default function ServicesPage() {
       category: s.category, 
       unit_price: s.unit_price, 
       vat_percentage: s.vat_percentage, 
-      is_active: s.is_active 
+      is_active: s.is_active,
+      track_stock: s.track_stock,
+      stock_quantity: s.stock_quantity
     })
     setModalOpen(true)
   }
@@ -158,6 +160,7 @@ export default function ServicesPage() {
                 <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('services.category')}</th>
                 <th className="text-right py-3 px-4 font-medium text-muted-foreground">{t('services.unitPrice')}</th>
                 <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('services.vatPercentage')}</th>
+                <th className="text-center py-3 px-4 font-medium text-muted-foreground">En stock</th>
                 <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('invoices.status', 'Statut')}</th>
                 <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('common.actions')}</th>
               </tr></thead>
@@ -168,6 +171,15 @@ export default function ServicesPage() {
                     <td className="py-3 px-4"><Badge variant="secondary">{s.category}</Badge></td>
                     <td className="py-3 px-4 text-right font-medium">{formatCurrency(s.unit_price)}</td>
                     <td className="py-3 px-4 text-center text-muted-foreground">{s.vat_percentage}%</td>
+                    <td className="py-3 px-4 text-center">
+                      {s.track_stock ? (
+                        <Badge variant="outline" className={s.stock_quantity <= 0 ? 'border-red-500 text-red-500' : s.stock_quantity <= 5 ? 'border-amber-500 text-amber-500' : 'border-emerald-500 text-emerald-500'}>
+                          {s.stock_quantity}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-xs italic">—</span>
+                      )}
+                    </td>
                     <td className="py-3 px-4 text-center">
                       <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${s.is_active ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}>
                         {s.is_active ? t('services.active') : t('services.inactive')}
@@ -208,6 +220,21 @@ export default function ServicesPage() {
             <div className="space-y-2"><Label>{t('services.unitPrice')} ({localStorage.getItem('currency_symbol') || 'FCFA'})</Label><Input type="number" value={form.unit_price} onChange={(e) => setForm(f => ({ ...f, unit_price: Number(e.target.value) }))} /></div>
             <div className="space-y-2"><Label>{t('services.vatPercentage')}</Label><Input type="number" step="0.01" value={form.vat_percentage} onChange={(e) => setForm(f => ({ ...f, vat_percentage: Number(e.target.value) }))} /></div>
             <div className="flex items-center gap-3 pt-6"><Switch checked={form.is_active} onCheckedChange={(v) => setForm(f => ({ ...f, is_active: v }))} /><Label>{t('services.active')}</Label></div>
+            <div className="col-span-2 border-t pt-4 mt-2">
+              <h3 className="font-medium text-sm mb-4 text-muted-foreground">Gestion de Stock</h3>
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-3">
+                  <Switch checked={form.track_stock} onCheckedChange={(v) => setForm(f => ({ ...f, track_stock: v }))} />
+                  <Label>Suivre le stock pour ce produit</Label>
+                </div>
+                {form.track_stock && (
+                  <div className="space-y-2 max-w-xs">
+                    <Label>Quantité en stock</Label>
+                    <Input type="number" min="0" value={form.stock_quantity} onChange={(e) => setForm(f => ({ ...f, stock_quantity: Number(e.target.value) }))} />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setModalOpen(false)}>{t('common.cancel')}</Button>

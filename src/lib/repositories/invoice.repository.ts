@@ -198,6 +198,20 @@ export class InvoiceRepository {
 
     if (itemsError) throw itemsError
 
+    // 3. Déduction du stock si le document est une facture
+    if (docType === 'invoice') {
+      for (const item of finalItemsToInsert) {
+        if (item.service_id) {
+          const { data: service } = await supabase.from('services').select('track_stock, stock_quantity').eq('id', item.service_id).single()
+          if (service && service.track_stock) {
+            await supabase.from('services')
+              .update({ stock_quantity: Math.max(0, service.stock_quantity - item.quantity) })
+              .eq('id', item.service_id)
+          }
+        }
+      }
+    }
+
     return this.getById(newInvoice.id) as Promise<Invoice>
   }
 
@@ -209,6 +223,9 @@ export class InvoiceRepository {
     delete updateData.items
     delete updateData.payments
 
+    // Pour la gestion du stock : on vérifie si on passe de Devis à Facture
+    const { data: oldInvoice } = await supabase.from('invoices').select('document_type').eq('id', id).single()
+
     const { data: updatedInvoice, error } = await supabase
       .from('invoices')
       .update(updateData)
@@ -217,6 +234,22 @@ export class InvoiceRepository {
       .single()
 
     if (error) throw error
+
+    // Déduction du stock si conversion Devis -> Facture
+    if (oldInvoice?.document_type === 'quote' && updateData.document_type === 'invoice') {
+      const { data: items } = await supabase.from('invoice_items').select('service_id, quantity').eq('invoice_id', id)
+      for (const item of items || []) {
+        if (item.service_id) {
+          const { data: service } = await supabase.from('services').select('track_stock, stock_quantity').eq('id', item.service_id).single()
+          if (service && service.track_stock) {
+            await supabase.from('services')
+              .update({ stock_quantity: Math.max(0, service.stock_quantity - item.quantity) })
+              .eq('id', item.service_id)
+          }
+        }
+      }
+    }
+
     return updatedInvoice as Invoice
   }
 

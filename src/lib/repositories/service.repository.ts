@@ -10,6 +10,8 @@ export interface Service {
   unit_price: number
   vat_percentage: number
   is_active: boolean
+  track_stock: boolean
+  stock_quantity: number
   created_at: string
   updated_at: string
 }
@@ -90,6 +92,8 @@ export class ServiceRepository {
         category: data.category || 'General',
         unit_price: data.unit_price || 0,
         vat_percentage: data.vat_percentage || 19.25,
+        track_stock: data.track_stock || false,
+        stock_quantity: data.stock_quantity || 0,
       })
       .select()
       .single()
