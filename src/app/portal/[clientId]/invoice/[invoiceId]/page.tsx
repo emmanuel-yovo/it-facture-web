@@ -61,13 +61,16 @@ export default async function PortalInvoicePage({ params }: { params: Promise<{ 
       </div>
 
       <main className="py-8 px-4">
-        <div className="max-w-[210mm] mx-auto bg-white shadow-xl rounded-lg overflow-hidden relative">
-          <div id="invoice-pdf-container">
-            {/* On passe preview={true} pour l'afficher correctement dans la div (au lieu du position absolute top -9999px par défaut) */}
-            <InvoiceTemplate invoice={invoice as any} settings={settings} preview={true} />
-          </div>
+        {/* Vue écran (Aperçu) - Masquée à l'impression par .no-print ou le CSS global */}
+        <div className="max-w-[210mm] mx-auto bg-white shadow-xl rounded-lg overflow-hidden relative no-print">
+          <InvoiceTemplate invoice={invoice as any} settings={settings} preview={true} />
         </div>
       </main>
+
+      {/* Conteneur caché pour l'impression (comme dans le Dashboard) */}
+      <div id="invoice-pdf-container">
+        <InvoiceTemplate invoice={invoice as any} settings={settings} />
+      </div>
     </div>
   )
 }
