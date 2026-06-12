@@ -71,11 +71,19 @@ export function TutorialTour() {
     if (!workspaceId) return
     
     const checkTutorial = async () => {
-      // 1. Vérification locale super rapide
+      // 1. Vérification si déjà terminé en local
       const localStatus = localStorage.getItem(`tutorial_done_${workspaceId}`)
       if (localStatus === 'true') return
       
-      // 2. Vérification DB
+      // 2. Vérification du nombre d'apparitions (limite à 3)
+      const viewsCount = parseInt(localStorage.getItem(`tutorial_views_${workspaceId}`) || '0', 10)
+      if (viewsCount >= 3) {
+        // Si on a atteint 3 vues sans terminer, on le marque comme terminé pour être sûr
+        localStorage.setItem(`tutorial_done_${workspaceId}`, 'true')
+        return
+      }
+      
+      // 3. Vérification DB
       try {
         const settings = await settingsRepository.getSettings(workspaceId)
         if ((settings as any).tutorial_completed === 'true') {
@@ -83,11 +91,15 @@ export function TutorialTour() {
           return
         }
         
+        // Incrémentation du compteur de vues
+        localStorage.setItem(`tutorial_views_${workspaceId}`, (viewsCount + 1).toString())
+        
         // Si non complété, on lance
         setTimeout(() => setRun(true), 1000)
       } catch (err) {
         console.error("Erreur vérification tutoriel:", err)
-        // En cas d'erreur réseau, on lance quand même le tuto
+        // En cas d'erreur réseau, on incrémente et on lance quand même le tuto
+        localStorage.setItem(`tutorial_views_${workspaceId}`, (viewsCount + 1).toString())
         setTimeout(() => setRun(true), 1000)
       }
     }
