@@ -11,6 +11,7 @@ import { formatCurrency } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
+import { supabase } from '@/lib/supabase'
 
 export default function SuperAdminPage() {
   const { user } = useAuthStore()
