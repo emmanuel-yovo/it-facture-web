@@ -99,7 +99,7 @@ export default function HelpPage() {
                 <AccordionTrigger className="text-left font-medium">Comment fonctionnent les paiements en ligne (FedaPay) ?</AccordionTrigger>
                 <AccordionContent className="text-muted-foreground leading-relaxed">
                   IT-Facture s'intègre avec FedaPay pour vous permettre de recevoir des paiements par Mobile Money et carte bancaire.
-                  Pour l'activer, allez dans les Paramètres > FedaPay, et entrez vos clés secrètes disponibles sur votre compte développeur FedaPay.
+                  Pour l'activer, allez dans les Paramètres &gt; FedaPay, et entrez vos clés secrètes disponibles sur votre compte développeur FedaPay.
                   Une fois configuré, un bouton "Payer" apparaîtra sur la version électronique de vos factures pour vos clients.
                 </AccordionContent>
               </AccordionItem>
