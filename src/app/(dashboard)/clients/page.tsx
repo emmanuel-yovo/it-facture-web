@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useState } from 'react'
+import useSWR from 'swr'
 import { useAuthStore } from '@/store/authStore'
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
@@ -26,10 +27,7 @@ export default function ClientsPage() {
   const plan = (workspacePlan as PlanType) || 'free'
   const router = useRouter()
   
-  const [clients, setClients] = useState<Client[]>([])
-  const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
   const [search, setSearch] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -37,23 +35,18 @@ export default function ClientsPage() {
   const [deleteTarget, setDeleteTarget] = useState<Client | null>(null)
   const [form, setForm] = useState<Partial<Client>>(empty)
   const [loading, setLoading] = useState(false)
-  const [initialLoading, setInitialLoading] = useState(true)
 
-  const load = useCallback(async () => {
-    if (!workspaceId) return
-    try {
-      const result = await clientRepository.getAll({ workspace_id: workspaceId,  page, pageSize: 10, search })
-      setClients(result.data)
-      setTotal(result.total)
-      setTotalPages(result.totalPages)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setInitialLoading(false)
-    }
-  }, [page, search, workspaceId])
+  const { data: fetchResult, isLoading: initialLoading, mutate: load } = useSWR(
+    workspaceId ? ['clients', workspaceId, page, search] : null,
+    async () => {
+      return await clientRepository.getAll({ workspace_id: workspaceId!, page, pageSize: 10, search })
+    },
+    { keepPreviousData: true }
+  )
 
-  useEffect(() => { load() }, [load])
+  const clients = fetchResult?.data || []
+  const total = fetchResult?.total || 0
+  const totalPages = fetchResult?.totalPages || 1
 
   const handleImport = async () => {
     alert(t("clients.importMsg", "L'importation de fichiers CSV sera disponible prochainement dans la version Web."))

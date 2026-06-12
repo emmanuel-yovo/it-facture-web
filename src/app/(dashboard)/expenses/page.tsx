@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useState } from 'react'
+import useSWR from 'swr'
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -22,25 +23,18 @@ export default function ExpensesPage() {
   const plan = (workspacePlan as PlanType) || 'free'
   const router = useRouter()
   
-  const [expenses, setExpenses] = useState<Expense[]>([])
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(true)
   const [formData, setFormData] = useState({ title: '', amount: '', category: '', expense_date: new Date().toISOString().split('T')[0], notes: '' })
+  const { data: fetchResult, isLoading: loading, mutate: load } = useSWR(
+    workspaceId ? ['expenses', workspaceId, search] : null,
+    async () => {
+      return await expenseRepository.getAll({ workspace_id: workspaceId!, search })
+    },
+    { keepPreviousData: true }
+  )
 
-  const load = useCallback(async () => {
-    if (!workspaceId) return
-    try {
-      const res = await expenseRepository.getAll({ workspace_id: workspaceId,  search })
-      setExpenses(res.data)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }, [search, workspaceId])
-
-  useEffect(() => { load() }, [load])
+  const expenses = fetchResult?.data || []
 
   const handleSave = async () => {
     if (!workspaceId) return

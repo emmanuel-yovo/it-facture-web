@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useState } from 'react'
+import useSWR from 'swr'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
 import { motion } from 'framer-motion'
@@ -22,37 +23,29 @@ export default function InvoicesPage() {
   const { user, workspaceId, workspacePlan } = useAuthStore()
   const plan = (workspacePlan as PlanType) || 'free'
   
-  const [invoices, setInvoices] = useState<Invoice[]>([])
-  const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Invoice | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  const load = useCallback(async () => {
-    if (!workspaceId) return
-    try {
-      const result = await invoiceRepository.getAll({ workspace_id: workspaceId, 
+  const { data: fetchResult, isLoading: loading, mutate: load } = useSWR(
+    workspaceId ? ['invoices', workspaceId, page, search, statusFilter] : null,
+    async () => {
+      return await invoiceRepository.getAll({ 
+        workspace_id: workspaceId!, 
         page, 
         pageSize: 10, 
         search,
         status: statusFilter !== 'all' ? statusFilter : undefined,
         document_type: 'invoice'
       })
-      setInvoices(result.data)
-      setTotal(result.total)
-      setTotalPages(result.totalPages)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }, [page, search, statusFilter, workspaceId])
+    },
+    { keepPreviousData: true }
+  )
 
-  useEffect(() => { load() }, [load])
+  const invoices = fetchResult?.data || []
+  const total = fetchResult?.total || 0
+  const totalPages = fetchResult?.totalPages || 1
 
   const handleDelete = async () => {
     if (deleteTarget) {

@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useState } from 'react'
+import useSWR from 'swr'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
 import { motion } from 'framer-motion'
@@ -17,28 +18,22 @@ export default function QuotesPage() {
   const { t } = useTranslation()
   const router = useRouter()
   const { workspaceId } = useAuthStore()
-  const [quotes, setQuotes] = useState<Invoice[]>([])
   const [search, setSearch] = useState('')
-  const [loading, setLoading] = useState(true)
-
-  const load = useCallback(async () => {
-    if (!workspaceId) return
-    try {
-      const result = await invoiceRepository.getAll({ workspace_id: workspaceId, 
+  const { data: fetchResult, isLoading: loading } = useSWR(
+    workspaceId ? ['quotes', workspaceId, search] : null,
+    async () => {
+      return await invoiceRepository.getAll({ 
+        workspace_id: workspaceId!, 
         page: 1, 
         pageSize: 100, 
         search,
         document_type: 'quote'
       })
-      setQuotes(result.data)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }, [search, workspaceId])
+    },
+    { keepPreviousData: true }
+  )
 
-  useEffect(() => { load() }, [load])
+  const quotes = fetchResult?.data || []
 
   if (loading) {
     return <div className="h-96 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>

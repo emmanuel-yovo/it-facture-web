@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
+import useSWR from 'swr'
 import { Plus, Search, Clock, Wrench, MoreVertical, Trash2, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,11 +26,8 @@ export default function TicketsPage() {
   const plan = (workspacePlan as PlanType) || 'free'
   const router = useRouter()
   
-  const [tickets, setTickets] = useState<Ticket[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [clients, setClients] = useState<any[]>([])
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -42,25 +40,21 @@ export default function TicketsPage() {
     time_spent: 0
   })
 
-  const load = useCallback(async () => {
-    if (!workspaceId) return
-    setIsLoading(true)
-    try {
-      const result = await ticketRepository.getAll({ workspace_id: workspaceId,  
+  const { data: fetchResult, isLoading, mutate: load } = useSWR(
+    workspaceId ? ['tickets', workspaceId, search, statusFilter] : null,
+    async () => {
+      const result = await ticketRepository.getAll({ workspace_id: workspaceId!,  
         search, 
         status: statusFilter === 'all' ? undefined : statusFilter 
       })
-      setTickets(result.data)
-      const cls = await clientRepository.getAll({ workspace_id: workspaceId,  pageSize: 1000 })
-      setClients(cls.data)
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [search, statusFilter, workspaceId])
+      const cls = await clientRepository.getAll({ workspace_id: workspaceId!,  pageSize: 1000 })
+      return { tickets: result.data, clients: cls.data }
+    },
+    { keepPreviousData: true }
+  )
 
-  useEffect(() => { load() }, [load])
+  const tickets = fetchResult?.tickets || []
+  const clients = fetchResult?.clients || []
 
   const handleCreateTicket = async (e: React.FormEvent) => {
     e.preventDefault()
