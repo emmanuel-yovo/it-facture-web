@@ -81,10 +81,11 @@ export function TutorialTour() {
   ]
 
   const handleJoyrideCallback = async (data: CallBackProps) => {
-    const { status } = data
+    const { status, action } = data
     const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED]
 
-    if (finishedStatuses.includes(status)) {
+    // Si on a terminé le tuto, cliqué sur Skip, ou cliqué sur la croix (action === 'close')
+    if (finishedStatuses.includes(status) || action === 'close') {
       setRun(false)
       // Sauvegarder dans la DB que le tutoriel est terminé
       if (workspaceId) {
@@ -117,6 +118,12 @@ export function TutorialTour() {
         options: {
           primaryColor: '#6366f1', // Indigo-500
           zIndex: 10000,
+        },
+        buttonSkip: {
+          color: '#6366f1',
+          fontSize: '14px',
+          fontWeight: 'bold',
+          display: 'block'
         },
         tooltip: {
           borderRadius: '12px',
