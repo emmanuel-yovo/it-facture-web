@@ -60,7 +60,7 @@ export default async function PortalInvoicePage({ params }: { params: Promise<{ 
         </div>
       </div>
 
-      <main className="py-8 px-4 no-print">
+      <main className="py-8 px-4">
         <div className="max-w-[210mm] mx-auto bg-white shadow-xl rounded-lg overflow-hidden relative">
           <div id="invoice-pdf-container">
             {/* On passe preview={true} pour l'afficher correctement dans la div (au lieu du position absolute top -9999px par défaut) */}
