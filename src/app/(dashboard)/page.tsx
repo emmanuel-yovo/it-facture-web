@@ -222,12 +222,18 @@ export default function DashboardPage() {
         <motion.div variants={item} className="lg:col-span-2">
           <Card className="border border-border shadow-sm h-full">
             <CardHeader>
-              <CardTitle className="text-base">Flux de Trésorerie (Revenus vs Dépenses)</CardTitle>
+              <CardTitle className="text-base">{t('dashboard.revenueChart', 'Évolution des Revenus')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={stats.monthly_data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <AreaChart data={stats.monthly_data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                     <XAxis dataKey="month" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
                     <YAxis stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
@@ -235,81 +241,11 @@ export default function DashboardPage() {
                       contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '13px' }}
                       itemStyle={{ color: 'var(--foreground)' }}
                       labelStyle={{ color: 'var(--foreground)' }}
-                      formatter={(value: any, name: string) => [formatCurrency(Number(value) || 0), name === 'revenue' ? 'Revenus' : 'Dépenses']}
+                      formatter={(value: any) => [formatCurrency(Number(value) || 0), t('nav.invoices', 'Revenus')]}
                     />
-                    <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
-                    <Bar dataKey="revenue" name="Revenus" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                    <Bar dataKey="expenses" name="Dépenses" fill="#ef4444" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                  </BarChart>
+                    <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={2} fill="url(#colorRevenue)" />
+                  </AreaChart>
                 </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={item}>
-          <Card className="h-full border border-border shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-base">Répartition des Créances</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col justify-center h-[300px]">
-              {invoiceStatusData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={invoiceStatusData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={90}
-                      paddingAngle={2}
-                      dataKey="value"
-                    >
-                      {invoiceStatusData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      formatter={(value: any) => [`${value} factures`, '']} 
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                    />
-                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                  <PieChart className="w-12 h-12 opacity-20 mb-2" />
-                  <p className="text-sm">Aucune facture sur cette période</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-
-      {/* Top Lists Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <motion.div variants={item}>
-          <Card className="h-full border border-border shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-base">Top 5 Clients</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {stats.top_clients.map((client, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold shrink-0">
-                        {client.name.substring(0, 2).toUpperCase()}
-                      </div>
-                      <p className="text-sm font-medium truncate max-w-[150px] sm:max-w-[200px]">{client.name}</p>
-                    </div>
-                    <p className="text-sm font-bold">{formatCurrency(client.revenue)}</p>
-                  </div>
-                ))}
-                {stats.top_clients.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-6">{t('common.noData', 'Aucune donnée')}</p>
-                )}
               </div>
             </CardContent>
           </Card>
@@ -341,59 +277,99 @@ export default function DashboardPage() {
         </motion.div>
       </div>
 
-      {/* Recent Invoices */}
-      <motion.div variants={item}>
-        <Card className="border border-border shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base">{t('dashboard.recentInvoices', 'Factures Récentes')}</CardTitle>
-            <button onClick={() => router.push('/invoices')} className="text-sm text-primary hover:underline flex items-center gap-1">
-              {t('common.all', 'Voir tout')} <ArrowUpRight className="w-3 h-3" />
-            </button>
-          </CardHeader>
-          <CardContent>
-            <div className="relative overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/30">
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.invoiceNumber', 'Numéro')}</th>
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.client', 'Client')}</th>
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.date', 'Date')}</th>
-                    <th className="text-right py-3 px-4 font-medium text-muted-foreground">{t('invoices.total', 'Montant')}</th>
-                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('invoices.status', 'Statut')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.recent_invoices.map((inv: any) => (
-                    <tr
-                      key={inv.id}
-                      className="border-b border-border/50 hover:bg-muted/30 cursor-pointer transition-colors"
-                      onClick={() => router.push(`/invoices/${inv.id}`)}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <motion.div variants={item}>
+          <Card className="h-full border border-border shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-base">Répartition des Créances</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col justify-center h-[250px]">
+              {invoiceStatusData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={invoiceStatusData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="value"
                     >
-                      <td className="py-3 px-4 font-mono text-xs">{inv.invoice_number}</td>
-                      <td className="py-3 px-4 font-medium">{inv.client?.full_name || inv.client?.company_name}</td>
-                      <td className="py-3 px-4 text-muted-foreground">{formatDate(inv.created_at)}</td>
-                      <td className="py-3 px-4 text-right font-semibold">{formatCurrency(inv.grand_total)}</td>
-                      <td className="py-3 px-4 text-center">
-                        <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(inv.status)}`}>
-                          {getStatusLabel(inv.status)}
-                        </div>
-                      </td>
+                      {invoiceStatusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value: any) => [`${value} factures`, '']} 
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    />
+                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                  <PieChart className="w-12 h-12 opacity-20 mb-2" />
+                  <p className="text-sm">Aucune facture sur cette période</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={item} className="lg:col-span-2">
+          <Card className="h-full border border-border shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-base">{t('dashboard.recentInvoices', 'Factures Récentes')}</CardTitle>
+              <button onClick={() => router.push('/invoices')} className="text-sm text-primary hover:underline flex items-center gap-1">
+                {t('common.all', 'Voir tout')} <ArrowUpRight className="w-3 h-3" />
+              </button>
+            </CardHeader>
+            <CardContent>
+              <div className="relative overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/30">
+                      <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.invoiceNumber', 'Numéro')}</th>
+                      <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.client', 'Client')}</th>
+                      <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.date', 'Date')}</th>
+                      <th className="text-right py-3 px-4 font-medium text-muted-foreground">{t('invoices.total', 'Montant')}</th>
+                      <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('invoices.status', 'Statut')}</th>
                     </tr>
-                  ))}
-                  {stats.recent_invoices.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="py-12 text-center text-muted-foreground">
-                        <FileText className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                        {t('invoices.noInvoices', 'Aucune facture récente')}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+                  </thead>
+                  <tbody>
+                    {stats.recent_invoices.map((inv: any) => (
+                      <tr
+                        key={inv.id}
+                        className="border-b border-border/50 hover:bg-muted/30 cursor-pointer transition-colors"
+                        onClick={() => router.push(`/invoices/${inv.id}`)}
+                      >
+                        <td className="py-3 px-4 font-mono text-xs">{inv.invoice_number}</td>
+                        <td className="py-3 px-4 font-medium">{inv.client?.full_name || inv.client?.company_name}</td>
+                        <td className="py-3 px-4 text-muted-foreground">{formatDate(inv.created_at)}</td>
+                        <td className="py-3 px-4 text-right font-semibold">{formatCurrency(inv.grand_total)}</td>
+                        <td className="py-3 px-4 text-center">
+                          <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(inv.status)}`}>
+                            {getStatusLabel(inv.status)}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {stats.recent_invoices.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="py-12 text-center text-muted-foreground">
+                          <FileText className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                          {t('invoices.noInvoices', 'Aucune facture récente')}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
     </motion.div>
   )
 }
