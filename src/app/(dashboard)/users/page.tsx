@@ -170,7 +170,7 @@ export default function UsersPage() {
             Membres : <span className={!canAdd && user?.role !== 'superadmin' ? 'text-red-500 font-bold' : 'text-foreground font-bold'}>{currentUsers}</span> / {maxUsers === Infinity ? 'Illimité' : maxUsers}
           </div>
           
-          {(!canAdd && user?.role !== 'superadmin') ? (
+          {!canAdd && user?.role !== 'superadmin' ? (
             <Button variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100 hover:text-emerald-700" onClick={() => router.push('/upgrade')}>
               Augmenter la limite
             </Button>
@@ -181,54 +181,54 @@ export default function UsersPage() {
                   <UserPlus className="w-4 h-4 mr-2" /> {t('users.inviteBtn', 'Inviter un membre')}
                 </Button>
               </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{t('users.inviteTitle', 'Inviter un nouveau collaborateur')}</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleInvite} className="space-y-4 pt-4">
-              {inviteError && <div className="p-3 bg-red-50 text-red-500 text-sm rounded-md">{inviteError}</div>}
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t('clients.fullName', 'Nom complet')}</label>
-                <Input required value={inviteName} onChange={e => setInviteName(e.target.value)} placeholder="Ex: Jean Dupont" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t('clients.email', 'Adresse Email')}</label>
-                <Input required type="email" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="jean@entreprise.com" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t('users.tempPassword', 'Mot de passe (Provisoire)')}</label>
-                <Input required type="text" value={invitePassword} onChange={e => setInvitePassword(e.target.value)} placeholder="Mot de passe sécurisé..." />
-                <p className="text-xs text-muted-foreground">{t('users.passwordHint', "L'utilisateur pourra le modifier plus tard.")}</p>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t('users.role', 'Rôle')}</label>
-                <Select value={inviteRole} onValueChange={setInviteRole}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="user">{t('users.roleUser', 'Utilisateur (Création de factures, Devis)')}</SelectItem>
-                    <SelectItem value="comptable">{t('users.roleAccountant', 'Comptable (Consultation globale)')}</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground pt-1">
-                  {t('users.roleWarning', "Note : Vous ne pouvez pas créer d'autres Administrateurs pour des raisons de sécurité.")}
-                </p>
-              </div>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{t('users.inviteTitle', 'Inviter un nouveau collaborateur')}</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleInvite} className="space-y-4 pt-4">
+                  {inviteError && <div className="p-3 bg-red-50 text-red-500 text-sm rounded-md">{inviteError}</div>}
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t('clients.fullName', 'Nom complet')}</label>
+                    <Input required value={inviteName} onChange={e => setInviteName(e.target.value)} placeholder="Ex: Jean Dupont" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t('clients.email', 'Adresse Email')}</label>
+                    <Input required type="email" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="jean@entreprise.com" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t('users.tempPassword', 'Mot de passe (Provisoire)')}</label>
+                    <Input required type="text" value={invitePassword} onChange={e => setInvitePassword(e.target.value)} placeholder="Mot de passe sécurisé..." />
+                    <p className="text-xs text-muted-foreground">{t('users.passwordHint', "L'utilisateur pourra le modifier plus tard.")}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t('users.role', 'Rôle')}</label>
+                    <Select value={inviteRole} onValueChange={setInviteRole}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="user">{t('users.roleUser', 'Utilisateur (Création de factures, Devis)')}</SelectItem>
+                        <SelectItem value="comptable">{t('users.roleAccountant', 'Comptable (Consultation globale)')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground pt-1">
+                      {t('users.roleWarning', "Note : Vous ne pouvez pas créer d'autres Administrateurs pour des raisons de sécurité.")}
+                    </p>
+                  </div>
 
-              <div className="flex justify-end pt-4 gap-2">
-                <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t('common.cancel')}</Button>
-                <Button type="submit" disabled={isInviting}>
-                  {isInviting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Mail className="w-4 h-4 mr-2" />}
-                  {t('users.sendInvite', "Envoyer l'invitation")}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-        )}
-      </div>
+                  <div className="flex justify-end pt-4 gap-2">
+                    <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t('common.cancel')}</Button>
+                    <Button type="submit" disabled={isInviting}>
+                      {isInviting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Mail className="w-4 h-4 mr-2" />}
+                      {t('users.sendInvite', "Envoyer l'invitation")}
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
 
       <Card className="border-border shadow-sm">
         <CardContent className="p-0">
