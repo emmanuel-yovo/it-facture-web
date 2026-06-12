@@ -73,7 +73,7 @@ export default function DashboardPage() {
         <motion.div variants={item}>
           <Card className="border-emerald-500/20 bg-emerald-500/5 shadow-sm">
             <CardContent className="p-6">
-              <h2 className="text-lg font-bold text-emerald-700 dark:text-emerald-400 mb-2">🚀 Bienvenue sur IT-Facture !</h2>
+              <h2 className="text-lg font-bold text-emerald-700 dark:text-emerald-400 mb-2">Bienvenue sur IT-Facture !</h2>
               <p className="text-sm text-muted-foreground mb-4">Voici les étapes pour créer votre première facture et bien démarrer :</p>
               
               <div className="space-y-3">
