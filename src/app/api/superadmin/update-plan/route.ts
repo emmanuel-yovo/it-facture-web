@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Droits insuffisants. Rôle superadmin requis.' }, { status: 403 })
     }
 
-    const { workspace_id, plan } = await req.json()
+    const { workspace_id, plan, interval = 'monthly' } = await req.json()
 
     if (!workspace_id || !plan) {
       return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 })
@@ -38,9 +38,13 @@ export async function POST(req: Request) {
     
     if (plan !== 'free') {
       const endDate = new Date()
-      endDate.setMonth(endDate.getMonth() + 1)
+      if (interval === 'yearly') {
+        endDate.setFullYear(endDate.getFullYear() + 1)
+      } else {
+        endDate.setMonth(endDate.getMonth() + 1)
+      }
       updateData.subscription_end_date = endDate.toISOString()
-      updateData.subscription_interval = 'monthly'
+      updateData.subscription_interval = interval
       updateData.subscription_status = 'active'
     } else {
       updateData.subscription_end_date = null

@@ -50,8 +50,8 @@ export default function SuperAdminPage() {
     loadStats()
   }, [user])
 
-  const handlePlanChange = async (workspaceId: string, newPlan: string) => {
-    if (!confirm(`Confirmer le passage au plan ${newPlan} ?`)) return
+  const handlePlanChange = async (workspaceId: string, newPlan: string, interval: string = 'monthly') => {
+    if (!confirm(`Confirmer le changement ?`)) return
     setUpdating(workspaceId)
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -61,7 +61,7 @@ export default function SuperAdminPage() {
           'Authorization': `Bearer ${session?.access_token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ workspace_id: workspaceId, plan: newPlan })
+        body: JSON.stringify({ workspace_id: workspaceId, plan: newPlan, interval })
       })
       const data = await res.json()
       if (data.success) {
@@ -155,23 +155,41 @@ export default function SuperAdminPage() {
                   <td className="py-3 px-4">{w.owner?.full_name || 'Inconnu'}</td>
                   <td className="py-3 px-4 text-sm">{formatRelativeTime(w.last_seen_at)}</td>
                   <td className="py-3 px-4">
-                    <div className="flex items-center gap-2">
-                      <Select 
-                        value={w.plan || 'free'} 
-                        onValueChange={(val) => handlePlanChange(w.id, val)}
-                        disabled={updating === w.id}
-                      >
-                        <SelectTrigger className="w-[120px] h-8 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="free">Free</SelectItem>
-                          <SelectItem value="starter">Starter</SelectItem>
-                          <SelectItem value="business">Business</SelectItem>
-                          <SelectItem value="agency">Agency</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {updating === w.id && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <Select 
+                          value={w.plan || 'free'} 
+                          onValueChange={(val) => handlePlanChange(w.id, val, w.subscription_interval || 'monthly')}
+                          disabled={updating === w.id}
+                        >
+                          <SelectTrigger className="w-[120px] h-8 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="free">Free</SelectItem>
+                            <SelectItem value="starter">Starter</SelectItem>
+                            <SelectItem value="business">Business</SelectItem>
+                            <SelectItem value="agency">Agency</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {updating === w.id && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+                      </div>
+                      
+                      {w.plan !== 'free' && (
+                        <Select 
+                          value={w.subscription_interval || 'monthly'} 
+                          onValueChange={(val) => handlePlanChange(w.id, w.plan, val)}
+                          disabled={updating === w.id}
+                        >
+                          <SelectTrigger className="w-[120px] h-8 text-xs bg-muted/50 border-dashed">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="monthly">Mensuel</SelectItem>
+                            <SelectItem value="yearly">Annuel</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
                     </div>
                   </td>
                   <td className="py-3 px-4">
