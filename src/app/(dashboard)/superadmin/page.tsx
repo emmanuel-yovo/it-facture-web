@@ -140,6 +140,7 @@ export default function SuperAdminPage() {
                 <th className="py-3 px-4 font-medium text-muted-foreground">Propriétaire</th>
                 <th className="py-3 px-4 font-medium text-muted-foreground">Dernière Activité</th>
                 <th className="py-3 px-4 font-medium text-muted-foreground">Plan</th>
+                <th className="py-3 px-4 font-medium text-muted-foreground">Expiration Abonnement</th>
                 <th className="py-3 px-4 font-medium text-muted-foreground text-center">Factures créées</th>
                 <th className="py-3 px-4 font-medium text-muted-foreground text-right">CA Total Encaissé</th>
               </tr>
@@ -171,6 +172,18 @@ export default function SuperAdminPage() {
                       </Select>
                       {updating === w.id && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
                     </div>
+                  </td>
+                  <td className="py-3 px-4">
+                    {w.plan !== 'free' && w.subscription_end_date ? (
+                      <div className="flex flex-col">
+                        <span className={`text-sm ${new Date(w.subscription_end_date) < new Date() ? 'text-red-500 font-bold' : 'text-emerald-600 font-medium'}`}>
+                          {new Date(w.subscription_end_date).toLocaleDateString('fr-FR')}
+                        </span>
+                        <span className="text-xs text-muted-foreground">{w.subscription_interval === 'yearly' ? 'Annuel' : 'Mensuel'}</span>
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">-</span>
+                    )}
                   </td>
                   <td className="py-3 px-4 text-center">{w.invoiceCount}</td>
                   <td className="py-3 px-4 text-right text-emerald-500 font-medium">{formatCurrency(w.totalRevenue)}</td>
