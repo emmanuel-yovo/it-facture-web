@@ -103,8 +103,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
           <div className="flex items-center gap-4">
             
-            {/* Upgrade Button - Only visible to owner and superadmin */}
-            {(user?.role === 'owner' || user?.role === 'superadmin') && (
+            {/* Upgrade Button - Visible to admin and superadmin */}
+            {(user?.role === 'admin' || user?.role === 'superadmin') && (
               <Button 
                 variant="default" 
                 size="sm" 
