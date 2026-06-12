@@ -72,9 +72,16 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const handlePayment = async () => {
     if (!workspaceId) return
     try {
+      const amount = Number(paymentAmount)
+      
+      if (amount > remaining) {
+        alert(`Le montant saisi (${formatCurrency(amount)}) ne peut pas dépasser le reste à payer (${formatCurrency(remaining)}).`)
+        return
+      }
+
       await paymentRepository.create(workspaceId, { 
         invoice_id: invoice.id, 
-        amount: Number(paymentAmount), 
+        amount: amount, 
         payment_method: paymentMethod, 
         payment_date: new Date().toISOString(),
       })
@@ -424,7 +431,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         <DialogContent>
           <DialogHeader><DialogTitle>Ajouter un paiement</DialogTitle><DialogDescription>Restant à payer: {formatCurrency(remaining)}</DialogDescription></DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2"><Label>Montant reçu</Label><Input type="number" value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value)} placeholder={String(remaining)} /></div>
+            <div className="space-y-2"><Label>Montant reçu</Label><Input type="number" min="1" max={remaining} value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value)} placeholder={String(remaining)} /></div>
             <div className="space-y-2">
               <Label>Moyen de paiement</Label>
               <Select value={paymentMethod} onValueChange={setPaymentMethod}>
