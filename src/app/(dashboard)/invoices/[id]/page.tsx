@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { formatCurrency, formatDate, getStatusLabel } from '@/lib/utils'
 import { Printer, Download, ArrowLeft, CreditCard, CheckCircle, Mail } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { Textarea } from '@/components/ui/textarea'
 import { invoiceRepository, Invoice } from '@/lib/repositories/invoice.repository'
@@ -30,6 +31,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const id = resolvedParams.id
   
   const router = useRouter()
+  const { t } = useTranslation()
   const { workspaceId, user, workspacePlan } = useAuthStore()
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [paymentOpen, setPaymentOpen] = useState(false)
@@ -75,7 +77,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       const amount = Number(paymentAmount)
       
       if (amount > remaining) {
-        alert(`Le montant saisi (${formatCurrency(amount)}) ne peut pas dépasser le reste à payer (${formatCurrency(remaining)}).`)
+        alert(t('invoices.paymentAmountExceeds', { amount: formatCurrency(amount), remaining: formatCurrency(remaining) }))
         return
       }
 
@@ -103,7 +105,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       load()
     } catch (error: any) {
       console.error(error)
-      alert("Erreur lors de l'enregistrement du paiement : " + error.message)
+      alert(t('invoices.paymentError', { error: error.message }))
     }
   }
 

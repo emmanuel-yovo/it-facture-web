@@ -211,7 +211,9 @@
     "previous": "Previous",
     "save": "Save",
     "generate": "Generate Invoice",
-    "preview": "Invoice Preview"
+    "preview": "Invoice Preview",
+    "paymentAmountExceeds": "The entered amount ({{amount}}) cannot exceed the remaining balance ({{remaining}}).",
+    "paymentError": "Error recording payment: {{error}}"
   },
   "discounts": {
     "title": "Discount Management",

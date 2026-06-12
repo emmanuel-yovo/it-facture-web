@@ -211,7 +211,9 @@
     "previous": "Précédent",
     "save": "Enregistrer",
     "generate": "Générer la facture",
-    "preview": "Aperçu de la facture"
+    "preview": "Aperçu de la facture",
+    "paymentAmountExceeds": "Le montant saisi ({{amount}}) ne peut pas dépasser le reste à payer ({{remaining}}).",
+    "paymentError": "Erreur lors de l'enregistrement du paiement : {{error}}"
   },
   "discounts": {
     "title": "Gestion des Remises",
