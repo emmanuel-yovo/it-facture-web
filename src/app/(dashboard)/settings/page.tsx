@@ -492,7 +492,7 @@ export default function SettingsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label>Port</Label>
-                    <Input type="number" value={settings.smtp_port || ''} onChange={(e) => setSettings((s: any) => ({ ...s, smtp_port: e.target.value }))} placeholder="465 ou 587" />
+                    <Input type="number" value={settings.smtp_port || ''} onChange={(e) => setSettings((s: any) => ({ ...s, smtp_port: e.target.value }))} placeholder="465 (SSL) ou 587 (TLS)" />
                   </div>
                   <div className="space-y-2">
                     <Label>Nom d'utilisateur / Email</Label>
@@ -503,8 +503,32 @@ export default function SettingsPage() {
                     <Input type="password" value={settings.smtp_pass || ''} onChange={(e) => setSettings((s: any) => ({ ...s, smtp_pass: e.target.value }))} placeholder="••••••••••••" />
                   </div>
                 </div>
+
+                <div className="bg-muted/30 p-4 rounded-lg border text-sm mt-6">
+                  <h4 className="font-semibold mb-2">Guide de configuration rapide</h4>
+                  <div className="space-y-3 text-muted-foreground">
+                    <div>
+                      <strong className="text-foreground">Avec Gmail (Recommandé) :</strong>
+                      <ul className="list-disc list-inside mt-1 space-y-1">
+                        <li>Serveur : <code>smtp.gmail.com</code> | Port : <code>465</code></li>
+                        <li>Utilisateur : Votre adresse Gmail</li>
+                        <li>Mot de passe : <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noreferrer" className="text-primary hover:underline">Créez un "Mot de passe d'application"</a> (le mot de passe classique ne marchera pas).</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <strong className="text-foreground">Avec un email Pro (Hostinger, OVH, etc.) :</strong>
+                      <ul className="list-disc list-inside mt-1 space-y-1">
+                        <li>Serveur : <code>smtp.hostinger.com</code> ou <code>ssl0.ovh.net</code></li>
+                        <li>Port : <code>465</code> (Sécurisé SSL)</li>
+                        <li>Utilisateur : Votre email pro</li>
+                        <li>Mot de passe : Votre mot de passe habituel</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="flex justify-between items-center pt-4">
-                  <p className="text-xs text-muted-foreground italic">Note: Les mots de passe sont stockés de manière sécurisée.</p>
+                  <p className="text-xs text-muted-foreground italic">Note: Les mots de passe sont stockés de manière chiffrée et sécurisée.</p>
                   <Button onClick={handleSave} disabled={loading}>
                     {saved ? <><Check className="w-4 h-4 mr-2" />Enregistré</> : <><Save className="w-4 h-4 mr-2" />Enregistrer</>}
                   </Button>
