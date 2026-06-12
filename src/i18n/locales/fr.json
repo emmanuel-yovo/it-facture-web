@@ -18,7 +18,8 @@
     "reports": "Analyses",
     "audit": "Sécurité",
     "users": "Utilisateurs",
-    "superadmin": "Admin SaaS"
+    "superadmin": "Administration Globale",
+    "help": "Centre d'Aide Détaillé"
   },
   "reports": {
     "annualTotal": "Cumul annuel",
@@ -69,7 +70,9 @@
     "activeClients": "Clients actifs",
     "recentInvoices": "Factures récentes",
     "topServices": "Services populaires",
-    "revenueChart": "Évolution du chiffre d'affaires"
+    "revenueChart": "Évolution du chiffre d'affaires",
+    "receivablesBreakdown": "Répartition des Créances",
+    "noInvoicesThisPeriod": "Aucune facture sur cette période"
   },
   "clients": {
     "title": "Gestion des Clients",
@@ -131,7 +134,8 @@
     "resource": "Ressource",
     "details": "Détails",
     "system": "Système",
-    "noData": "Aucune activité enregistrée."
+    "noData": "Aucune activité enregistrée.",
+    "userLoggedIn": "L'utilisateur s'est connecté à la plateforme."
   },
   "reminders": {
     "title": "Relances & Rappels",
@@ -163,6 +167,7 @@
     "expenseBreakdownDesc": "Analyse par catégorie de coûts."
   },
   "expenses": {
+    "subtitle": "Suivez vos sorties d'argent",
     "exportMsg": "L'exportation CSV des dépenses sera disponible dans une prochaine mise à jour Web.",
     "lockedMsg": "La gestion des dépenses est disponible à partir du plan Pro. Suivez vos sorties d'argent, classez-les par catégories et préparez votre comptabilité facilement.",
     "categoryPlaceholder": "Ex: Matériel, Licences..."

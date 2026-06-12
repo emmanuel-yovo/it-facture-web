@@ -18,7 +18,8 @@
     "reports": "Reports",
     "audit": "Security",
     "users": "Users",
-    "superadmin": "SaaS Admin"
+    "superadmin": "Global Administration",
+    "help": "Help Center"
   },
   "reports": {
     "annualTotal": "Annual Total",
@@ -69,7 +70,9 @@
     "activeClients": "Active Clients",
     "recentInvoices": "Recent Invoices",
     "topServices": "Popular Services",
-    "revenueChart": "Revenue Overview"
+    "revenueChart": "Revenue Overview",
+    "receivablesBreakdown": "Receivables Breakdown",
+    "noInvoicesThisPeriod": "No invoices for this period"
   },
   "clients": {
     "title": "Client Management",
@@ -131,7 +134,8 @@
     "resource": "Resource",
     "details": "Details",
     "system": "System",
-    "noData": "No activity recorded."
+    "noData": "No activity recorded.",
+    "userLoggedIn": "The user connected to the platform."
   },
   "reminders": {
     "title": "Reminders",
@@ -163,6 +167,7 @@
     "expenseBreakdownDesc": "Analysis by cost category."
   },
   "expenses": {
+    "subtitle": "Track your cash outflows",
     "exportMsg": "CSV export for expenses will be available in an upcoming Web update.",
     "lockedMsg": "Expense management is available from the Pro plan. Track your cash outflows, classify them by categories, and easily prepare your accounting.",
     "categoryPlaceholder": "Ex: Equipment, Licenses..."

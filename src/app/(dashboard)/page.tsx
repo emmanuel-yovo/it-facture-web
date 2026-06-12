@@ -281,7 +281,7 @@ export default function DashboardPage() {
         <motion.div variants={item}>
           <Card className="h-full border border-border shadow-sm">
             <CardHeader>
-              <CardTitle className="text-base">Répartition des Créances</CardTitle>
+              <CardTitle className="text-base">{t('dashboard.receivablesBreakdown', 'Répartition des Créances')}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col justify-center h-[250px]">
               {invoiceStatusData.length > 0 ? (
@@ -310,7 +310,7 @@ export default function DashboardPage() {
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                   <PieChart className="w-12 h-12 opacity-20 mb-2" />
-                  <p className="text-sm">Aucune facture sur cette période</p>
+                  <p className="text-sm">{t('dashboard.noInvoicesThisPeriod', 'Aucune facture sur cette période')}</p>
                 </div>
               )}
             </CardContent>

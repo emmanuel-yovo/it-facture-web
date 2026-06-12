@@ -12,8 +12,10 @@ import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { supabase } from '@/lib/supabase'
+import { useTranslation } from 'react-i18next'
 
 export default function SuperAdminPage() {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -89,8 +91,8 @@ export default function SuperAdminPage() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Administration Globale</h1>
-        <p className="text-muted-foreground text-sm mt-1">Vue globale de toutes les entreprises utilisant IT-Facture.</p>
+        <h1 className="text-2xl font-bold">{t('nav.superadmin', 'Administration Globale')}</h1>
+        <p className="text-muted-foreground text-sm mt-1">{t('superadmin.subtitle', 'Vue globale de toutes les entreprises utilisant IT-Facture.')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

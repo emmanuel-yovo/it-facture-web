@@ -116,7 +116,11 @@ export default function AuditPage() {
                       </Badge>
                     </td>
                     <td className="py-3 px-4 text-muted-foreground capitalize">{log.resource_type}</td>
-                    <td className="py-3 px-4">{log.details}</td>
+                    <td className="py-3 px-4">
+                      {log.details === "L'utilisateur s'est connecté à la plateforme." 
+                        ? t("audit.userLoggedIn", "L'utilisateur s'est connecté à la plateforme.") 
+                        : log.details}
+                    </td>
                   </tr>
                 ))}
                 {logs.length === 0 && (

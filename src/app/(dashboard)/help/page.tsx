@@ -21,7 +21,7 @@ export default function HelpPage() {
             <LifeBuoy className="w-6 h-6 text-indigo-500" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Centre d'Aide Détaillé</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{t('nav.help', "Centre d'Aide Détaillé")}</h1>
             <p className="text-muted-foreground text-lg mt-1">Le guide complet pour maîtriser IT-Facture de A à Z.</p>
           </div>
         </div>
