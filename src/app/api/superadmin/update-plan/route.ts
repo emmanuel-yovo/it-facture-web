@@ -33,10 +33,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 })
     }
 
+    // Calcul de la date d'expiration
+    let updateData: any = { plan }
+    
+    if (plan !== 'free') {
+      const endDate = new Date()
+      endDate.setMonth(endDate.getMonth() + 1)
+      updateData.subscription_end_date = endDate.toISOString()
+      updateData.subscription_interval = 'monthly'
+      updateData.subscription_status = 'active'
+    } else {
+      updateData.subscription_end_date = null
+      updateData.subscription_interval = null
+      updateData.subscription_status = 'canceled'
+    }
+
     // Mise à jour du plan du workspace
     const { error: updateError } = await supabaseAdmin
       .from('workspaces')
-      .update({ plan })
+      .update(updateData)
       .eq('id', workspace_id)
 
     if (updateError) throw updateError
