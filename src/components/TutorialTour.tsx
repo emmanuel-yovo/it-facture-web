@@ -20,15 +20,23 @@ export function TutorialTour() {
     const checkTutorialStatus = async () => {
       if (!workspaceId) return
       
+      // 1. Vérification rapide en local pour éviter les clignotements/requêtes inutiles
+      if (localStorage.getItem(`tutorial_completed_${workspaceId}`) === 'true') {
+        return
+      }
+      
       try {
         const settings = await settingsRepository.getSettings(workspaceId)
         
         // Si la clé n'existe pas ou n'est pas 'true', on lance le tuto
-        if ((settings as any).tutorial_completed !== 'true') {
-          setTimeout(() => {
-            setRun(true)
-          }, 1500)
+        if ((settings as any).tutorial_completed === 'true') {
+          localStorage.setItem(`tutorial_completed_${workspaceId}`, 'true')
+          return
         }
+        
+        setTimeout(() => {
+          setRun(true)
+        }, 1500)
       } catch (err) {
         console.error("Erreur lors de la vérification du statut du tutoriel", err)
       }
@@ -80,6 +88,9 @@ export function TutorialTour() {
       setRun(false)
       // Sauvegarder dans la DB que le tutoriel est terminé
       if (workspaceId) {
+        // Enregistrer en local immédiatement pour réactivité
+        localStorage.setItem(`tutorial_completed_${workspaceId}`, 'true')
+        
         try {
           await settingsRepository.saveSettings(workspaceId, {
             tutorial_completed: 'true'
@@ -106,9 +117,6 @@ export function TutorialTour() {
         options: {
           primaryColor: '#6366f1', // Indigo-500
           zIndex: 10000,
-        },
-        buttonClose: {
-          display: 'none',
         },
         tooltip: {
           borderRadius: '12px',
