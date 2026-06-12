@@ -46,18 +46,8 @@ export default async function PortalInvoicePage({ params }: { params: Promise<{ 
     settings[row.key] = row.value
   })
 
-  // Set the print style to hide everything except the invoice
   return (
     <div className="min-h-screen bg-slate-100 print:bg-white">
-      <style dangerouslySetInnerHTML={{__html: `
-        @media print {
-          body * { visibility: hidden; }
-          #printable-invoice, #printable-invoice * { visibility: visible; }
-          #printable-invoice { position: absolute; left: 0; top: 0; width: 100%; padding: 0; margin: 0; }
-          .no-print { display: none !important; }
-        }
-      `}} />
-      
       {/* HEADER BAR (No-print) */}
       <div className="no-print bg-slate-900 text-white sticky top-0 z-50 shadow-md">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -72,7 +62,7 @@ export default async function PortalInvoicePage({ params }: { params: Promise<{ 
 
       <main className="py-8 px-4 no-print">
         <div className="max-w-[210mm] mx-auto bg-white shadow-xl rounded-lg overflow-hidden relative">
-          <div id="printable-invoice">
+          <div id="invoice-pdf-container">
             {/* On passe preview={true} pour l'afficher correctement dans la div (au lieu du position absolute top -9999px par défaut) */}
             <InvoiceTemplate invoice={invoice as any} settings={settings} preview={true} />
           </div>
