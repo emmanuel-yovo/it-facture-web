@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
+import { TutorialTour } from '../TutorialTour'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { theme, toggleTheme } = useAppStore()
@@ -44,6 +45,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
+      <TutorialTour />
       {/* Desktop Sidebar */}
       <Sidebar className="hidden md:flex" layoutIdPrefix="desktop-" />
       

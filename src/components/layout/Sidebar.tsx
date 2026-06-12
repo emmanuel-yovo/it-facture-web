@@ -11,7 +11,7 @@ import { canAccessFeature, PlanType } from '@/lib/limits'
 import {
     LayoutDashboard, Users, Wrench, FileText, PlusCircle,
     Percent, CreditCard, Settings, ChevronLeft, ChevronRight, Zap,
-    Repeat, Receipt, UserCog, Bell, Shield, TrendingUp, ShieldCheck, Lock
+    Repeat, Receipt, UserCog, Bell, Shield, TrendingUp, ShieldCheck, Lock, BookOpen
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -25,17 +25,18 @@ type NavItem = {
   accent?: boolean
   permission?: Permission
   feature?: string
+  dataTour?: string
 }
 
 export const navItems: NavItem[] = [
   { to: '/', icon: LayoutDashboard, label: 'nav.dashboard' },
-  { to: '/invoices', icon: FileText, label: 'nav.invoices' },
+  { to: '/invoices', icon: FileText, label: 'nav.invoices', dataTour: 'nav-invoices' },
   { to: '/quotes', icon: FileText, label: 'nav.quotes' },
   { to: '/invoices/new', icon: PlusCircle, label: 'nav.newInvoice', accent: true },
   { to: '/subscriptions', icon: Repeat, label: 'nav.subscriptions' },
   { to: '/expenses', icon: Receipt, label: 'nav.expenses', permission: PERMISSIONS.MANAGE_EXPENSES, feature: 'expenses' },
-  { to: '/clients', icon: Users, label: 'nav.clients' },
-  { to: '/services', icon: Wrench, label: 'nav.services' },
+  { to: '/clients', icon: Users, label: 'nav.clients', dataTour: 'nav-clients' },
+  { to: '/services', icon: Wrench, label: 'nav.services', dataTour: 'nav-services' },
   { to: '/tickets', icon: Zap, label: 'nav.tickets', feature: 'tickets' },
   { to: '/reminders', icon: Bell, label: 'nav.reminders', permission: PERMISSIONS.MANAGE_REMINDERS },
   { to: '/reports', icon: TrendingUp, label: 'nav.reports', permission: PERMISSIONS.VIEW_REPORTS },
@@ -43,6 +44,8 @@ export const navItems: NavItem[] = [
   { to: '/discounts', icon: Percent, label: 'nav.discounts', permission: PERMISSIONS.MANAGE_DISCOUNTS },
   { to: '/payments', icon: CreditCard, label: 'nav.payments' },
   { to: '/users', icon: UserCog, label: 'nav.users', permission: PERMISSIONS.MANAGE_USERS },
+  { to: '/settings', icon: Settings, label: 'Paramètres', dataTour: 'nav-settings' },
+  { to: '/help', icon: BookOpen, label: 'Centre d\'aide', dataTour: 'nav-help' },
   { to: '/superadmin', icon: ShieldCheck, label: 'nav.superadmin', permission: PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD },
 ]
 
@@ -98,6 +101,7 @@ export function Sidebar({ className, layoutIdPrefix = '' }: { className?: string
             <Link
               key={item.to}
               href={isLocked ? '/upgrade' : item.to}
+              data-tour={item.dataTour}
               className={cn(
                 'w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group relative',
                 isActive
