@@ -45,7 +45,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <TutorialTour />
       {/* Desktop Sidebar */}
       <Sidebar className="hidden md:flex" layoutIdPrefix="desktop-" />
       
