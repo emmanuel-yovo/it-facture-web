@@ -44,7 +44,6 @@ export const navItems: NavItem[] = [
   { to: '/discounts', icon: Percent, label: 'nav.discounts', permission: PERMISSIONS.MANAGE_DISCOUNTS },
   { to: '/payments', icon: CreditCard, label: 'nav.payments' },
   { to: '/users', icon: UserCog, label: 'nav.users', permission: PERMISSIONS.MANAGE_USERS },
-  { to: '/settings', icon: Settings, label: 'Paramètres', dataTour: 'nav-settings' },
   { to: '/help', icon: BookOpen, label: 'Centre d\'aide', dataTour: 'nav-help' },
   { to: '/superadmin', icon: ShieldCheck, label: 'nav.superadmin', permission: PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD },
 ]
@@ -146,10 +145,32 @@ export function Sidebar({ className, layoutIdPrefix = '' }: { className?: string
       <Separator className="bg-sidebar-border" />
 
       {/* Bottom Actions */}
-      <div className="p-2 flex items-center justify-center">
-        <Button variant="ghost" size="icon" onClick={toggleSidebar} className="h-9 w-9 text-muted-foreground hover:bg-sidebar-accent">
-          {sidebarCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
-        </Button>
+      <div className="p-2 border-t border-sidebar-border mt-auto space-y-2">
+        <Link 
+          href="/settings" 
+          data-tour="nav-settings" 
+          className={cn(
+            "flex items-center gap-3 p-2 rounded-lg hover:bg-sidebar-accent transition-colors w-full",
+            sidebarCollapsed && "justify-center"
+          )}
+        >
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+            {String(user?.full_name || 'U').charAt(0).toUpperCase()}
+          </div>
+          {!sidebarCollapsed && (
+            <div className="flex flex-col flex-1 overflow-hidden">
+              <span className="text-sm font-medium text-sidebar-foreground truncate">{user?.full_name || 'Utilisateur'}</span>
+              <span className="text-xs text-muted-foreground truncate flex items-center gap-1">
+                 <Settings className="w-3 h-3" /> Paramètres
+              </span>
+            </div>
+          )}
+        </Link>
+        <div className="flex items-center justify-center">
+          <Button variant="ghost" size="icon" onClick={toggleSidebar} className="h-8 w-8 text-muted-foreground hover:bg-sidebar-accent">
+            {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          </Button>
+        </div>
       </div>
     </motion.aside>
   )
