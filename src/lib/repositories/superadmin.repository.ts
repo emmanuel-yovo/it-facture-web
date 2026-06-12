@@ -7,7 +7,7 @@ export class SuperadminRepository {
     // 1. Fetch all workspaces
     const { data: workspaces, error: workspacesError } = await supabase
       .from('workspaces')
-      .select('*, owner:profiles(full_name, role)')
+      .select('*, profiles(full_name, role)')
       .order('created_at', { ascending: false })
 
     if (workspacesError) throw workspacesError
@@ -33,8 +33,11 @@ export class SuperadminRepository {
       const workspaceInvoices = (invoices || []).filter(i => i.workspace_id === w.id)
       const totalRevenue = workspaceInvoices.filter(i => i.status === 'paid').reduce((sum, i) => sum + Number(i.total), 0)
       
+      const owner = w.profiles?.find((p: any) => p.role === 'admin') || w.profiles?.[0] || null
+
       return {
         ...w,
+        owner,
         invoiceCount: workspaceInvoices.length,
         totalRevenue
       }

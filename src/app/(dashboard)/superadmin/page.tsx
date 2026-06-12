@@ -174,13 +174,17 @@ export default function SuperAdminPage() {
                     </div>
                   </td>
                   <td className="py-3 px-4">
-                    {w.plan !== 'free' && w.subscription_end_date ? (
-                      <div className="flex flex-col">
-                        <span className={`text-sm ${new Date(w.subscription_end_date) < new Date() ? 'text-red-500 font-bold' : 'text-emerald-600 font-medium'}`}>
-                          {new Date(w.subscription_end_date).toLocaleDateString('fr-FR')}
-                        </span>
-                        <span className="text-xs text-muted-foreground">{w.subscription_interval === 'yearly' ? 'Annuel' : 'Mensuel'}</span>
-                      </div>
+                    {w.plan !== 'free' ? (
+                      w.subscription_end_date ? (
+                        <div className="flex flex-col">
+                          <span className={`text-sm ${new Date(w.subscription_end_date) < new Date() ? 'text-red-500 font-bold' : 'text-emerald-600 font-medium'}`}>
+                            {new Date(w.subscription_end_date).toLocaleDateString('fr-FR')}
+                          </span>
+                          <span className="text-xs text-muted-foreground">{w.subscription_interval === 'yearly' ? 'Annuel' : 'Mensuel'}</span>
+                        </div>
+                      ) : (
+                        <span className="text-emerald-600 font-medium text-sm">À vie (Legacy)</span>
+                      )
                     ) : (
                       <span className="text-muted-foreground text-sm">-</span>
                     )}
