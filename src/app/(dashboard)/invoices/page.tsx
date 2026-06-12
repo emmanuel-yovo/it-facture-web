@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { formatCurrency, formatDate, getStatusColor, getStatusLabel } from '@/lib/utils'
 import { Plus, Search, Eye, Printer, Download, Trash2, FileText, ChevronLeft, ChevronRight, Lock, FileSpreadsheet } from 'lucide-react'
+import Papa from 'papaparse'
 import { invoiceRepository, Invoice } from '@/lib/repositories/invoice.repository'
 import { canCreateInvoice, PlanType } from '@/lib/limits'
 import { useTranslation } from 'react-i18next'
@@ -71,14 +72,14 @@ export default function InvoicesPage() {
       inv.invoice_number,
       inv.client?.company_name || inv.client?.full_name || '',
       formatDate(inv.created_at),
-      inv.subtotal.toString(),
-      inv.vat_total.toString(),
-      inv.grand_total.toString(),
+      inv.subtotal,
+      inv.vat_total,
+      inv.grand_total,
       inv.status
     ])
     
-    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const csvContent = Papa.unparse({ fields: headers, data: rows })
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url

@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { formatCurrency } from '@/lib/utils'
-import { Plus, Search, Pencil, Trash2, Users, ChevronLeft, ChevronRight, FileUp, Lock } from 'lucide-react'
+import { Plus, Search, Pencil, Trash2, Users, ChevronLeft, ChevronRight, FileUp, Lock, FileSpreadsheet } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { clientRepository, Client } from '@/lib/repositories/client.repository'
 import { canCreateClient, PlanType } from '@/lib/limits'
@@ -101,6 +101,31 @@ export default function ClientsPage() {
     })
   }
 
+  const exportToCSV = () => {
+    if (clients.length === 0) return
+    const headers = ['Nom', 'Entreprise', 'Téléphone', 'Email', 'Adresse', 'Pays', 'Total Depense', 'Nombre Factures']
+    const rows = clients.map(c => [
+      c.full_name,
+      c.company_name || '',
+      c.phone || '',
+      c.email || '',
+      c.address || '',
+      c.country || '',
+      c.total_spent || 0,
+      c.invoice_count || 0
+    ])
+    
+    const csvContent = Papa.unparse({ fields: headers, data: rows })
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' }) // BOM for Excel
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `clients_export_${new Date().toISOString().split('T')[0]}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   const handleSave = async () => {
     if (!workspaceId) return
     setLoading(true)
@@ -173,6 +198,10 @@ export default function ClientsPage() {
           <p className="text-muted-foreground text-sm mt-1">{total} {t('nav.clients').toLowerCase()}</p>
         </div>
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <Button variant="outline" onClick={exportToCSV} disabled={clients.length === 0}>
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            Exporter CSV
+          </Button>
           <input type="file" accept=".csv" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
           <Button variant="outline" onClick={handleImportClick} disabled={loading}>
             <FileUp className="w-4 h-4 mr-2" />

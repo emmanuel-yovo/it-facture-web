@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { formatCurrency } from '@/lib/utils'
-import { Plus, Search, Pencil, Trash2, Wrench, FileUp } from 'lucide-react'
+import { Plus, Search, Pencil, Trash2, Wrench, FileUp, FileSpreadsheet } from 'lucide-react'
 import { serviceRepository, Service } from '@/lib/repositories/service.repository'
 import { settingsRepository } from '@/lib/repositories/settings.repository'
 import { useTranslation } from 'react-i18next'
@@ -108,6 +108,29 @@ export default function ServicesPage() {
     })
   }
 
+  const exportToCSV = () => {
+    if (services.length === 0) return
+    const headers = ['Nom', 'Description', 'Catégorie', 'Prix Unitaire', 'TVA', 'En stock']
+    const rows = services.map(s => [
+      s.name,
+      s.description || '',
+      s.category || '',
+      s.unit_price,
+      s.vat_percentage,
+      s.stock_quantity || 0
+    ])
+    
+    const csvContent = Papa.unparse({ fields: headers, data: rows })
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `services_export_${new Date().toISOString().split('T')[0]}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   const handleSave = async () => {
     if (!workspaceId) return
     try {
@@ -174,6 +197,10 @@ export default function ServicesPage() {
         </div>
         {['admin', 'superadmin'].includes(user?.role as string) && (
           <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            <Button variant="outline" onClick={exportToCSV} disabled={services.length === 0}>
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              Exporter CSV
+            </Button>
             <input type="file" accept=".csv" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
             <Button variant="outline" onClick={handleImportClick}>
               <FileUp className="w-4 h-4 mr-2" />
