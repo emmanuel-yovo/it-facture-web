@@ -216,9 +216,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             </SelectContent>
           </Select>
         </div>
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+        <div className="flex flex-col gap-2 w-full sm:w-auto">
           {invoice.document_type === 'quote' && invoice.status === 'accepted' && (
-            <Button variant="default" className="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700" onClick={async () => {
+            <Button variant="default" className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700" onClick={async () => {
               await invoiceRepository.update(invoice.id, { document_type: 'invoice', status: 'unpaid' })
               load()
             }}>
@@ -226,16 +226,24 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             </Button>
           )}
           {invoice.document_type === 'invoice' && invoice.status !== 'paid' && (
-            <>
-              <Button className="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setPaymentOpen(true)}><CreditCard className="w-4 h-4 mr-2" />Ajouter un paiement</Button>
-            </>
+            <Button className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setPaymentOpen(true)}>
+              <CreditCard className="w-4 h-4 mr-2" />Ajouter un paiement
+            </Button>
           )}
-          <Button variant="outline" className="flex-1 sm:flex-none" onClick={() => setEmailOpen(true)}>
-            <Mail className="w-4 h-4 mr-2" />
-            Envoyer
-          </Button>
-          <Button variant="outline" className="flex-1 sm:flex-none" onClick={handlePrint}><Printer className="w-4 h-4 mr-2" />Imprimer</Button>
-          <Button variant="outline" className="flex-1 sm:flex-none" onClick={handleDownload}><Download className="w-4 h-4 mr-2" />PDF</Button>
+          <div className="grid grid-cols-3 sm:flex gap-2 w-full sm:w-auto">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setEmailOpen(true)}>
+              <Mail className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Envoyer</span>
+            </Button>
+            <Button variant="outline" className="w-full sm:w-auto" onClick={handlePrint}>
+              <Printer className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Imprimer</span>
+            </Button>
+            <Button variant="outline" className="w-full sm:w-auto" onClick={handleDownload}>
+              <Download className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">PDF</span>
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -299,29 +307,49 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
           <Card>
             <CardHeader><CardTitle className="text-base">Services</CardTitle></CardHeader>
             <CardContent className="p-0">
-              <div className="overflow-x-auto">
-<table className="w-full text-sm">
-                <thead><tr className="border-b bg-muted/30">
-                  <th className="text-left py-3 px-4">#</th>
-                  <th className="text-left py-3 px-4">Service</th>
-                  <th className="text-center py-3 px-4">Qté</th>
-                  <th className="text-right py-3 px-4">Prix Unit.</th>
-                  <th className="text-right py-3 px-4">Total</th>
-                </tr></thead>
-                <tbody>
-                  {((invoice as any).items || []).map((item: any, i: number) => (
-                    <tr key={item.id} className="border-b border-border/50">
-                      <td className="py-3 px-4">{i + 1}</td>
-                      <td className="py-3 px-4"><p className="font-medium">{item.service_name}</p>{item.description && <p className="text-xs text-muted-foreground">{item.description}</p>}</td>
-                      <td className="py-3 px-4 text-center">{item.quantity}</td>
-                      <td className="py-3 px-4 text-right">{formatCurrency(item.unit_price)}</td>
-                      <td className="py-3 px-4 text-right font-medium">{formatCurrency(item.line_total)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-</div>
-            </CardContent>
+              {/* Mobile View (List) */}
+              <div className="md:hidden flex flex-col">
+                {((invoice as any).items || []).map((item: any, i: number) => (
+                  <div key={item.id} className="p-4 border-b border-border/50 flex flex-col gap-2 last:border-0">
+                    <div className="flex justify-between items-start">
+                      <p className="font-medium text-sm pr-4">{item.service_name}</p>
+                      <p className="font-semibold text-sm">{formatCurrency(item.line_total)}</p>
+                    </div>
+                    {item.description && <p className="text-xs text-muted-foreground">{item.description}</p>}
+                    <div className="flex justify-between items-center text-xs text-muted-foreground mt-1 bg-muted/30 p-2 rounded-md">
+                      <span>Qté: {item.quantity}</span>
+                      <span>Prix unit: {formatCurrency(item.unit_price)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop View (Table) */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead><tr className="border-b bg-muted/30">
+                    <th className="text-left py-3 px-4 w-12 text-muted-foreground">#</th>
+                    <th className="text-left py-3 px-4 text-muted-foreground">Service</th>
+                    <th className="text-center py-3 px-4 w-24 text-muted-foreground">Qté</th>
+                    <th className="text-right py-3 px-4 w-32 text-muted-foreground">Prix Unit.</th>
+                    <th className="text-right py-3 px-4 w-32 text-muted-foreground">Total</th>
+                  </tr></thead>
+                  <tbody>
+                    {((invoice as any).items || []).map((item: any, i: number) => (
+                      <tr key={item.id} className="border-b border-border/50 hover:bg-muted/10">
+                        <td className="py-4 px-4 text-muted-foreground">{i + 1}</td>
+                        <td className="py-4 px-4">
+                          <p className="font-medium text-foreground">{item.service_name}</p>
+                          {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
+                        </td>
+                        <td className="py-4 px-4 text-center font-medium">{item.quantity}</td>
+                        <td className="py-4 px-4 text-right text-muted-foreground">{formatCurrency(item.unit_price)}</td>
+                        <td className="py-4 px-4 text-right font-semibold">{formatCurrency(item.line_total)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
           </Card>
 
           {invoice.document_type === 'invoice' && (
