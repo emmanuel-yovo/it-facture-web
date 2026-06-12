@@ -142,15 +142,10 @@ export function Sidebar({ className, layoutIdPrefix = '' }: { className?: string
       <Separator className="bg-sidebar-border" />
 
       {/* Bottom Actions */}
-      <div className="p-2 flex items-center gap-2">
-        <Button variant="ghost" size="icon" onClick={toggleSidebar} className="flex-1 h-9 text-muted-foreground hover:bg-sidebar-accent">
+      <div className="p-2 flex items-center justify-center">
+        <Button variant="ghost" size="icon" onClick={toggleSidebar} className="h-9 w-9 text-muted-foreground hover:bg-sidebar-accent">
           {sidebarCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
         </Button>
-        {!sidebarCollapsed && (
-          <span className="text-[9px] font-medium text-muted-foreground/50 pr-2 select-none">
-            CLOUD READY
-          </span>
-        )}
       </div>
     </motion.aside>
   )

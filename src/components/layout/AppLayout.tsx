@@ -103,16 +103,18 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
           <div className="flex items-center gap-4">
             
-            {/* Upgrade Button */}
-            <Button 
-              variant="default" 
-              size="sm" 
-              onClick={() => router.push('/upgrade')}
-              className="hidden sm:flex h-8 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0 shadow-md shadow-orange-500/20"
-            >
-              <Sparkles className="w-4 h-4 mr-1.5" />
-              Tarifs & Plans
-            </Button>
+            {/* Upgrade Button - Only visible to owner and superadmin */}
+            {(user?.role === 'owner' || user?.role === 'superadmin') && (
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={() => router.push('/upgrade')}
+                className="hidden sm:flex h-8 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0 shadow-md shadow-orange-500/20"
+              >
+                <Sparkles className="w-4 h-4 mr-1.5" />
+                Tarifs & Plans
+              </Button>
+            )}
 
             <div className="flex items-center gap-2 mr-2">
               <Button
@@ -150,7 +152,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <DropdownMenuTrigger className="flex items-center gap-3 hover:bg-muted/50 p-1.5 pr-2 rounded-full transition-colors text-left focus:outline-none cursor-pointer border-0 bg-transparent">
                 <div className="hidden sm:block text-right">
                   <p className="text-sm font-medium leading-none mb-1">{user?.full_name || 'Utilisateur'}</p>
-                  <p className="text-[11px] text-muted-foreground capitalize leading-none">{user?.role || 'user'}</p>
+                  {user?.role === 'superadmin' && <p className="text-[11px] text-muted-foreground capitalize leading-none">{user?.role}</p>}
                 </div>
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
                   {String(user?.full_name || 'U').charAt(0).toUpperCase()}
