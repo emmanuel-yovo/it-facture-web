@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator'
 import { Building, Upload, Save, Check, LogOut, ShieldCheck, Mail, FileText, Languages, CreditCard, Users, Copy, Trash2, Bell, MessageCircle } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { hasPermission, PERMISSIONS } from '@/lib/permissions'
 import { useAuthStore } from '@/store/authStore'
@@ -28,6 +29,8 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(false)
   const [credits, setCredits] = useState<number>(0)
   const [companyCode, setCompanyCode] = useState<string>('')
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [deleteInput, setDeleteInput] = useState('')
   const searchParams = useSearchParams()
 
   // Vérification FedaPay ou KkiaPay au retour de la page de paiement
@@ -251,8 +254,6 @@ export default function SettingsPage() {
   }
 
   const handleDeleteAccount = async () => {
-    if (!window.confirm("Êtes-vous absolument certain de vouloir supprimer votre compte et toutes les données de votre entreprise ? Cette action est irréversible et immédiate !")) return
-
     setLoading(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -747,7 +748,7 @@ export default function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="destructive" onClick={handleDeleteAccount} disabled={loading}>
+                <Button variant="destructive" onClick={() => setDeleteConfirmOpen(true)} disabled={loading}>
                   <Trash2 className="w-4 h-4 mr-2" /> Supprimer définitivement mon compte
                 </Button>
               </CardContent>
@@ -755,6 +756,45 @@ export default function SettingsPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="max-w-md border-red-200">
+          <DialogHeader>
+            <DialogTitle className="text-red-600 flex items-center gap-2">
+              <Trash2 className="w-5 h-5" /> Confirmation de suppression
+            </DialogTitle>
+            <DialogDescription className="pt-2 text-foreground font-medium">
+              Attention ! La suppression de votre compte est irréversible.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-3 text-sm text-muted-foreground">
+            <p>
+              En tant que propriétaire, cette action détruira définitivement :
+            </p>
+            <ul className="list-disc list-inside space-y-1 font-medium text-red-600/80">
+              <li>L'espace de travail</li>
+              <li>Toutes les factures et les devis</li>
+              <li>L'ensemble des clients et des services</li>
+            </ul>
+            <div className="pt-4 space-y-2">
+              <Label>Tapez <strong>SUPPRIMER</strong> pour confirmer :</Label>
+              <Input 
+                value={deleteInput} 
+                onChange={(e) => setDeleteInput(e.target.value)} 
+                placeholder="SUPPRIMER" 
+                className="border-red-200 focus-visible:ring-red-500"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setDeleteConfirmOpen(false); setDeleteInput('') }}>Annuler</Button>
+            <Button variant="destructive" disabled={deleteInput !== 'SUPPRIMER' || loading} onClick={handleDeleteAccount}>
+              {loading ? 'Suppression...' : 'Confirmer la suppression'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   )
 }
