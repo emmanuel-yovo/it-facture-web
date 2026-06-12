@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic'
 const Joyride = dynamic(() => import('react-joyride').then(mod => mod.Joyride as any), { ssr: false }) as any
 import { useAuthStore } from '@/store/authStore'
 import { supabase } from '@/lib/supabase'
+import { settingsRepository } from '@/lib/repositories/settings.repository'
 
 export function TutorialTour() {
   const { workspaceId, user } = useAuthStore()
@@ -20,15 +21,10 @@ export function TutorialTour() {
       if (!workspaceId) return
       
       try {
-        const { data } = await supabase
-          .from('settings')
-          .select('value')
-          .eq('workspace_id', workspaceId)
-          .eq('key', 'tutorial_completed')
-          .single()
-
-        if (!data || data.value !== 'true') {
-          // Petit délai pour laisser la page charger
+        const settings = await settingsRepository.getSettings(workspaceId)
+        
+        // Si la clé n'existe pas ou n'est pas 'true', on lance le tuto
+        if ((settings as any).tutorial_completed !== 'true') {
           setTimeout(() => {
             setRun(true)
           }, 1500)
@@ -85,13 +81,11 @@ export function TutorialTour() {
       // Sauvegarder dans la DB que le tutoriel est terminé
       if (workspaceId) {
         try {
-          await supabase.from('settings').upsert({
-            workspace_id: workspaceId,
-            key: 'tutorial_completed',
-            value: 'true'
-          }, { onConflict: 'workspace_id,key' })
+          await settingsRepository.saveSettings(workspaceId, {
+            tutorial_completed: 'true'
+          } as any)
         } catch (e) {
-          console.error(e)
+          console.error("Erreur lors de la sauvegarde du tutoriel:", e)
         }
       }
     }
