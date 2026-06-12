@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
-import { Building, Upload, Save, Check, LogOut, ShieldCheck, Mail, FileText, Languages, CreditCard, Users, Copy, Trash2 } from 'lucide-react'
+import { Building, Upload, Save, Check, LogOut, ShieldCheck, Mail, FileText, Languages, CreditCard, Users, Copy, Trash2, Bell, MessageCircle } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -26,6 +26,7 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<any>({})
   const [saved, setSaved] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [credits, setCredits] = useState<number>(0)
   const [companyCode, setCompanyCode] = useState<string>('')
   const searchParams = useSearchParams()
 
@@ -96,14 +97,17 @@ export default function SettingsPage() {
         console.error('Erreur chargement secrets:', err)
       }
 
-      // Fetch company_code
+      // Fetch company_code and credits
       try {
-        const { data: wsData } = await supabase.from('workspaces').select('company_code').eq('id', workspaceId).single()
+        const { data: wsData } = await supabase.from('workspaces').select('company_code, communication_credits').eq('id', workspaceId).single()
         if (wsData?.company_code) {
           setCompanyCode(wsData.company_code)
         }
+        if (wsData?.communication_credits !== undefined) {
+          setCredits(wsData.communication_credits)
+        }
       } catch (err) {
-        console.error('Erreur chargement company_code:', err)
+        console.error('Erreur chargement workspace data:', err)
       }
 
       setSettings(finalSettings)
@@ -295,6 +299,9 @@ export default function SettingsPage() {
           )}
           {hasPermission(authUser?.role, PERMISSIONS.MANAGE_FEDAPAY) && (
             <TabsTrigger value="payments"><CreditCard className="w-4 h-4 mr-2" />{t('settings.paymentsSettings', 'FedaPay (Paiements)')}</TabsTrigger>
+          )}
+          {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
+            <TabsTrigger value="reminders"><Bell className="w-4 h-4 mr-2" />Relances Auto</TabsTrigger>
           )}
           <TabsTrigger value="account"><LogOut className="w-4 h-4 mr-2" />{t('settings.account', 'Compte')}</TabsTrigger>
         </TabsList>
@@ -618,6 +625,87 @@ export default function SettingsPage() {
                       <SelectItem value="live">Live (Production)</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="flex justify-end pt-4">
+                  <Button onClick={handleSave} disabled={loading}>
+                    {saved ? <><Check className="w-4 h-4 mr-2" />Enregistré</> : <><Save className="w-4 h-4 mr-2" />Enregistrer</>}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
+
+        {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
+          <TabsContent value="reminders">
+            <Card className="border border-border shadow-sm">
+              <CardHeader>
+                <CardTitle>Relances Automatiques</CardTitle>
+                <CardDescription>Automatisez vos relances clients par Email et WhatsApp pour réduire les impayés.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="p-4 bg-muted/30 rounded-lg flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium flex items-center gap-2"><MessageCircle className="w-4 h-4 text-emerald-500" /> Crédits de communication</h3>
+                    <p className="text-sm text-muted-foreground mt-1">Solde actuel pour l'envoi de messages WhatsApp.</p>
+                  </div>
+                  <div className="text-2xl font-bold">{credits} <span className="text-sm font-normal text-muted-foreground">crédits</span></div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Activer les relances automatiques</Label>
+                  <Select value={settings.auto_reminder_enabled || 'false'} onValueChange={(val) => setSettings((s: any) => ({ ...s, auto_reminder_enabled: val }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="true">Oui, activer les relances</SelectItem>
+                      <SelectItem value="false">Non, désactivé</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Moment de la relance</Label>
+                    <Select value={settings.auto_reminder_days || '1'} onValueChange={(val) => setSettings((s: any) => ({ ...s, auto_reminder_days: val }))}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="3">3 jours avant échéance (J-3)</SelectItem>
+                        <SelectItem value="1">1 jour avant échéance (J-1)</SelectItem>
+                        <SelectItem value="0">Le jour de l'échéance (Jour J)</SelectItem>
+                        <SelectItem value="-1">1 jour de retard (J+1)</SelectItem>
+                        <SelectItem value="-3">3 jours de retard (J+3)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Canaux de communication</Label>
+                    <Select value={settings.auto_reminder_channels || 'email,whatsapp'} onValueChange={(val) => setSettings((s: any) => ({ ...s, auto_reminder_channels: val }))}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="email">Email uniquement</SelectItem>
+                        <SelectItem value="whatsapp">WhatsApp uniquement</SelectItem>
+                        <SelectItem value="email,whatsapp">Email + WhatsApp</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-2">
+                  <Label>Template du message WhatsApp (Optionnel)</Label>
+                  <Textarea 
+                    rows={4}
+                    placeholder="Bonjour {client}, votre facture {facture} arrive à échéance demain..." 
+                    value={settings.auto_reminder_template || ''} 
+                    onChange={(e) => setSettings((s: any) => ({ ...s, auto_reminder_template: e.target.value }))}
+                  />
+                  <p className="text-xs text-muted-foreground">Laissez vide pour utiliser le message par défaut. Variables disponibles : {'{client}, {facture}, {montant}, {date}'}</p>
                 </div>
 
                 <div className="flex justify-end pt-4">

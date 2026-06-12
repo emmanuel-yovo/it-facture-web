@@ -138,6 +138,67 @@ export class EmailService {
     await transporter.sendMail(mailOptions)
     return true
   }
+
+  async sendAutoReminder(workspaceId: string, to: string, subject: string, message: string) {
+    const { data: settingsData } = await supabaseAdmin
+      .from('settings')
+      .select('key, value')
+      .eq('workspace_id', workspaceId)
+      
+    const settings: any = {}
+    if (settingsData) {
+      settingsData.forEach(row => { settings[row.key] = row.value })
+    }
+    
+    // Fetch encrypted SMTP password
+    const { data } = await supabaseAdmin
+      .from('settings')
+      .select('value')
+      .eq('workspace_id', workspaceId)
+      .eq('key', 'smtp_pass')
+      .single()
+      
+    const smtpPass = data ? decrypt(data.value) : null
+
+    if (!settings.smtp_host || !settings.smtp_user || !smtpPass) {
+      console.error('SMTP non configuré pour la relance automatique')
+      return false
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: settings.smtp_host,
+      port: Number(settings.smtp_port) || 587,
+      secure: Number(settings.smtp_port) === 465,
+      auth: {
+        user: settings.smtp_user,
+        pass: smtpPass
+      }
+    })
+
+    const htmlContent = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 10px;">
+        <h2 style="color: #333;">Facture en attente de paiement</h2>
+        <p style="white-space: pre-wrap; font-size: 16px;">${message}</p>
+        <hr style="border: none; border-top: 1px solid #eaeaea; margin: 30px 0;" />
+        <p style="color: #999; font-size: 12px; text-align: center;">${settings.company_name || 'IT-Facture'}</p>
+      </div>
+    `
+
+    const mailOptions = {
+      from: `"${settings.company_name || 'IT-Facture'}" <${settings.smtp_user}>`,
+      to,
+      subject,
+      html: htmlContent
+    }
+
+    try {
+      await transporter.sendMail(mailOptions)
+      return true
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email de relance:', error)
+      return false
+    }
+  }
 }
 
 export const emailService = new EmailService()
