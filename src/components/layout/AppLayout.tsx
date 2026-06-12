@@ -148,23 +148,19 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </DropdownMenu>
             </div>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-3 hover:bg-muted/50 p-1.5 pr-2 rounded-full transition-colors text-left focus:outline-none cursor-pointer border-0 bg-transparent">
-                <div className="hidden sm:block text-right">
-                  <p className="text-sm font-medium leading-none mb-1">{user?.full_name || 'Utilisateur'}</p>
-                  {user?.role === 'superadmin' && <p className="text-[11px] text-muted-foreground capitalize leading-none">{user?.role}</p>}
-                </div>
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                  {String(user?.full_name || 'U').charAt(0).toUpperCase()}
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 mt-1">
-                <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer py-2 px-3 flex items-center gap-2">
-                  <Settings className="w-4 h-4 text-muted-foreground" />
-                  <span>{t('nav.settings')}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button
+              variant="ghost"
+              onClick={() => router.push('/settings')}
+              className="flex items-center gap-3 hover:bg-muted/50 p-1.5 pr-4 pl-2 rounded-full transition-colors text-left h-auto"
+            >
+              <div className="hidden sm:block text-right">
+                <p className="text-sm font-medium leading-none mb-1">{user?.full_name || 'Utilisateur'}</p>
+                {user?.role === 'superadmin' && <p className="text-[11px] text-muted-foreground capitalize leading-none">{user?.role}</p>}
+              </div>
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                {String(user?.full_name || 'U').charAt(0).toUpperCase()}
+              </div>
+            </Button>
           </div>
         </header>
 
