@@ -41,9 +41,15 @@ export function hasPermission(userRole: Role | string | undefined | null, permis
     return adminPermissions.includes(permission)
   }
 
-  // User & Comptable permissions (very restricted, none of the sensitive pages)
+  // User & Comptable permissions
   if (userRole === ROLES.USER || userRole === ROLES.COMPTABLE) {
-    const userPermissions: Permission[] = [] // Add specific permissions if needed later
+    const userPermissions: Permission[] = []
+    
+    // Le comptable peut voir les rapports financiers
+    if (userRole === ROLES.COMPTABLE) {
+      userPermissions.push(PERMISSIONS.VIEW_REPORTS)
+    }
+    
     return userPermissions.includes(permission)
   }
 

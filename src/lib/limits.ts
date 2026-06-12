@@ -41,6 +41,11 @@ export const canCreateInvoice = (plan: PlanType, currentCount: number, role?: st
   return currentCount < PLAN_LIMITS[plan].maxInvoices
 }
 
+export const canAddUser = (plan: PlanType, currentCount: number, role?: string) => {
+  if (role === 'superadmin') return true
+  return currentCount < PLAN_LIMITS[plan].maxUsers
+}
+
 export const canAccessFeature = (plan: PlanType, feature: 'expenses' | 'tickets', role?: string) => {
   if (role === 'superadmin') return true
   if (feature === 'expenses') return PLAN_LIMITS[plan].canAccessExpenses

@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     // 2. Vérifier que l'utilisateur est admin ou superadmin de son workspace
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('role, workspace_id')
+      .select('role, workspace_id, workspaces(plan)')
       .eq('id', user.id)
       .single()
 
@@ -29,7 +29,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Droits insuffisants pour inviter un membre' }, { status: 403 })
     }
 
-    // 3. Récupérer les données de la requête
+    const plan = (profile.workspaces as any)?.plan || 'free'
+
+    // 3. Vérifier la limite d'utilisateurs
+    const { count } = await supabaseAdmin
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('workspace_id', profile.workspace_id)
+
+    const PLAN_LIMITS: Record<string, number> = {
+      free: 1,
+      starter: 1,
+      business: 3,
+      agency: 999999
+    }
+
+    const maxUsers = PLAN_LIMITS[plan] || 1
+
+    if ((count || 0) >= maxUsers && profile.role !== 'superadmin') {
+      return NextResponse.json({ error: 'Limite d\'utilisateurs atteinte pour votre forfait actuel.' }, { status: 403 })
+    }
+
+    // 4. Récupérer les données de la requête
     const { email, password, role, fullName } = await req.json()
 
     if (!email || !password || !role) {

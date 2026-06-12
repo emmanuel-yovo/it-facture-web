@@ -13,6 +13,8 @@ import { hasPermission, PERMISSIONS } from '@/lib/permissions'
 import { supabase } from '@/lib/supabase'
 import { Badge } from '@/components/ui/badge'
 import { useTranslation } from 'react-i18next'
+import { canAddUser, PLAN_LIMITS, PlanType } from '@/lib/limits'
+import { useRouter } from 'next/navigation'
 
 type Profile = {
   id: string
@@ -23,7 +25,8 @@ type Profile = {
 
 export default function UsersPage() {
   const { t } = useTranslation()
-  const { user, workspaceId } = useAuthStore()
+  const router = useRouter()
+  const { user, workspaceId, workspacePlan } = useAuthStore()
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
   
@@ -146,6 +149,11 @@ export default function UsersPage() {
     }
   }
 
+  const plan = (workspacePlan as PlanType) || 'free'
+  const maxUsers = PLAN_LIMITS[plan]?.maxUsers || 1
+  const currentUsers = profiles.length
+  const canAdd = canAddUser(plan, currentUsers, user?.role)
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-6 space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -156,12 +164,23 @@ export default function UsersPage() {
           <p className="text-muted-foreground mt-1">{t('users.subtitle', 'Gérez les membres de votre entreprise et leurs accès.')}</p>
         </div>
         
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-primary text-white">
-              <UserPlus className="w-4 h-4 mr-2" /> {t('users.inviteBtn', 'Inviter un membre')}
+        <div className="flex items-center gap-3">
+          <div className="text-sm font-medium text-muted-foreground bg-muted px-3 py-2 rounded-lg flex items-center gap-2">
+            <Shield className="w-4 h-4" />
+            Membres : <span className={!canAdd && user?.role !== 'superadmin' ? 'text-red-500 font-bold' : 'text-foreground font-bold'}>{currentUsers}</span> / {maxUsers === Infinity ? 'Illimité' : maxUsers}
+          </div>
+          
+          {(!canAdd && user?.role !== 'superadmin') ? (
+            <Button variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100 hover:text-emerald-700" onClick={() => router.push('/upgrade')}>
+              Augmenter la limite
             </Button>
-          </DialogTrigger>
+          ) : (
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-primary text-white">
+                  <UserPlus className="w-4 h-4 mr-2" /> {t('users.inviteBtn', 'Inviter un membre')}
+                </Button>
+              </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{t('users.inviteTitle', 'Inviter un nouveau collaborateur')}</DialogTitle>
@@ -208,6 +227,7 @@ export default function UsersPage() {
             </form>
           </DialogContent>
         </Dialog>
+        )}
       </div>
 
       <Card className="border-border shadow-sm">
