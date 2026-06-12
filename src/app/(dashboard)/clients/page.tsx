@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { formatCurrency } from '@/lib/utils'
-import { Plus, Search, Pencil, Trash2, Users, ChevronLeft, ChevronRight, FileUp, Lock, FileSpreadsheet } from 'lucide-react'
+import { Plus, Search, Pencil, Trash2, Users, ChevronLeft, ChevronRight, FileUp, Lock, FileSpreadsheet, Link2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { clientRepository, Client } from '@/lib/repositories/client.repository'
 import { canCreateClient, PlanType } from '@/lib/limits'
@@ -68,6 +68,12 @@ export default function ClientsPage() {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
+  }
+
+  const copyPortalLink = (clientId: string) => {
+    const link = `${window.location.origin}/portal/${clientId}`
+    navigator.clipboard.writeText(link)
+    alert("Lien du portail client copié dans le presse-papier !")
   }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -265,6 +271,7 @@ export default function ClientsPage() {
                     <td className="py-3 px-4 text-center"><Badge variant="secondary">{c.invoice_count || 0}</Badge></td>
                     <td className="py-3 px-4 text-center">
                       <div className="flex items-center justify-center gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyPortalLink(c.id)} title="Copier le lien du portail client"><Link2 className="w-4 h-4 text-indigo-500" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(c)}><Pencil className="w-4 h-4" /></Button>
                         {['admin', 'superadmin'].includes(user?.role as string) && (
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-300" onClick={() => { setDeleteTarget(c); setDeleteOpen(true) }}><Trash2 className="w-4 h-4" /></Button>

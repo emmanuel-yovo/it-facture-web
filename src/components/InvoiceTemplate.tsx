@@ -8,26 +8,29 @@ interface InvoiceTemplateProps {
   invoice: Invoice
   settings: any
   plan?: string
+  preview?: boolean
 }
 
 export const InvoiceTemplate = React.forwardRef<HTMLDivElement, InvoiceTemplateProps>(
-  ({ invoice, settings, plan = 'free' }, ref) => {
+  ({ invoice, settings, plan = 'free', preview = false }, ref) => {
     const isQuote = invoice.document_type === 'quote'
     
     return (
       <div 
         ref={ref}
-        className="p-10 font-sans mx-auto"
+        className={`p-10 font-sans mx-auto ${preview ? 'relative shadow-xl rounded-sm' : ''}`}
         style={{
           backgroundColor: '#ffffff',
           color: '#000000',
           width: '210mm',
           minHeight: '297mm',
           boxSizing: 'border-box',
-          position: 'absolute',
-          top: '-9999px', // Hide from view
+          position: preview ? 'relative' : 'absolute',
+          top: preview ? '0' : '-9999px',
           left: 0,
-          zIndex: -1
+          zIndex: preview ? 1 : -1,
+          transform: preview ? 'scale(0.9) sm:scale(1)' : 'none',
+          transformOrigin: 'top center'
         }}
       >
         {/* Header */}
