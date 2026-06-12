@@ -29,6 +29,7 @@ export default function ServicesPage() {
   const [search, setSearch] = useState('')
   const [catFilter, setCatFilter] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
+  const [importModalOpen, setImportModalOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [editing, setEditing] = useState<Service | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Service | null>(null)
@@ -60,7 +61,21 @@ export default function ServicesPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleImportClick = () => {
-    fileInputRef.current?.click()
+    setImportModalOpen(true)
+  }
+
+  const exportTemplateCSV = () => {
+    const headers = ['Nom', 'Description', 'Catégorie', 'Prix Unitaire', 'TVA', 'Stock']
+    const rows = [['Consultation IT', '1h de consultation', 'Service', '50000', '19.25', '0']]
+    const csvContent = Papa.unparse({ fields: headers, data: rows })
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'modele_import_services.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -323,6 +338,40 @@ export default function ServicesPage() {
         <DialogContent className="max-w-sm">
           <DialogHeader><DialogTitle>{t('services.deleteService')}</DialogTitle><DialogDescription>Êtes-vous sûr de vouloir supprimer ce service ? Il sera archivé et rendu inactif.</DialogDescription></DialogHeader>
           <DialogFooter><Button variant="outline" onClick={() => setDeleteOpen(false)}>{t('common.cancel')}</Button><Button variant="destructive" onClick={handleDelete}>{t('common.delete')}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Import Info Dialog */}
+      <Dialog open={importModalOpen} onOpenChange={setImportModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Importer des Services (CSV)</DialogTitle>
+            <DialogDescription>
+              Pour que l'importation fonctionne, votre fichier CSV (ou Excel exporté en CSV) doit contenir des colonnes avec des noms spécifiques.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="bg-muted/30 p-3 rounded-lg border text-sm">
+              <p className="font-semibold mb-2">Colonnes reconnues :</p>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                <li><strong className="text-foreground">Nom</strong> (obligatoire)</li>
+                <li><strong className="text-foreground">Description</strong></li>
+                <li><strong className="text-foreground">Catégorie</strong></li>
+                <li><strong className="text-foreground">Prix Unitaire</strong> (nombre)</li>
+                <li><strong className="text-foreground">TVA</strong> (ex: 19.25)</li>
+              </ul>
+            </div>
+            <Button variant="outline" className="w-full" onClick={exportTemplateCSV}>
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              Télécharger un modèle CSV
+            </Button>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setImportModalOpen(false)}>{t('common.cancel')}</Button>
+            <Button onClick={() => { setImportModalOpen(false); fileInputRef.current?.click() }}>
+              Sélectionner le fichier
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </motion.div>

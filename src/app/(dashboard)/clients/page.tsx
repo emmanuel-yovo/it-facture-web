@@ -31,6 +31,7 @@ export default function ClientsPage() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
+  const [importModalOpen, setImportModalOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [editing, setEditing] = useState<Client | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Client | null>(null)
@@ -52,7 +53,21 @@ export default function ClientsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleImportClick = () => {
-    fileInputRef.current?.click()
+    setImportModalOpen(true)
+  }
+
+  const exportTemplateCSV = () => {
+    const headers = ['Nom', 'Email', 'Téléphone', 'Entreprise', 'Adresse']
+    const rows = [['Jean Dupont', 'jean@exemple.com', '0600000000', 'Acme Corp', '123 Rue de la Paix']]
+    const csvContent = Papa.unparse({ fields: headers, data: rows })
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'modele_import_clients.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -332,6 +347,40 @@ export default function ClientsPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteOpen(false)}>{t('common.cancel')}</Button>
             <Button variant="destructive" onClick={handleDelete}>{t('common.delete')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Import Info Dialog */}
+      <Dialog open={importModalOpen} onOpenChange={setImportModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Importer des Clients (CSV)</DialogTitle>
+            <DialogDescription>
+              Pour que l'importation fonctionne, votre fichier CSV (ou Excel exporté en CSV) doit contenir des colonnes avec des noms spécifiques.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="bg-muted/30 p-3 rounded-lg border text-sm">
+              <p className="font-semibold mb-2">Colonnes reconnues :</p>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                <li><strong className="text-foreground">Nom</strong> (obligatoire)</li>
+                <li><strong className="text-foreground">Email</strong></li>
+                <li><strong className="text-foreground">Téléphone</strong></li>
+                <li><strong className="text-foreground">Entreprise</strong></li>
+                <li><strong className="text-foreground">Adresse</strong></li>
+              </ul>
+            </div>
+            <Button variant="outline" className="w-full" onClick={exportTemplateCSV}>
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              Télécharger un modèle CSV
+            </Button>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setImportModalOpen(false)}>{t('common.cancel')}</Button>
+            <Button onClick={() => { setImportModalOpen(false); fileInputRef.current?.click() }}>
+              Sélectionner le fichier
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
