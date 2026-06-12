@@ -11,6 +11,7 @@ export interface DashboardStats {
   partial_invoices: number
   active_clients: number
   total_clients: number
+  total_services: number
   monthly_data: { month: string; revenue: number; invoices: number }[]
   top_services: { name: string; count: number; revenue: number }[]
   recent_invoices: any[]
@@ -27,12 +28,14 @@ export class DashboardRepository {
       invoicesRes,
       expensesRes,
       clientsRes,
+      servicesRes,
       itemsRes,
       recentInvoicesRes
     ] = await Promise.all([
       supabase.from('invoices').select('id, grand_total, status, document_type, created_at, client_id').eq('workspace_id', workspace_id).eq('document_type', 'invoice'),
       supabase.from('expenses').select('amount').eq('workspace_id', workspace_id),
       supabase.from('clients').select('id').eq('workspace_id', workspace_id),
+      supabase.from('services').select('id').eq('workspace_id', workspace_id),
       supabase.from('invoice_items').select('service_name, line_total, invoice:invoices!inner(workspace_id, document_type)').eq('invoice.workspace_id', workspace_id).eq('invoice.document_type', 'invoice'),
       supabase.from('invoices').select('*, client:clients(id, full_name, company_name)').eq('workspace_id', workspace_id).eq('document_type', 'invoice').order('created_at', { ascending: false }).limit(5)
     ])
@@ -40,6 +43,7 @@ export class DashboardRepository {
     const invoices = invoicesRes.data || []
     const expenses = expensesRes.data || []
     const clients = clientsRes.data || []
+    const services = servicesRes.data || []
     const items = itemsRes.data || []
     const recentInvoices = recentInvoicesRes.data || []
 
@@ -120,6 +124,7 @@ export class DashboardRepository {
       partial_invoices,
       active_clients: uniqueClientsWithInvoices.size,
       total_clients: clients.length,
+      total_services: services.length,
       monthly_data: monthlyData,
       top_services,
       recent_invoices: recentInvoices,

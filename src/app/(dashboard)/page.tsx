@@ -9,6 +9,7 @@ import { formatCurrency, formatDate, getStatusColor, getStatusLabel } from '@/li
 import { DollarSign, FileText, Users, TrendingUp, ArrowUpRight, Receipt } from 'lucide-react'
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
 import { dashboardRepository, DashboardStats } from '@/lib/repositories/dashboard.repository'
+import { settingsRepository } from '@/lib/repositories/settings.repository'
 import { useAuthStore } from '@/store/authStore'
 import { useTranslation } from 'react-i18next'
 import { CheckCircle2, Circle } from 'lucide-react'
@@ -21,13 +22,18 @@ export default function DashboardPage() {
   const router = useRouter()
   const { workspaceId } = useAuthStore()
   const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [settings, setSettings] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!workspaceId) return
     
-    dashboardRepository.getStats(workspaceId).then((data) => {
-      setStats(data)
+    Promise.all([
+      dashboardRepository.getStats(workspaceId),
+      settingsRepository.getSettings(workspaceId)
+    ]).then(([statsData, settingsData]) => {
+      setStats(statsData)
+      setSettings(settingsData)
       setLoading(false)
     }).catch(console.error)
   }, [workspaceId])
@@ -63,7 +69,7 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* Onboarding Checklist for new users */}
-      {stats.total_clients === 0 && stats.total_invoices === 0 && (
+      {stats.total_invoices === 0 && (
         <motion.div variants={item}>
           <Card className="border-emerald-500/20 bg-emerald-500/5 shadow-sm">
             <CardContent className="p-6">
@@ -77,23 +83,47 @@ export default function DashboardPage() {
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  <Circle className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-sm">Compléter les informations de votre entreprise dans les <strong><a href="/settings" className="text-primary hover:underline">Paramètres</a></strong></span>
+                  {settings?.company_name && settings?.company_address ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                  ) : (
+                    <Circle className="w-5 h-5 text-muted-foreground" />
+                  )}
+                  <span className={`text-sm ${settings?.company_name && settings?.company_address ? 'line-through opacity-70' : ''}`}>
+                    Compléter les informations de votre entreprise dans les <strong><a href="/settings" className="text-primary hover:underline">Paramètres</a></strong>
+                  </span>
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  <Circle className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-sm">Créer votre premier <strong><a href="/services" className="text-primary hover:underline">Produit / Service</a></strong></span>
+                  {stats.total_services > 0 ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                  ) : (
+                    <Circle className="w-5 h-5 text-muted-foreground" />
+                  )}
+                  <span className={`text-sm ${stats.total_services > 0 ? 'line-through opacity-70' : ''}`}>
+                    Créer votre premier <strong><a href="/services" className="text-primary hover:underline">Produit / Service</a></strong>
+                  </span>
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  <Circle className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-sm">Ajouter votre premier <strong><a href="/clients" className="text-primary hover:underline">Client</a></strong></span>
+                  {stats.total_clients > 0 ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                  ) : (
+                    <Circle className="w-5 h-5 text-muted-foreground" />
+                  )}
+                  <span className={`text-sm ${stats.total_clients > 0 ? 'line-through opacity-70' : ''}`}>
+                    Ajouter votre premier <strong><a href="/clients" className="text-primary hover:underline">Client</a></strong>
+                  </span>
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  <Circle className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-sm">Créer et envoyer votre première <strong><a href="/invoices/new" className="text-primary hover:underline">Facture</a></strong></span>
+                  {stats.total_invoices > 0 ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                  ) : (
+                    <Circle className="w-5 h-5 text-muted-foreground" />
+                  )}
+                  <span className={`text-sm ${stats.total_invoices > 0 ? 'line-through opacity-70' : ''}`}>
+                    Créer et envoyer votre première <strong><a href="/invoices/new" className="text-primary hover:underline">Facture</a></strong>
+                  </span>
                 </div>
               </div>
             </CardContent>
