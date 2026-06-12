@@ -50,7 +50,7 @@ export function InvoicePortalActions({ invoice, settings }: { invoice: Invoice, 
   return (
     <>
       <div className="flex gap-4">
-        <Button variant="outline" onClick={handleDownload} className="bg-white">
+        <Button variant="outline" onClick={handleDownload} className="bg-white text-slate-900 hover:bg-slate-100 hover:text-slate-900 border-transparent">
           <Download className="w-4 h-4 mr-2" />
           Télécharger / Imprimer
         </Button>
