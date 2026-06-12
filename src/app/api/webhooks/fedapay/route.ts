@@ -91,7 +91,6 @@ export async function POST(req: Request) {
           const { error: paymentError } = await supabaseAdmin
             .from('payments')
             .insert([{
-              workspace_id,
               invoice_id,
               amount: amount,
               payment_date: new Date().toISOString(),

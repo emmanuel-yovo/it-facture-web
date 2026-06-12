@@ -54,7 +54,6 @@ export class PaymentRepository {
     const { data: newPayment, error } = await supabase
       .from('payments')
       .insert({
-        workspace_id,
         invoice_id: data.invoice_id,
         amount: data.amount,
         payment_method: data.payment_method || 'virement',

@@ -71,15 +71,33 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
   const handlePayment = async () => {
     if (!workspaceId) return
-    await paymentRepository.create(workspaceId, { 
-      invoice_id: invoice.id, 
-      amount: Number(paymentAmount), 
-      payment_method: paymentMethod, 
-      payment_date: new Date().toISOString(),
-    })
-    setPaymentOpen(false)
-    setPaymentAmount('')
-    load()
+    try {
+      await paymentRepository.create(workspaceId, { 
+        invoice_id: invoice.id, 
+        amount: Number(paymentAmount), 
+        payment_method: paymentMethod, 
+        payment_date: new Date().toISOString(),
+      })
+
+      const newTotalPaid = totalPaid + Number(paymentAmount)
+      let newStatus = invoice.status
+      if (newTotalPaid >= invoice.grand_total) {
+         newStatus = 'paid'
+      } else if (newTotalPaid > 0) {
+         newStatus = 'partial'
+      }
+
+      if (newStatus !== invoice.status) {
+         await invoiceRepository.update(invoice.id, { status: newStatus })
+      }
+
+      setPaymentOpen(false)
+      setPaymentAmount('')
+      load()
+    } catch (error: any) {
+      console.error(error)
+      alert("Erreur lors de l'enregistrement du paiement : " + error.message)
+    }
   }
 
   const handleSendEmail = async () => {
