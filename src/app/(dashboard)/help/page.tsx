@@ -216,7 +216,7 @@ export default function HelpPage() {
                 <CardDescription>Les questions les plus fréquentes posées par la communauté.</CardDescription>
               </CardHeader>
               <CardContent>
-                <Accordion type="single" collapsible className="w-full">
+                <Accordion className="w-full">
                   <AccordionItem value="faq-1">
                     <AccordionTrigger className="text-left font-medium">Est-ce que je perds mes données si mon PC s'éteint ?</AccordionTrigger>
                     <AccordionContent className="text-muted-foreground leading-relaxed">

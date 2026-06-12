@@ -170,7 +170,8 @@ export class DashboardRepository {
     const servicesMap = new Map<string, { count: number, revenue: number }>()
     items.forEach(item => {
       // Filtrer les items par date de facture
-      const invDate = new Date(item.invoice?.created_at)
+      const inv: any = Array.isArray(item.invoice) ? item.invoice[0] : item.invoice
+      const invDate = new Date(inv?.created_at)
       if (invDate < start || invDate > end) return
 
       if (!item.service_name) return

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { CallBackProps, STATUS, Step, TooltipRenderProps } from 'react-joyride'
+import { STATUS, Step, TooltipRenderProps } from 'react-joyride'
 import dynamic from 'next/dynamic'
 import { useAuthStore } from '@/store/authStore'
 import { settingsRepository } from '@/lib/repositories/settings.repository'
@@ -113,7 +113,6 @@ export function TutorialTour() {
       placement: 'center',
       title: 'Bienvenue sur IT-Facture !',
       content: "Faisons un petit tour rapide pour vous montrer comment fonctionne votre nouvel outil. Ça ne prendra qu'une minute !",
-      disableBeacon: true,
     },
     {
       target: '[data-tour="nav-clients"]',
@@ -151,7 +150,7 @@ export function TutorialTour() {
     }
   }
 
-  const handleCallback = (data: CallBackProps) => {
+  const handleCallback = (data: any) => {
     const { status, action } = data
     const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED]
 

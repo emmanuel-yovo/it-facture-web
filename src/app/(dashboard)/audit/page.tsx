@@ -34,7 +34,7 @@ export default function AuditPage() {
     try {
       // Si superadmin: voit uniquement les logs système (connexions, etc.) => resource_type = 'system'
       // Si admin: voit les logs de l'entreprise => workspace_id = workspaceId
-      const result = await auditRepository.getAll({ workspace_id: workspaceId, 
+      const result = await auditRepository.getAll({ 
         page, 
         pageSize: 20, 
         workspace_id: user?.role === 'admin' ? workspaceId || undefined : undefined,

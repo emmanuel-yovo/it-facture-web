@@ -58,6 +58,16 @@ export async function POST(req: Request) {
       
       // Si on veut aussi gérer les factures (invoice_id) :
       if (metadata?.type === 'invoice_payment' && metadata?.invoice_id && metadata?.workspace_id) {
+         // Vérification Idempotence : Ne pas traiter deux fois la même transaction
+         const { data: existingPayment } = await supabaseAdmin
+            .from('payments')
+            .select('id')
+            .ilike('notes', `%${transaction_id}%`)
+            .single()
+
+         if (existingPayment) {
+            return NextResponse.json({ success: true, message: 'Transaction déjà traitée' })
+         }
          const { error: paymentError } = await supabaseAdmin
             .from('payments')
             .insert([{

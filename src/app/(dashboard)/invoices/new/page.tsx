@@ -21,7 +21,7 @@ import { settingsRepository } from '@/lib/repositories/settings.repository'
 import { invoiceRepository } from '@/lib/repositories/invoice.repository'
 import { useTranslation } from 'react-i18next'
 
-interface SelectedItem { service_id: string; service_name: string; description: string | null; quantity: number; unit_price: number; vat_percentage: number; discount_id: string | null; discount_value: number }
+interface SelectedItem { service_id?: string; service_name: string; description?: string; quantity: number; unit_price: number; vat_percentage: number; discount_id?: string; discount_value: number }
 
 const steps = ['selectClient', 'selectServices', 'applyDiscounts', 'review']
 
@@ -74,7 +74,7 @@ function InvoiceForm() {
       setSelectedItems(selectedItems.filter(i => i.service_id !== s.id))
     } else {
       const vat_percentage = isClientExempt ? 0 : s.vat_percentage
-      setSelectedItems([...selectedItems, { service_id: s.id, service_name: s.name, description: s.description, quantity: 1, unit_price: s.unit_price, vat_percentage, discount_id: null, discount_value: 0 }])
+      setSelectedItems([...selectedItems, { service_id: s.id, service_name: s.name, description: s.description, quantity: 1, unit_price: s.unit_price, vat_percentage, discount_id: undefined, discount_value: 0 }])
     }
   }
 

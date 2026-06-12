@@ -177,17 +177,17 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       return
     }
 
-    const state = JSON.stringify({
+    const paymentStateData = JSON.stringify({
       type: 'invoice_payment',
       workspace_id: workspaceId,
       invoice_id: invoice.id
-    })
+    });
 
-    window.openKkiapayWidget({
+    (window as any).openKkiapayWidget({
       amount: remaining,
       position: "center",
       callback: `${window.location.origin}/invoices/${invoice.id}?payment=success`,
-      data: state,
+      data: paymentStateData,
       theme: "#10b981", // Vert
       sandbox: settings.kkiapay_environment !== 'live',
       key: settings.kkiapay_public_key

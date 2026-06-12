@@ -65,12 +65,6 @@ export default function UpgradePage() {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [selectedPlanToUpgrade, setSelectedPlanToUpgrade] = useState<{planType: string, amount: number, name: string} | null>(null)
   
-  // Custom type declaration for the global kkiapay function
-  declare global {
-    interface Window {
-      openKkiapayWidget: (config: any) => void;
-    }
-  }
 
   const handleUpgrade = async (planType: string) => {
     if (!workspaceId || planType === 'free') return
@@ -112,18 +106,18 @@ export default function UpgradePage() {
       return
     }
 
-    const state = JSON.stringify({
+    const paymentStateData = JSON.stringify({
       type: 'saas_subscription',
       workspace_id: workspaceId,
       plan: planType,
       interval: isYearly ? 'yearly' : 'monthly'
-    })
+    });
 
-    window.openKkiapayWidget({
+    (window as any).openKkiapayWidget({
       amount: amount,
       position: "center",
       callback: `${window.location.origin}/settings?upgrade=success`,
-      data: state, // Transmis dans le custom data 'state'
+      data: paymentStateData, // Transmis dans le custom data 'state'
       theme: "#10b981", // Vert émeraude
       sandbox: true,
       key: pubKey

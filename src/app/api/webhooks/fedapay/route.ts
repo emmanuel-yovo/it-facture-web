@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import crypto from 'crypto'
+import { decrypt } from '@/lib/encryption'
 
 // Configuration Supabase Admin pour bypass RLS dans le webhook
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co'
@@ -8,19 +10,47 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
 
 export async function POST(req: Request) {
   try {
-    // FedaPay envoie un payload JSON et un header X-Fedapay-Signature
     const signature = req.headers.get('x-fedapay-signature')
+    if (!signature) {
+      return NextResponse.json({ error: 'Signature manquante' }, { status: 401 })
+    }
     
-    // Dans un environnement de production, vous DEVEZ vérifier la signature HMAC ici 
-    // avec votre FEDAPAY_SECRET_KEY pour s'assurer que la requête vient bien de FedaPay.
-    
-    const body = await req.json()
+    const bodyText = await req.text()
+    const body = JSON.parse(bodyText)
     console.log('Webhook FedaPay reçu:', body)
+
+    const metadata = body.entity?.transaction?.custom_metadata
+    let secretKey = process.env.FEDAPAY_SECRET_KEY
+
+    // Si c'est un paiement de facture client, on cherche la clé de l'entreprise
+    if (metadata?.type === 'invoice_payment' && metadata?.workspace_id) {
+      const { data: setting } = await supabaseAdmin
+        .from('settings')
+        .select('value')
+        .eq('workspace_id', metadata.workspace_id)
+        .eq('key', 'fedapay_secret_key')
+        .single()
+        
+      if (setting?.value) {
+        secretKey = decrypt(setting.value)
+      }
+    }
+
+    if (!secretKey) {
+      return NextResponse.json({ error: 'Clé secrète introuvable' }, { status: 500 })
+    }
+
+    // Vérification HMAC-SHA256
+    const expectedSignature = crypto.createHmac('sha256', secretKey).update(bodyText).digest('hex')
+    if (signature !== expectedSignature) {
+      console.error('Signature FedaPay invalide')
+      return NextResponse.json({ error: 'Signature invalide' }, { status: 401 })
+    }
 
     // Vérifier que l'événement est une transaction approuvée
     if (body.entity?.name === 'transaction' && body.event?.name === 'transaction.approved') {
-      const transaction = body.entity.transaction
-      const status = transaction.status
+      const transaction: any = body.entity.transaction
+      const status = transaction?.status
       
       if (status === 'approved') {
         const metadata = transaction.custom_metadata

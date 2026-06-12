@@ -19,6 +19,8 @@ export interface AppSettings {
   currency_symbol: string
   company_logo: string
   company_stamp: string
+  fedapay_environment: string
+  tutorial_completed: string
 }
 
 export class SettingsRepository {

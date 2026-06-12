@@ -46,7 +46,7 @@ export async function GET(request: Request) {
         discount_total: 0,
         total: sub.amount,
         items: [{
-          service_id: null,
+          service_id: undefined,
           service_name: sub.title,
           quantity: 1,
           unit_price: sub.amount,
