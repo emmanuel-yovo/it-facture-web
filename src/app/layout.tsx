@@ -38,7 +38,7 @@ export default function RootLayout({
       lang="fr"
       className={`${plusJakarta.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">
+      <body className="min-h-full flex flex-col font-sans text-sm">
         {children}
         <Script src="https://cdn.kkiapay.me/k.js" strategy="lazyOnload" />
       </body>
