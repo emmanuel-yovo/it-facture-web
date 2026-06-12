@@ -229,6 +229,7 @@ export default function UsersPage() {
             </Dialog>
           )}
         </div>
+      </div>
 
       <Card className="border-border shadow-sm">
         <CardContent className="p-0">
