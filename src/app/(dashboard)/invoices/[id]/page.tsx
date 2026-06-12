@@ -350,6 +350,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                   </tbody>
                 </table>
               </div>
+            </CardContent>
           </Card>
 
           {invoice.document_type === 'invoice' && (
