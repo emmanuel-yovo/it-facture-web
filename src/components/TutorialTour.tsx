@@ -1,48 +1,98 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { CallBackProps, STATUS, Step } from 'react-joyride'
+import { CallBackProps, STATUS, Step, TooltipRenderProps } from 'react-joyride'
 import dynamic from 'next/dynamic'
-const Joyride = dynamic(() => import('react-joyride').then(mod => mod.Joyride as any), { ssr: false }) as any
 import { useAuthStore } from '@/store/authStore'
-import { supabase } from '@/lib/supabase'
 import { settingsRepository } from '@/lib/repositories/settings.repository'
+import { Button } from '@/components/ui/button'
+import { X } from 'lucide-react'
+
+// Dynamically import Joyride to avoid SSR issues
+const Joyride = dynamic(() => import('react-joyride').then(mod => mod.Joyride as any), { ssr: false }) as any
+
+// Custom Tooltip for 100% control over rendering and buttons
+const CustomTooltip = ({
+  index,
+  step,
+  backProps,
+  closeProps,
+  primaryProps,
+  skipProps,
+  tooltipProps,
+  isLastStep,
+}: TooltipRenderProps) => {
+  return (
+    <div {...tooltipProps} className="bg-card text-foreground p-5 rounded-xl shadow-2xl max-w-[350px] border border-border font-sans">
+      <div className="flex justify-between items-start mb-3">
+        {step.title && <h3 className="font-bold text-lg pr-4">{step.title}</h3>}
+        <button {...closeProps} className="text-muted-foreground hover:text-foreground p-1 -mr-2 -mt-2 rounded-full hover:bg-muted transition-colors" aria-label="Close">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      
+      <div className="text-sm text-muted-foreground mb-6 leading-relaxed">
+        {step.content}
+      </div>
+      
+      <div className="flex justify-between items-center mt-4">
+        {!isLastStep ? (
+          <button {...skipProps} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            Passer le tutoriel
+          </button>
+        ) : (
+          <div /> // Empty div to push next buttons to the right
+        )}
+        
+        <div className="flex gap-2">
+          {index > 0 && (
+            <Button variant="outline" size="sm" {...backProps}>
+              Précédent
+            </Button>
+          )}
+          <Button variant="default" size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white" {...primaryProps}>
+            {isLastStep ? 'Terminer' : 'Suivant'}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export function TutorialTour() {
-  const { workspaceId, user } = useAuthStore()
+  const { workspaceId } = useAuthStore()
   const [run, setRun] = useState(false)
   const [isClient, setIsClient] = useState(false)
 
-  // On vérifie si le tutoriel a déjà été complété pour ce workspace
+  // Logique plus propre et robuste
   useEffect(() => {
     setIsClient(true)
     
-    const checkTutorialStatus = async () => {
-      if (!workspaceId) return
+    if (!workspaceId) return
+    
+    const checkTutorial = async () => {
+      // 1. Vérification locale super rapide
+      const localStatus = localStorage.getItem(`tutorial_done_${workspaceId}`)
+      if (localStatus === 'true') return
       
-      // 1. Vérification rapide en local pour éviter les clignotements/requêtes inutiles
-      if (localStorage.getItem(`tutorial_completed_${workspaceId}`) === 'true') {
-        return
-      }
-      
+      // 2. Vérification DB
       try {
         const settings = await settingsRepository.getSettings(workspaceId)
-        
-        // Si la clé n'existe pas ou n'est pas 'true', on lance le tuto
         if ((settings as any).tutorial_completed === 'true') {
-          localStorage.setItem(`tutorial_completed_${workspaceId}`, 'true')
+          localStorage.setItem(`tutorial_done_${workspaceId}`, 'true')
           return
         }
         
-        setTimeout(() => {
-          setRun(true)
-        }, 1500)
+        // Si non complété, on lance
+        setTimeout(() => setRun(true), 1000)
       } catch (err) {
-        console.error("Erreur lors de la vérification du statut du tutoriel", err)
+        console.error("Erreur vérification tutoriel:", err)
+        // En cas d'erreur réseau, on lance quand même le tuto
+        setTimeout(() => setRun(true), 1000)
       }
     }
 
-    checkTutorialStatus()
+    checkTutorial()
   }, [workspaceId])
 
   const steps: Step[] = [
@@ -50,7 +100,7 @@ export function TutorialTour() {
       target: 'body',
       placement: 'center',
       title: 'Bienvenue sur IT-Facture !',
-      content: "Faisons un petit tour rapide pour vous montrer comment fonctionne votre nouvel outil de facturation. Ça ne prendra qu'une minute !",
+      content: "Faisons un petit tour rapide pour vous montrer comment fonctionne votre nouvel outil. Ça ne prendra qu'une minute !",
       disableBeacon: true,
     },
     {
@@ -80,26 +130,22 @@ export function TutorialTour() {
     }
   ]
 
-  const handleJoyrideCallback = async (data: CallBackProps) => {
+  const dismissTutorial = () => {
+    setRun(false)
+    if (workspaceId) {
+      localStorage.setItem(`tutorial_done_${workspaceId}`, 'true')
+      settingsRepository.saveSettings(workspaceId, { tutorial_completed: 'true' } as any)
+        .catch(e => console.error("Erreur sauvegarde tutoriel:", e))
+    }
+  }
+
+  const handleCallback = (data: CallBackProps) => {
     const { status, action } = data
     const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED]
 
-    // Si on a terminé le tuto, cliqué sur Skip, ou cliqué sur la croix (action === 'close')
+    // Si terminé, skippé ou fermé via la croix
     if (finishedStatuses.includes(status) || action === 'close') {
-      setRun(false)
-      // Sauvegarder dans la DB que le tutoriel est terminé
-      if (workspaceId) {
-        // Enregistrer en local immédiatement pour réactivité
-        localStorage.setItem(`tutorial_completed_${workspaceId}`, 'true')
-        
-        try {
-          await settingsRepository.saveSettings(workspaceId, {
-            tutorial_completed: 'true'
-          } as any)
-        } catch (e) {
-          console.error("Erreur lors de la sauvegarde du tutoriel:", e)
-        }
-      }
+      dismissTutorial()
     }
   }
 
@@ -110,37 +156,14 @@ export function TutorialTour() {
       steps={steps}
       run={run}
       continuous={true}
-      showSkipButton={true}
-      showProgress={true}
       scrollToFirstStep={true}
-      callback={handleJoyrideCallback}
+      callback={handleCallback}
+      tooltipComponent={CustomTooltip}
+      disableOverlayClose={false}
       styles={{
         options: {
-          primaryColor: '#6366f1', // Indigo-500
           zIndex: 10000,
-        },
-        buttonSkip: {
-          color: '#6366f1',
-          fontSize: '14px',
-          fontWeight: 'bold',
-          display: 'block'
-        },
-        tooltip: {
-          borderRadius: '12px',
-          padding: '24px',
-        },
-        tooltipTitle: {
-          fontSize: '1.25rem',
-          fontWeight: 'bold',
-          marginBottom: '10px',
-        },
-      }}
-      locale={{
-        back: 'Précédent',
-        close: 'Fermer',
-        last: 'Terminer',
-        next: 'Suivant',
-        skip: 'Passer le tutoriel',
+        }
       }}
     />
   )
