@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { superadminRepository } from '@/lib/repositories/superadmin.repository'
 import { useAuthStore } from '@/store/authStore'
 import { hasPermission, PERMISSIONS } from '@/lib/permissions'
-import { Building, Receipt, Users, ArrowUpRight, Loader2 } from 'lucide-react'
+import { Building, Receipt, Users, ArrowUpRight, Loader2, Trash2 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -71,6 +71,40 @@ export default function SuperAdminPage() {
         loadStats()
       } else {
         alert(data.error || "Erreur lors de la mise à jour.")
+      }
+    } catch (e) {
+      console.error(e)
+      alert("Erreur réseau.")
+    } finally {
+      setUpdating(null)
+    }
+  }
+
+  const handleDeleteWorkspace = async (workspaceId: string, workspaceName: string) => {
+    const confirmName = prompt(`⚠️ ATTENTION : Cela supprimera définitivement le workspace "${workspaceName}" et TOUTES ses données (factures, clients, etc.). Les utilisateurs seront déconnectés de ce workspace.\n\nTapez le nom exact "${workspaceName}" pour confirmer :`)
+    
+    if (confirmName !== workspaceName) {
+      if (confirmName !== null) alert("Le nom ne correspond pas. Annulation.")
+      return
+    }
+
+    setUpdating(workspaceId)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/superadmin/delete-workspace', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ workspace_id: workspaceId })
+      })
+      const data = await res.json()
+      if (data.success) {
+        alert("Espace de travail supprimé avec succès !")
+        loadStats()
+      } else {
+        alert(data.error || "Erreur lors de la suppression.")
       }
     } catch (e) {
       console.error(e)
@@ -146,6 +180,7 @@ export default function SuperAdminPage() {
                 <th className="py-3 px-4 font-medium text-muted-foreground">Expiration Abonnement</th>
                 <th className="py-3 px-4 font-medium text-muted-foreground text-center">Factures créées</th>
                 <th className="py-3 px-4 font-medium text-muted-foreground text-right">CA Total Encaissé</th>
+                <th className="py-3 px-4 font-medium text-muted-foreground text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -212,6 +247,18 @@ export default function SuperAdminPage() {
                   </td>
                   <td className="py-3 px-4 text-center">{w.invoiceCount}</td>
                   <td className="py-3 px-4 text-right text-emerald-500 font-medium">{formatCurrency(w.totalRevenue)}</td>
+                  <td className="py-3 px-4 text-right">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                      onClick={() => handleDeleteWorkspace(w.id, w.name)}
+                      disabled={updating === w.id}
+                      title="Supprimer l'entreprise"
+                    >
+                      {updating === w.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                    </Button>
+                  </td>
                 </tr>
               ))}
             </tbody>
