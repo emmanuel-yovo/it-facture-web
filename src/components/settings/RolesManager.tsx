@@ -38,6 +38,7 @@ export function RolesManager() {
           role_permissions (permission)
         `)
         .or(`workspace_id.eq.${workspaceId},is_system.eq.true`)
+        .neq('name', 'superadmin')
         .order('is_system', { ascending: false })
         .order('created_at', { ascending: true })
 

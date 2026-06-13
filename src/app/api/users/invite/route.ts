@@ -36,6 +36,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Email et rôle requis' }, { status: 400 })
     }
 
+    if (role === 'superadmin' || role === '00000000-0000-0000-0000-000000000001') {
+      return NextResponse.json({ error: 'Vous ne pouvez pas assigner le rôle SuperAdmin' }, { status: 403 })
+    }
+
     // Insert invitation
     const expiresAt = new Date()
     expiresAt.setDate(expiresAt.getDate() + 7) // 7 days valid
