@@ -27,11 +27,11 @@ export class SuperadminRepository {
     // 4. Fetch invoices per workspace for stats
     const { data: invoices } = await supabase
       .from('invoices')
-      .select('workspace_id, total, status')
+      .select('workspace_id, grand_total, status')
 
     const statsByWorkspace = (workspaces || []).map(w => {
       const workspaceInvoices = (invoices || []).filter(i => i.workspace_id === w.id)
-      const totalRevenue = workspaceInvoices.filter(i => i.status === 'paid').reduce((sum, i) => sum + Number(i.total), 0)
+      const totalRevenue = workspaceInvoices.filter(i => i.status === 'paid').reduce((sum, i) => sum + Number(i.grand_total), 0)
       
       const owner = w.profiles?.find((p: any) => p.role === 'admin') || w.profiles?.[0] || null
 
