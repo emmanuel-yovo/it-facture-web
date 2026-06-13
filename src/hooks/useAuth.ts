@@ -44,20 +44,30 @@ export function useAuth() {
 
   async function fetchProfileAndWorkspace(userId: string) {
     try {
-      // 1. Récupérer le profil et le plan du workspace
+      // 1. Récupérer le profil, le plan du workspace, et les permissions du rôle
       const { data: profile } = await supabase
         .from('profiles')
-        .select('*, workspaces(plan, subscription_end_date)')
+        .select(`
+          *,
+          workspaces(plan, subscription_end_date),
+          roles(name, role_permissions(permission))
+        `)
         .eq('id', userId)
         .single()
 
       if (profile) {
+        // Extract permissions from the nested role_permissions array
+        const permissionsList = profile.roles?.role_permissions?.map((rp: any) => rp.permission) || []
+        const roleName = profile.roles?.name || profile.role
+
         setUser({
           id: profile.id,
           username: profile.full_name, // fallback pour l'ancien modèle
           full_name: profile.full_name,
-          role: profile.role,
+          role: roleName,
+          role_id: profile.role_id,
           agency_id: profile.agency_id,
+          permissions: permissionsList
         } as any)
         
         if (profile.workspace_id) {

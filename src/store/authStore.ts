@@ -4,8 +4,10 @@ interface User {
   id: string
   username?: string
   full_name?: string
-  role: 'superadmin' | 'admin' | 'comptable' | 'user'
+  role: string // Can be a dynamic role name
+  role_id?: string
   agency_id?: string | null
+  permissions: string[]
 }
 
 interface AuthState {

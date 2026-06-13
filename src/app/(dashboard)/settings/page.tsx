@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
-import { Building, Upload, Save, Check, LogOut, ShieldCheck, Mail, FileText, Languages, CreditCard, Users, Copy, Trash2, Bell, MessageCircle } from 'lucide-react'
+import { Building, Upload, Save, Check, LogOut, ShieldCheck, Mail, FileText, Languages, CreditCard, Users, Copy, Trash2, Bell, MessageCircle, Shield } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
@@ -19,6 +19,7 @@ import { settingsRepository } from '@/lib/repositories/settings.repository'
 import { supabase } from '@/lib/supabase'
 import { storageService } from '@/lib/services/storage.service'
 import { useTranslation } from 'react-i18next'
+import { RolesManager } from '@/components/settings/RolesManager'
 
 export default function SettingsPage() {
   const { t } = useTranslation()
@@ -28,10 +29,30 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false)
   const [loading, setLoading] = useState(false)
   const [credits, setCredits] = useState<number>(0)
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteRole, setInviteRole] = useState('00000000-0000-0000-0000-000000000004') // user by default
+  const [invitePassword, setInvitePassword] = useState('')
+  const [availableRoles, setAvailableRoles] = useState<any[]>([])
   const [companyCode, setCompanyCode] = useState<string>('')
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [deleteInput, setDeleteInput] = useState('')
   const searchParams = useSearchParams()
+
+  const loadRoles = async () => {
+    if (!workspaceId) return
+    const { data } = await supabase
+      .from('roles')
+      .select('id, name')
+      .or(`workspace_id.eq.${workspaceId},is_system.eq.true`)
+      .neq('name', 'superadmin')
+      .order('is_system', { ascending: false })
+    
+    if (data) setAvailableRoles(data)
+  }
+
+  useEffect(() => {
+    loadRoles()
+  }, [workspaceId])
 
   // Vérification FedaPay ou KkiaPay au retour de la page de paiement
   useEffect(() => {
@@ -286,28 +307,31 @@ export default function SettingsPage() {
 
       <Tabs defaultValue={['admin', 'superadmin'].includes(authUser?.role as string) ? "company" : "account"} className="space-y-6">
         <TabsList className="bg-card border border-border">
-          {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
+          {hasPermission(authUser, PERMISSIONS.MANAGE_SETTINGS) && (
             <TabsTrigger value="company"><Building className="w-4 h-4 mr-2" />{t('settings.companyInfo', 'Entreprise')}</TabsTrigger>
           )}
-          {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
-            <TabsTrigger value="team"><Users className="w-4 h-4 mr-2" />Équipe & Identifiant</TabsTrigger>
+          {hasPermission(authUser, PERMISSIONS.MANAGE_SETTINGS) && (
+            <TabsTrigger value="team"><Users className="w-4 h-4 mr-2" />Équipe</TabsTrigger>
           )}
-          {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
+          {hasPermission(authUser, PERMISSIONS.MANAGE_SETTINGS) && (
+            <TabsTrigger value="roles"><Shield className="w-4 h-4 mr-2" />Rôles & Accès</TabsTrigger>
+          )}
+          {hasPermission(authUser, PERMISSIONS.MANAGE_SETTINGS) && (
             <TabsTrigger value="email"><Mail className="w-4 h-4 mr-2" />{t('settings.emailSettings', 'Emails (SMTP)')}</TabsTrigger>
           )}
-          {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
+          {hasPermission(authUser, PERMISSIONS.MANAGE_SETTINGS) && (
             <TabsTrigger value="documents"><FileText className="w-4 h-4 mr-2" />{t('settings.documentsSettings', 'Documents & CGV')}</TabsTrigger>
           )}
-          {hasPermission(authUser?.role, PERMISSIONS.MANAGE_FEDAPAY) && (
+          {hasPermission(authUser, PERMISSIONS.MANAGE_FEDAPAY) && (
             <TabsTrigger value="payments"><CreditCard className="w-4 h-4 mr-2" />{t('settings.paymentsSettings', 'FedaPay (Paiements)')}</TabsTrigger>
           )}
-          {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
+          {hasPermission(authUser, PERMISSIONS.MANAGE_SETTINGS) && (
             <TabsTrigger value="reminders"><Bell className="w-4 h-4 mr-2" />Relances Auto</TabsTrigger>
           )}
           <TabsTrigger value="account"><LogOut className="w-4 h-4 mr-2" />{t('settings.account', 'Compte')}</TabsTrigger>
         </TabsList>
 
-        {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
+        {hasPermission(authUser, PERMISSIONS.MANAGE_SETTINGS) && (
           <TabsContent value="company">
             <Card className="border border-border shadow-sm">
               <CardHeader><CardTitle>{t('settings.companyInfo')}</CardTitle></CardHeader>
@@ -442,7 +466,7 @@ export default function SettingsPage() {
           </TabsContent>
         )}
 
-        {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
+        {hasPermission(authUser, PERMISSIONS.MANAGE_SETTINGS) && (
           <TabsContent value="team">
             <Card className="border border-border shadow-sm">
               <CardHeader>
@@ -477,7 +501,13 @@ export default function SettingsPage() {
           </TabsContent>
         )}
 
-        {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
+        {hasPermission(authUser, PERMISSIONS.MANAGE_SETTINGS) && (
+          <TabsContent value="roles">
+            <RolesManager />
+          </TabsContent>
+        )}
+
+        {hasPermission(authUser, PERMISSIONS.MANAGE_SETTINGS) && (
           <TabsContent value="email">
             <Card className="border border-border shadow-sm">
               <CardHeader>
@@ -552,7 +582,7 @@ export default function SettingsPage() {
           </TabsContent>
         )}
 
-        {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
+        {hasPermission(authUser, PERMISSIONS.MANAGE_SETTINGS) && (
           <TabsContent value="documents">
             <Card className="border border-border shadow-sm">
               <CardHeader>
@@ -594,7 +624,7 @@ export default function SettingsPage() {
           </TabsContent>
         )}
 
-        {hasPermission(authUser?.role, PERMISSIONS.MANAGE_FEDAPAY) && (
+        {hasPermission(authUser, PERMISSIONS.MANAGE_FEDAPAY) && (
           <TabsContent value="payments">
             <Card className="border border-border shadow-sm">
               <CardHeader>
@@ -676,7 +706,7 @@ export default function SettingsPage() {
           </TabsContent>
         )}
 
-        {hasPermission(authUser?.role, PERMISSIONS.MANAGE_SETTINGS) && (
+        {hasPermission(authUser, PERMISSIONS.MANAGE_SETTINGS) && (
           <TabsContent value="reminders">
             <Card className="border border-border shadow-sm">
               <CardHeader>

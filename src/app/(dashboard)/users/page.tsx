@@ -40,12 +40,26 @@ export default function UsersPage() {
   const [inviteRole, setInviteRole] = useState('user')
   const [inviteAgency, setInviteAgency] = useState('none')
   const [inviteError, setInviteError] = useState('')
+  const [availableRoles, setAvailableRoles] = useState<any[]>([])
 
   useEffect(() => {
     if (workspaceId) {
       fetchUsersAndAgencies()
+      loadRoles()
     }
   }, [workspaceId])
+
+  const loadRoles = async () => {
+    if (!workspaceId) return
+    const { data } = await supabase
+      .from('roles')
+      .select('id, name')
+      .or(`workspace_id.eq.${workspaceId},is_system.eq.true`)
+      .neq('name', 'superadmin')
+      .order('is_system', { ascending: false })
+    
+    if (data) setAvailableRoles(data)
+  }
 
   async function fetchUsersAndAgencies() {
     if (!workspaceId) return
@@ -153,7 +167,7 @@ export default function UsersPage() {
     }
   }
 
-  if (!hasPermission(user?.role, PERMISSIONS.MANAGE_USERS)) {
+  if (!hasPermission(user, PERMISSIONS.MANAGE_USERS)) {
     return <div className="p-12 text-center text-muted-foreground"><p>Accès restreint aux administrateurs.</p></div>
   }
 
@@ -240,8 +254,9 @@ export default function UsersPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="user">{t('users.roleUser', 'Utilisateur (Création de factures, Devis)')}</SelectItem>
-                        <SelectItem value="comptable">{t('users.roleAccountant', 'Comptable (Consultation globale)')}</SelectItem>
+                        {availableRoles.map(r => (
+                          <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-muted-foreground pt-1">

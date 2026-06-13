@@ -48,7 +48,7 @@ export default function SuperAdminPage() {
   }
 
   useEffect(() => {
-    if (!hasPermission(user?.role, PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD)) return
+    if (!hasPermission(user, PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD)) return
     loadStats()
   }, [user])
 
@@ -114,7 +114,7 @@ export default function SuperAdminPage() {
     }
   }
 
-  if (!hasPermission(user?.role, PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD)) {
+  if (!hasPermission(user, PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD)) {
     return <div className="p-12 text-center text-red-500">Accès refusé. Réservé au SuperAdmin.</div>
   }
 

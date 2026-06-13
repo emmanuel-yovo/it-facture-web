@@ -94,7 +94,7 @@ export default function DiscountsPage() {
   if (loading) return <div className="h-96 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>
 
   // Protection
-  if (!hasPermission(user?.role, PERMISSIONS.MANAGE_DISCOUNTS)) {
+  if (!hasPermission(user, PERMISSIONS.MANAGE_DISCOUNTS)) {
     return <div className="p-12 text-center text-muted-foreground"><p>Accès restreint aux administrateurs.</p></div>
   }
 

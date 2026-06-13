@@ -58,7 +58,7 @@ export function Sidebar({ className, layoutIdPrefix = '' }: { className?: string
   const plan = (workspacePlan as PlanType) || 'free'
 
   const filteredNavItems = navItems.filter(item => 
-    !item.permission || hasPermission(user?.role, item.permission)
+    !item.permission || hasPermission(user, item.permission)
   )
 
   return (

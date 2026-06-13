@@ -22,14 +22,19 @@ export const PERMISSIONS = {
 
 export type Permission = typeof PERMISSIONS[keyof typeof PERMISSIONS]
 
-export function hasPermission(userRole: Role | string | undefined | null, permission: Permission): boolean {
-  if (!userRole) return false
+export function hasPermission(user: any, permission: Permission): boolean {
+  if (!user) return false
 
   // SuperAdmin has access to everything
-  if (userRole === ROLES.SUPERADMIN) return true
+  if (user.role === ROLES.SUPERADMIN) return true
 
-  // Admin permissions
-  if (userRole === ROLES.ADMIN) {
+  // If user has dynamic permissions array, use it!
+  if (user.permissions && Array.isArray(user.permissions) && user.permissions.length > 0) {
+    return user.permissions.includes(permission)
+  }
+
+  // Fallback for legacy static roles (if migration is pending or permissions array is empty)
+  if (user.role === ROLES.ADMIN) {
     const adminPermissions: Permission[] = [
       PERMISSIONS.MANAGE_USERS,
       PERMISSIONS.MANAGE_AGENCIES,
@@ -43,12 +48,11 @@ export function hasPermission(userRole: Role | string | undefined | null, permis
     return adminPermissions.includes(permission)
   }
 
-  // User & Comptable permissions
-  if (userRole === ROLES.USER || userRole === ROLES.COMPTABLE) {
+  if (user.role === ROLES.USER || user.role === ROLES.COMPTABLE) {
     const userPermissions: Permission[] = []
     
     // Le comptable peut voir les rapports financiers
-    if (userRole === ROLES.COMPTABLE) {
+    if (user.role === ROLES.COMPTABLE) {
       userPermissions.push(PERMISSIONS.VIEW_REPORTS)
     }
     

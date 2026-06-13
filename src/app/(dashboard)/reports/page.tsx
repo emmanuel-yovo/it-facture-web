@@ -46,7 +46,7 @@ export default function ReportsPage() {
     alert("L'exportation du pack comptable sera disponible prochainement.")
   }
 
-  if (!hasPermission(user?.role, PERMISSIONS.VIEW_REPORTS)) {
+  if (!hasPermission(user, PERMISSIONS.VIEW_REPORTS)) {
     return <div className="p-12 text-center text-muted-foreground"><p>{t("common.accessDeniedAdmin", "Accès restreint aux administrateurs.")}</p></div>
   }
 

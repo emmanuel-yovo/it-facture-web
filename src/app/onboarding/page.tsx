@@ -60,7 +60,11 @@ export default function OnboardingPage() {
       // Assign admin role and workspace_id to the profile
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ role: 'admin', workspace_id: currentWorkspaceId })
+        .update({ 
+          role: 'admin', 
+          role_id: '00000000-0000-0000-0000-000000000002',
+          workspace_id: currentWorkspaceId 
+        })
         .eq('id', user.id)
       
       if (profileError) throw profileError

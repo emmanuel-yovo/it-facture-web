@@ -43,7 +43,8 @@ export async function POST(req: Request) {
       .from('profiles')
       .update({
         workspace_id: invitation.workspace_id,
-        role: invitation.role
+        role_id: invitation.role,
+        role: 'user' // fallback for legacy code
       })
       .eq('id', user.id)
 
