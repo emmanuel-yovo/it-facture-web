@@ -17,8 +17,14 @@ export async function GET(req: Request) {
     const { data: { user }, error: authError } = await supabaseNormal.auth.getUser(token)
     if (authError || !user) return NextResponse.json({ error: 'Token invalide' }, { status: 401 })
 
-    // 2. Vérifier que l'utilisateur est bien SuperAdmin
-    const { data: profile } = await supabaseNormal
+    // 2. Initialiser le client Admin pour contourner le RLS
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    // 3. Vérifier que l'utilisateur est bien SuperAdmin
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', user.id)
@@ -28,11 +34,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Accès refusé. Réservé au SuperAdmin.' }, { status: 403 })
     }
 
-    // 3. Initialiser le client Admin pour contourner le RLS
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+
 
     // 4. Fetch all workspaces
     const { data: workspaces, error: workspacesError } = await supabaseAdmin

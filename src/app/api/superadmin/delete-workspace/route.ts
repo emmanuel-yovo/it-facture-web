@@ -21,8 +21,14 @@ export async function POST(req: Request) {
     const { data: { user }, error: authError } = await supabaseNormal.auth.getUser(token)
     if (authError || !user) return NextResponse.json({ error: 'Token invalide' }, { status: 401 })
 
-    // 2. Vérifier que l'utilisateur est bien SuperAdmin
-    const { data: profile } = await supabaseNormal
+    // 2. Initialiser le client Admin (Service Role) pour contourner les RLS
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    // 3. Vérifier que l'utilisateur est bien SuperAdmin
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', user.id)
@@ -32,11 +38,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Accès refusé. Réservé au SuperAdmin.' }, { status: 403 })
     }
 
-    // 3. Initialiser le client Admin (Service Role) pour contourner les RLS et forcer la suppression
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+
 
     // 4. Détacher les profils du workspace (Option 2 : On ne supprime pas les comptes auth, on les déconnecte)
     const { error: detachError } = await supabaseAdmin
