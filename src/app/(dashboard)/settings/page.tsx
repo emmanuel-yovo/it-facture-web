@@ -36,6 +36,14 @@ export default function SettingsPage() {
   const [companyCode, setCompanyCode] = useState<string>('')
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [deleteInput, setDeleteInput] = useState('')
+  
+  // Password change state
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [pwLoading, setPwLoading] = useState(false)
+  const [pwError, setPwError] = useState('')
+  const [pwSuccess, setPwSuccess] = useState(false)
+
   const searchParams = useSearchParams()
 
   const loadRoles = async () => {
@@ -272,6 +280,36 @@ export default function SettingsPage() {
     await supabase.auth.signOut()
     logout()
     router.push('/login')
+  }
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (newPassword !== confirmPassword) {
+      setPwError('Les mots de passe ne correspondent pas.')
+      return
+    }
+    if (newPassword.length < 6) {
+      setPwError('Le mot de passe doit contenir au moins 6 caractères.')
+      return
+    }
+
+    setPwLoading(true)
+    setPwError('')
+    setPwSuccess(false)
+
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+      if (error) throw error
+
+      setPwSuccess(true)
+      setNewPassword('')
+      setConfirmPassword('')
+      setTimeout(() => setPwSuccess(false), 5000)
+    } catch (err: any) {
+      setPwError(err.message || 'Erreur lors de la modification du mot de passe.')
+    } finally {
+      setPwLoading(false)
+    }
   }
 
   const handleDeleteAccount = async () => {
@@ -803,6 +841,50 @@ export default function SettingsPage() {
                 <Button variant="outline" onClick={handleLogout}>
                   <LogOut className="w-4 h-4 mr-2" /> Se déconnecter de l'application
                 </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border shadow-sm bg-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-muted-foreground" /> Sécurité & Mot de passe
+                </CardTitle>
+                <CardDescription>
+                  Modifiez votre mot de passe pour sécuriser votre compte.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handlePasswordChange} className="space-y-4 max-w-sm">
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">Nouveau mot de passe</Label>
+                    <Input
+                      id="new-password"
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Confirmer le nouveau mot de passe</Label>
+                    <Input
+                      id="confirm-password"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                    />
+                  </div>
+
+                  {pwError && <p className="text-sm text-red-500">{pwError}</p>}
+                  {pwSuccess && <p className="text-sm text-green-500">Mot de passe mis à jour avec succès !</p>}
+
+                  <Button type="submit" disabled={pwLoading}>
+                    {pwLoading ? 'Modification...' : 'Modifier le mot de passe'}
+                  </Button>
+                </form>
               </CardContent>
             </Card>
 
