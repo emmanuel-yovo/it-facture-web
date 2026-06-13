@@ -81,9 +81,9 @@ export default function SuperAdminPage() {
   }
 
   const handleDeleteWorkspace = async (workspaceId: string, workspaceName: string) => {
-    const confirmName = prompt(`⚠️ ATTENTION : Cela supprimera définitivement le workspace "${workspaceName}" et TOUTES ses données (factures, clients, etc.). Les utilisateurs seront déconnectés de ce workspace.\n\nTapez le nom exact "${workspaceName}" pour confirmer :`)
+    const confirmName = prompt(`⚠️ ATTENTION : Cela supprimera définitivement le workspace "${workspaceName.trim()}" et TOUTES ses données (factures, clients, etc.). Les utilisateurs seront déconnectés de ce workspace.\n\nTapez le nom exact "${workspaceName.trim()}" pour confirmer :`)
     
-    if (confirmName !== workspaceName) {
+    if (confirmName?.trim() !== workspaceName.trim()) {
       if (confirmName !== null) alert("Le nom ne correspond pas. Annulation.")
       return
     }

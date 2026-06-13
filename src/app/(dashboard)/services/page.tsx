@@ -291,7 +291,8 @@ export default function ServicesPage() {
 
       <Card className="border-border shadow-sm">
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
+          {/* VUE DESKTOP (Tableau) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead><tr className="border-b border-border bg-muted/30">
                 <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('services.name')}</th>
@@ -327,14 +328,14 @@ export default function ServicesPage() {
                       {['admin', 'superadmin'].includes(user?.role as string) ? (
                         <div className="flex items-center justify-center gap-1">
                           {s.type === 'product' && (
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:text-blue-600" onClick={() => openStockModal(s)} title="Stock & Prix par Agence">
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-colors" onClick={() => openStockModal(s)} title="Stock & Prix par Agence">
                               <Building2 className="w-4 h-4" />
                             </Button>
                           )}
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(s)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => openEdit(s)}>
                             <Pencil className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-300" onClick={() => { setDeleteTarget(s); setDeleteOpen(true) }}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors" onClick={() => { setDeleteTarget(s); setDeleteOpen(true) }}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -349,6 +350,68 @@ export default function ServicesPage() {
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* VUE MOBILE (Cartes) */}
+          <div className="md:hidden flex flex-col gap-3 p-4 bg-muted/10">
+            {services.map((s) => (
+              <motion.div key={s.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+                <Card className="p-4 border border-border/50 shadow-sm hover:shadow-md transition-shadow bg-card">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant="outline" className="text-[10px]">{s.category}</Badge>
+                        <div className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium border ${s.is_active ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}>
+                          {s.is_active ? 'Actif' : 'Inactif'}
+                        </div>
+                      </div>
+                      <p className="font-semibold text-base leading-tight mt-1">{s.name}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-bold text-primary block">{formatCurrency(s.unit_price)}</span>
+                      <span className="text-[10px] text-muted-foreground">TVA {s.vat_percentage}%</span>
+                    </div>
+                  </div>
+                  
+                  {s.description && <p className="text-xs text-muted-foreground line-clamp-2 my-2">{s.description}</p>}
+                  
+                  {s.track_stock && (
+                    <div className="flex justify-between items-center py-2 mt-2 border-t border-border/50">
+                      <span className="text-xs text-muted-foreground uppercase tracking-wider">En stock</span>
+                      <Badge variant="outline" className={s.stock_quantity <= 0 ? 'border-red-500 text-red-500' : s.stock_quantity <= 5 ? 'border-amber-500 text-amber-500' : 'border-emerald-500 text-emerald-500'}>
+                        {s.stock_quantity}
+                      </Badge>
+                    </div>
+                  )}
+                  
+                  <div className="flex justify-end items-center gap-1 mt-2 pt-2 border-t border-border/50">
+                    {['admin', 'superadmin'].includes(user?.role as string) ? (
+                      <>
+                        {s.type === 'product' && (
+                          <Button variant="secondary" size="sm" className="h-8 rounded-full text-blue-600" onClick={() => openStockModal(s)}>
+                            <Building2 className="w-3.5 h-3.5 mr-1" /> Stock
+                          </Button>
+                        )}
+                        <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full" onClick={() => openEdit(s)}>
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-red-500 hover:bg-red-50" onClick={() => { setDeleteTarget(s); setDeleteOpen(true) }}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground text-xs italic">Lecture seule</span>
+                    )}
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+            {services.length === 0 && (
+              <div className="text-center py-10 text-muted-foreground">
+                <Wrench className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p>{t('services.noServices')}</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -345,7 +345,7 @@ export default function DashboardPage() {
               </button>
             </CardHeader>
             <CardContent>
-              <div className="relative overflow-x-auto">
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border bg-muted/30">
@@ -363,12 +363,12 @@ export default function DashboardPage() {
                         className="border-b border-border/50 hover:bg-muted/30 cursor-pointer transition-colors"
                         onClick={() => router.push(`/invoices/${inv.id}`)}
                       >
-                        <td className="py-3 px-4 font-mono text-xs">{inv.invoice_number}</td>
+                        <td className="py-3 px-4 font-mono text-xs font-semibold">{inv.invoice_number}</td>
                         <td className="py-3 px-4 font-medium">{inv.client?.full_name || inv.client?.company_name}</td>
                         <td className="py-3 px-4 text-muted-foreground">{formatDate(inv.created_at)}</td>
                         <td className="py-3 px-4 text-right font-semibold">{formatCurrency(inv.grand_total)}</td>
                         <td className="py-3 px-4 text-center">
-                          <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(inv.status)}`}>
+                          <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(inv.status)}`}>
                             {getStatusLabel(inv.status)}
                           </div>
                         </td>
@@ -384,6 +384,38 @@ export default function DashboardPage() {
                     )}
                   </tbody>
                 </table>
+              </div>
+
+              {/* VUE MOBILE (Cartes) */}
+              <div className="md:hidden flex flex-col gap-3">
+                {stats.recent_invoices.map((inv: any) => (
+                  <Card 
+                    key={inv.id} 
+                    className="p-3 border border-border/50 shadow-sm cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98] bg-card/50"
+                    onClick={() => router.push(`/invoices/${inv.id}`)}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <span className="font-mono text-xs font-semibold text-primary/80 bg-primary/10 px-1.5 py-0.5 rounded">{inv.invoice_number}</span>
+                        <p className="font-semibold text-sm mt-1.5 line-clamp-1">{inv.client?.full_name || inv.client?.company_name}</p>
+                      </div>
+                      <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border shadow-sm ${getStatusColor(inv.status)}`}>
+                        {getStatusLabel(inv.status)}
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-between items-end mt-2 pt-2 border-t border-border/50">
+                      <span className="text-xs text-muted-foreground">{formatDate(inv.created_at)}</span>
+                      <span className="font-bold text-sm">{formatCurrency(inv.grand_total)}</span>
+                    </div>
+                  </Card>
+                ))}
+                {stats.recent_invoices.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
+                    <FileText className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                    <p className="text-sm">{t('invoices.noInvoices', 'Aucune facture récente')}</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

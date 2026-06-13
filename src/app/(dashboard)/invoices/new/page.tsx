@@ -275,21 +275,35 @@ function InvoiceForm() {
                       <p className="font-medium">{selectedClient?.full_name}</p>
                       {selectedClient?.company_name && <p className="text-sm text-muted-foreground">{selectedClient.company_name}</p>}
                     </div>
-                    <div className="overflow-x-auto">
-<table className="w-full text-sm">
-                      <thead><tr className="border-b"><th className="text-left py-2">Service</th><th className="text-center py-2">Qté</th><th className="text-right py-2">Prix unitaire</th><th className="text-right py-2">Total Ligne</th></tr></thead>
-                      <tbody>
-                        {selectedItems.map(item => (
-                          <tr key={item.service_id} className="border-b border-border/50">
-                            <td className="py-2">{item.service_name}</td>
-                            <td className="py-2 text-center">{item.quantity}</td>
-                            <td className="py-2 text-right">{formatVal(item.unit_price)}</td>
-                            <td className="py-2 text-right font-medium">{formatVal(item.unit_price * item.quantity)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-</div>
+                    {/* Desktop View */}
+                    <div className="hidden sm:block overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead><tr className="border-b"><th className="text-left py-2">Service</th><th className="text-center py-2">Qté</th><th className="text-right py-2">Prix unitaire</th><th className="text-right py-2">Total Ligne</th></tr></thead>
+                        <tbody>
+                          {selectedItems.map(item => (
+                            <tr key={item.service_id} className="border-b border-border/50">
+                              <td className="py-2">{item.service_name}</td>
+                              <td className="py-2 text-center">{item.quantity}</td>
+                              <td className="py-2 text-right">{formatVal(item.unit_price)}</td>
+                              <td className="py-2 text-right font-medium">{formatVal(item.unit_price * item.quantity)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Mobile View */}
+                    <div className="sm:hidden space-y-3">
+                      {selectedItems.map(item => (
+                        <div key={item.service_id} className="p-3 bg-muted/20 border border-border/50 rounded-lg">
+                          <p className="font-semibold text-sm">{item.service_name}</p>
+                          <div className="flex justify-between items-center mt-2 text-sm text-muted-foreground">
+                            <span>{item.quantity} x {formatVal(item.unit_price)}</span>
+                            <span className="font-bold text-foreground">{formatVal(item.unit_price * item.quantity)}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -310,7 +324,7 @@ function InvoiceForm() {
           </div>
         </div>
 
-        <div className="hidden lg:block">
+        <div className="lg:block mt-8 lg:mt-0">
           <Card className="sticky top-6">
             <CardHeader><CardTitle className="text-base">{t("invoices.quickPreview", "Aperçu rapide")}</CardTitle></CardHeader>
             <CardContent className="text-xs space-y-3">

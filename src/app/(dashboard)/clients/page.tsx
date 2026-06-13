@@ -247,7 +247,8 @@ export default function ClientsPage() {
       {/* Table */}
       <Card className="border-border shadow-sm">
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
+          {/* VUE DESKTOP (Tableau) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/30">
@@ -271,10 +272,10 @@ export default function ClientsPage() {
                     <td className="py-3 px-4 text-center hidden md:table-cell"><Badge variant="secondary">{c.invoice_count || 0}</Badge></td>
                     <td className="py-3 px-4 text-center">
                       <div className="flex items-center justify-center gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyPortalLink(c.id)} title="Copier le lien du portail client"><Link2 className="w-4 h-4 text-indigo-500" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(c)}><Pencil className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-indigo-50 hover:text-indigo-600 transition-colors" onClick={() => copyPortalLink(c.id)} title="Copier le lien du portail client"><Link2 className="w-4 h-4 text-indigo-500" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => openEdit(c)}><Pencil className="w-4 h-4" /></Button>
                         {['admin', 'superadmin'].includes(user?.role as string) && (
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-300" onClick={() => { setDeleteTarget(c); setDeleteOpen(true) }}><Trash2 className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors" onClick={() => { setDeleteTarget(c); setDeleteOpen(true) }}><Trash2 className="w-4 h-4" /></Button>
                         )}
                       </div>
                     </td>
@@ -288,6 +289,52 @@ export default function ClientsPage() {
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* VUE MOBILE (Cartes) */}
+          <div className="md:hidden flex flex-col gap-3 p-4 bg-muted/10">
+            {clients.map((c) => (
+              <motion.div key={c.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+                <Card className="p-4 border border-border/50 shadow-sm hover:shadow-md transition-shadow bg-card">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <p className="font-semibold text-base line-clamp-1">{c.full_name}</p>
+                      {c.company_name && <p className="text-xs text-muted-foreground mt-0.5">{c.company_name}</p>}
+                    </div>
+                    <Badge variant="secondary" className="whitespace-nowrap">{c.invoice_count || 0} fact.</Badge>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2 text-sm py-3 my-2 border-y border-border/50">
+                    <div className="flex flex-col">
+                      <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('clients.phone')}</span>
+                      <span className="truncate">{c.phone || '-'}</span>
+                    </div>
+                    <div className="flex flex-col text-right">
+                      <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('clients.totalSpent')}</span>
+                      <span className="font-bold text-primary">{formatCurrency(c.total_spent || 0)}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between items-center pt-1">
+                    <div className="flex gap-1">
+                      <Button variant="outline" size="sm" className="h-8 rounded-full" onClick={() => copyPortalLink(c.id)} title="Lien Portail"><Link2 className="w-3.5 h-3.5 mr-1" /> Portail</Button>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full" onClick={() => openEdit(c)}><Pencil className="w-3.5 h-3.5" /></Button>
+                      {['admin', 'superadmin'].includes(user?.role as string) && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-red-500 hover:bg-red-50" onClick={() => { setDeleteTarget(c); setDeleteOpen(true) }}><Trash2 className="w-3.5 h-3.5" /></Button>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+            {clients.length === 0 && (
+              <div className="text-center py-10 text-muted-foreground">
+                <Users className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p>{t('clients.noClients')}</p>
+              </div>
+            )}
           </div>
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-border">

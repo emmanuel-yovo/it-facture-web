@@ -136,7 +136,8 @@ export default function InvoicesPage() {
 
       <Card className="border-border shadow-sm">
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
+          {/* VUE DESKTOP (Tableau) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead><tr className="border-b border-border bg-muted/30">
                 <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.invoiceNumber')}</th>
@@ -160,11 +161,11 @@ export default function InvoicesPage() {
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center justify-center gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/invoices/${inv.id}`)}><Eye className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handlePrint(inv.id)}><Printer className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDownload(inv.id)}><Download className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => router.push(`/invoices/${inv.id}`)}><Eye className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => handlePrint(inv.id)}><Printer className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => handleDownload(inv.id)}><Download className="w-4 h-4" /></Button>
                         {['admin', 'superadmin'].includes(user?.role as string) && (
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-300" onClick={() => { setDeleteTarget(inv); setDeleteOpen(true) }}><Trash2 className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors" onClick={() => { setDeleteTarget(inv); setDeleteOpen(true) }}><Trash2 className="w-4 h-4" /></Button>
                         )}
                       </div>
                     </td>
@@ -175,6 +176,44 @@ export default function InvoicesPage() {
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* VUE MOBILE (Cartes) */}
+          <div className="md:hidden flex flex-col gap-3 p-4 bg-muted/10">
+            {invoices.map((inv: any) => (
+              <motion.div key={inv.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+                <Card className="p-4 border border-border/50 shadow-sm hover:shadow-md transition-shadow bg-card">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <span className="font-mono text-xs font-semibold text-primary/80 bg-primary/10 px-2 py-1 rounded-md">{inv.invoice_number}</span>
+                      <p className="font-semibold text-base mt-2 line-clamp-1">{inv.client?.full_name}</p>
+                    </div>
+                    <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border shadow-sm ${getStatusColor(inv.status)}`}>
+                      {getStatusLabel(inv.status)}
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between items-center text-sm py-2 border-y border-border/50 my-3">
+                    <span className="text-muted-foreground flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> {formatDate(inv.created_at)}</span>
+                    <span className="font-bold text-base">{formatCurrency(inv.grand_total)}</span>
+                  </div>
+                  
+                  <div className="flex justify-end gap-2 pt-1">
+                    <Button variant="secondary" size="sm" className="h-8 rounded-full" onClick={() => router.push(`/invoices/${inv.id}`)}><Eye className="w-3.5 h-3.5 mr-1.5" /> Voir</Button>
+                    <Button variant="secondary" size="sm" className="h-8 rounded-full" onClick={() => handleDownload(inv.id)}><Download className="w-3.5 h-3.5" /></Button>
+                    {['admin', 'superadmin'].includes(user?.role as string) && (
+                      <Button variant="ghost" size="sm" className="h-8 rounded-full text-red-500 hover:bg-red-50" onClick={() => { setDeleteTarget(inv); setDeleteOpen(true) }}><Trash2 className="w-3.5 h-3.5" /></Button>
+                    )}
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+            {invoices.length === 0 && (
+              <div className="text-center py-10 text-muted-foreground">
+                <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p>{t('invoices.noInvoices')}</p>
+              </div>
+            )}
           </div>
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-border">
