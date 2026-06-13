@@ -60,7 +60,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     setEmailForm({
       to: (inv as any).client?.email || '',
       subject: `${inv.document_type === 'quote' ? 'Devis' : 'Facture'} ${inv.invoice_number}`,
-      body: `Bonjour,\n\nVeuillez trouver ci-joint votre ${inv.document_type === 'quote' ? 'devis' : 'facture'} ${inv.invoice_number}.\n\n💳 Vous pouvez consulter, télécharger et régler ce document en ligne via notre lien sécurisé :\n${window.location.origin}/portal/${inv.client_id}/invoice/${inv.id}\n\n📁 Retrouvez également tout votre historique sur votre Portail Client :\n${window.location.origin}/portal/${inv.client_id}\n\nCordialement.`
+      body: `Bonjour,\n\nVeuillez trouver ci-joint votre ${inv.document_type === 'quote' ? 'devis' : 'facture'} ${inv.invoice_number}.\n\nVous pouvez consulter, télécharger et régler ce document en ligne via notre lien sécurisé :\n${window.location.origin}/portal/${inv.client_id}/invoice/${inv.id}\n\nRetrouvez également tout votre historique sur votre Portail Client :\n${window.location.origin}/portal/${inv.client_id}\n\nCordialement.`
     })
   }
 

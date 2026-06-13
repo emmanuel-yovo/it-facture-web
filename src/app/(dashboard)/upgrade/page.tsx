@@ -160,7 +160,7 @@ export default function UpgradePage() {
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-0 right-0 flex justify-center">
-                  <Badge className="bg-blue-500 hover:bg-blue-600 border-none px-3 py-1">Le plus populaire 🔥</Badge>
+                  <Badge className="bg-blue-500 hover:bg-blue-600 border-none px-3 py-1">Le plus populaire</Badge>
                 </div>
               )}
               <CardHeader>

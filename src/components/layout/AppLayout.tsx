@@ -141,10 +141,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-32">
                   <DropdownMenuItem onClick={() => setLang('fr')} className={cn("flex items-center justify-between", i18n?.resolvedLanguage === 'fr' && "bg-indigo-500/10 text-indigo-500 font-bold")}>
-                    Français <span>🇫🇷</span>
+                    Français
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setLang('en')} className={cn("flex items-center justify-between", i18n?.resolvedLanguage === 'en' && "bg-indigo-500/10 text-indigo-500 font-bold")}>
-                    English <span>🇺🇸</span>
+                    English
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

@@ -247,7 +247,7 @@ function InvoiceForm() {
                     <div className="space-y-3">
                       <Label>Code promo global</Label>
                       <div className="flex gap-2"><Input placeholder="EX: PROMO10" value={promoCode} onChange={(e) => setPromoCode(e.target.value.toUpperCase())} /><Button onClick={applyPromo}>Appliquer</Button></div>
-                      {globalDiscount && <p className="text-sm text-emerald-500">✓ {globalDiscount.name} — Remise: {formatVal(globalDiscountValue)}</p>}
+                      {globalDiscount && <p className="text-sm text-emerald-500 flex items-center"><Check className="w-4 h-4 mr-1" /> {globalDiscount.name} — Remise: {formatVal(globalDiscountValue)}</p>}
                     </div>
                     <Separator />
                     <div className="space-y-3">

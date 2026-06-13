@@ -101,7 +101,7 @@ export default function OnboardingPage() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md bg-card border border-border rounded-2xl p-8 shadow-xl relative z-10 mx-4"
       >
-        <h1 className="text-2xl font-bold mb-2 text-center">{t('onboarding.welcome', 'Bienvenue ! 🎉')}</h1>
+        <h1 className="text-2xl font-bold mb-2 text-center">{t('onboarding.welcome', 'Bienvenue !')}</h1>
         <p className="text-muted-foreground mb-6 text-center text-sm">
           {t('onboarding.welcomeDesc', 'Avant de commencer, configurez votre accès à IT-Facture.')}
         </p>

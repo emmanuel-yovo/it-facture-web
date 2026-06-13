@@ -363,7 +363,7 @@
     "creating": "Creating..."
   },
   "onboarding": {
-    "welcome": "Welcome! 🎉",
+    "welcome": "Welcome!",
     "welcomeDesc": "Before starting, configure your access to IT-Facture.",
     "tabCreate": "Create",
     "tabJoin": "Join",

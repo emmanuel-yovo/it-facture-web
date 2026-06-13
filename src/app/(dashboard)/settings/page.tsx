@@ -591,7 +591,7 @@ export default function SettingsPage() {
                               <li>Cliquez sur <strong>Générer</strong>.</li>
                               <li>Copiez le mot de passe de 16 lettres (sans espaces) et collez-le ici.</li>
                             </ol>
-                            <p className="italic text-amber-600/80 mt-1">⚠️ Votre mot de passe de messagerie habituel ne fonctionnera pas par sécurité.</p>
+                            <p className="italic text-amber-600/80 mt-1">ATTENTION : Votre mot de passe de messagerie habituel ne fonctionnera pas par sécurité.</p>
                           </div>
                         </li>
                       </ul>
