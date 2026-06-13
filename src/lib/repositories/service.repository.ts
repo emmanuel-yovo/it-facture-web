@@ -5,6 +5,7 @@ export interface Service {
   id: string
   workspace_id: string
   name: string
+  type: string
   description: string | null
   category: string
   unit_price: number
@@ -88,6 +89,7 @@ export class ServiceRepository {
       .insert({
         workspace_id,
         name: data.name,
+        type: data.type || 'service',
         description: data.description,
         category: data.category || 'General',
         unit_price: data.unit_price || 0,

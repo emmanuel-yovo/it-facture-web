@@ -11,7 +11,7 @@ import { canAccessFeature, PlanType } from '@/lib/limits'
 import {
     LayoutDashboard, Users, Wrench, FileText, PlusCircle,
     Percent, CreditCard, Settings, ChevronLeft, ChevronRight, Zap,
-    Repeat, Receipt, UserCog, Bell, Shield, TrendingUp, ShieldCheck, Lock, BookOpen
+    Repeat, Receipt, UserCog, Bell, Shield, TrendingUp, ShieldCheck, Lock, BookOpen, Building2
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -44,6 +44,7 @@ export const navItems: NavItem[] = [
   { to: '/discounts', icon: Percent, label: 'nav.discounts', permission: PERMISSIONS.MANAGE_DISCOUNTS },
   { to: '/payments', icon: CreditCard, label: 'nav.payments' },
   { to: '/users', icon: UserCog, label: 'nav.users', permission: PERMISSIONS.MANAGE_USERS },
+  { to: '/agencies', icon: Building2, label: 'nav.agencies', permission: PERMISSIONS.MANAGE_AGENCIES },
   { to: '/help', icon: BookOpen, label: 'Centre d\'aide', dataTour: 'nav-help' },
   { to: '/superadmin', icon: ShieldCheck, label: 'nav.superadmin', permission: PERMISSIONS.VIEW_SUPERADMIN_DASHBOARD },
 ]

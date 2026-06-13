@@ -252,11 +252,11 @@ export default function ClientsPage() {
               <thead>
                 <tr className="border-b border-border bg-muted/30">
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('clients.fullName')}</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('clients.company')}</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('clients.phone')}</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('clients.email')}</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground hidden sm:table-cell">{t('clients.company')}</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground hidden md:table-cell">{t('clients.phone')}</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground hidden lg:table-cell">{t('clients.email')}</th>
                   <th className="text-right py-3 px-4 font-medium text-muted-foreground">{t('clients.totalSpent')}</th>
-                  <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('clients.invoiceCount')}</th>
+                  <th className="text-center py-3 px-4 font-medium text-muted-foreground hidden md:table-cell">{t('clients.invoiceCount')}</th>
                   <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('common.actions')}</th>
                 </tr>
               </thead>
@@ -264,11 +264,11 @@ export default function ClientsPage() {
                 {clients.map((c) => (
                   <tr key={c.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
                     <td className="py-3 px-4 font-medium">{c.full_name}</td>
-                    <td className="py-3 px-4 text-muted-foreground">{c.company_name || '-'}</td>
-                    <td className="py-3 px-4 text-muted-foreground">{c.phone || '-'}</td>
-                    <td className="py-3 px-4 text-muted-foreground">{c.email || '-'}</td>
+                    <td className="py-3 px-4 text-muted-foreground hidden sm:table-cell">{c.company_name || '-'}</td>
+                    <td className="py-3 px-4 text-muted-foreground hidden md:table-cell">{c.phone || '-'}</td>
+                    <td className="py-3 px-4 text-muted-foreground hidden lg:table-cell">{c.email || '-'}</td>
                     <td className="py-3 px-4 text-right font-medium">{formatCurrency(c.total_spent || 0)}</td>
-                    <td className="py-3 px-4 text-center"><Badge variant="secondary">{c.invoice_count || 0}</Badge></td>
+                    <td className="py-3 px-4 text-center hidden md:table-cell"><Badge variant="secondary">{c.invoice_count || 0}</Badge></td>
                     <td className="py-3 px-4 text-center">
                       <div className="flex items-center justify-center gap-1">
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyPortalLink(c.id)} title="Copier le lien du portail client"><Link2 className="w-4 h-4 text-indigo-500" /></Button>

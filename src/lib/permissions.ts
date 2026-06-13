@@ -9,6 +9,7 @@ export type Role = typeof ROLES[keyof typeof ROLES]
 
 export const PERMISSIONS = {
   MANAGE_USERS: 'manage_users',
+  MANAGE_AGENCIES: 'manage_agencies',
   MANAGE_SETTINGS: 'manage_settings',
   MANAGE_FEDAPAY: 'manage_fedapay',
   VIEW_REPORTS: 'view_reports',
@@ -31,6 +32,7 @@ export function hasPermission(userRole: Role | string | undefined | null, permis
   if (userRole === ROLES.ADMIN) {
     const adminPermissions: Permission[] = [
       PERMISSIONS.MANAGE_USERS,
+      PERMISSIONS.MANAGE_AGENCIES,
       PERMISSIONS.MANAGE_SETTINGS,
       PERMISSIONS.VIEW_REPORTS,
       PERMISSIONS.MANAGE_DISCOUNTS,

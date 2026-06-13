@@ -31,7 +31,7 @@ function InvoiceForm() {
   const searchParams = useSearchParams()
   const docType = searchParams.get('type') === 'quote' ? 'quote' : 'invoice'
   
-  const { workspaceId } = useAuthStore()
+  const { workspaceId, agencyId } = useAuthStore()
   const [step, setStep] = useState(0)
   const [clients, setClients] = useState<any[]>([])
   const [services, setServices] = useState<any[]>([])
@@ -48,8 +48,8 @@ function InvoiceForm() {
 
   useEffect(() => {
     if (!workspaceId) return
-    clientRepository.getAll({ workspace_id: workspaceId,  page: 1, pageSize: 200 }).then(r => setClients(r.data))
-    serviceRepository.getAll({ workspace_id: workspaceId,  page: 1, pageSize: 200 }).then(r => setServices(r.data))
+    clientRepository.getAll({ workspace_id: workspaceId, page: 1, pageSize: 200 }).then(r => setClients(r.data))
+    serviceRepository.getAll({ workspace_id: workspaceId, page: 1, pageSize: 200 }).then(r => setServices(r.data))
     settingsRepository.getSettings(workspaceId).then(setSettings)
   }, [workspaceId])
 
@@ -118,6 +118,7 @@ function InvoiceForm() {
     try {
       const invoice = await invoiceRepository.create(workspaceId, {
         client_id: selectedClient.id,
+        agency_id: agencyId || null,
         items: selectedItems.map(i => ({ ...i, description: i.description || undefined, discount_id: i.discount_id || undefined })),
         global_discount_id: globalDiscount?.id || undefined,
         global_discount_value: globalDiscountValue,

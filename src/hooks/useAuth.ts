@@ -8,7 +8,7 @@ import { useAuthStore } from '@/store/authStore'
 export function useAuth() {
   const [user, setLocalUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const { setUser, setWorkspaceId, setWorkspacePlan, setSubscriptionEndDate } = useAuthStore()
+  const { setUser, setWorkspaceId, setAgencyId, setWorkspacePlan, setSubscriptionEndDate } = useAuthStore()
 
   useEffect(() => {
     // Obtenir la session actuelle
@@ -31,6 +31,7 @@ export function useAuth() {
           setLocalUser(null)
           setUser(null)
           setWorkspaceId(null)
+          setAgencyId(null)
           setWorkspacePlan(null)
           setSubscriptionEndDate(null)
           setLoading(false)
@@ -56,10 +57,15 @@ export function useAuth() {
           username: profile.full_name, // fallback pour l'ancien modèle
           full_name: profile.full_name,
           role: profile.role,
+          agency_id: profile.agency_id,
         } as any)
         
         if (profile.workspace_id) {
           setWorkspaceId(profile.workspace_id)
+          
+          if (profile.agency_id) {
+            setAgencyId(profile.agency_id)
+          }
           // Le join avec workspaces retourne un objet si on le récupère
           if (profile.workspaces && typeof profile.workspaces === 'object') {
             let currentPlan = (profile.workspaces as any).plan || 'free'

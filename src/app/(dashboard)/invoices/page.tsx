@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next'
 export default function InvoicesPage() {
   const { t } = useTranslation()
   const router = useRouter()
-  const { user, workspaceId, workspacePlan } = useAuthStore()
+  const { user, workspaceId, agencyId, workspacePlan } = useAuthStore()
   const plan = (workspacePlan as PlanType) || 'free'
   
   const [page, setPage] = useState(1)
@@ -30,10 +30,11 @@ export default function InvoicesPage() {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Invoice | null>(null)
   const { data: fetchResult, isLoading: loading, mutate: load } = useSWR(
-    workspaceId ? ['invoices', workspaceId, page, search, statusFilter] : null,
+    workspaceId ? ['invoices', workspaceId, agencyId, page, search, statusFilter] : null,
     async () => {
       return await invoiceRepository.getAll({ 
         workspace_id: workspaceId!, 
+        agency_id: agencyId || undefined,
         page, 
         pageSize: 10, 
         search,
@@ -140,19 +141,19 @@ export default function InvoicesPage() {
               <thead><tr className="border-b border-border bg-muted/30">
                 <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.invoiceNumber')}</th>
                 <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.client')}</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('invoices.date')}</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground hidden md:table-cell">{t('invoices.date')}</th>
                 <th className="text-right py-3 px-4 font-medium text-muted-foreground">{t('invoices.total')}</th>
-                <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('invoices.status')}</th>
+                <th className="text-center py-3 px-4 font-medium text-muted-foreground hidden sm:table-cell">{t('invoices.status')}</th>
                 <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('invoices.actions')}</th>
               </tr></thead>
               <tbody>
                 {invoices.map((inv: any) => (
                   <tr key={inv.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
                     <td className="py-3 px-4 font-mono text-xs font-semibold">{inv.invoice_number}</td>
-                    <td className="py-3 px-4"><div><p className="font-medium">{inv.client?.full_name}</p>{inv.client?.company_name && <p className="text-xs text-muted-foreground">{inv.client.company_name}</p>}</div></td>
-                    <td className="py-3 px-4 text-muted-foreground">{formatDate(inv.created_at)}</td>
+                    <td className="py-3 px-4"><div><p className="font-medium">{inv.client?.full_name}</p>{inv.client?.company_name && <p className="text-xs text-muted-foreground hidden sm:block">{inv.client.company_name}</p>}</div></td>
+                    <td className="py-3 px-4 text-muted-foreground hidden md:table-cell">{formatDate(inv.created_at)}</td>
                     <td className="py-3 px-4 text-right font-semibold">{formatCurrency(inv.grand_total)}</td>
-                    <td className="py-3 px-4 text-center">
+                    <td className="py-3 px-4 text-center hidden sm:table-cell">
                       <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(inv.status)}`}>
                         {getStatusLabel(inv.status)}
                       </div>

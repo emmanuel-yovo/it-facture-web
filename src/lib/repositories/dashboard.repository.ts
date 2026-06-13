@@ -26,7 +26,7 @@ export interface DashboardStats {
 }
 
 export class DashboardRepository {
-  async getStats(workspace_id: string, startDate?: string, endDate?: string): Promise<DashboardStats> {
+  async getStats(workspace_id: string, agency_id?: string, startDate?: string, endDate?: string): Promise<DashboardStats> {
     const now = new Date()
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
     
@@ -39,6 +39,16 @@ export class DashboardRepository {
     const prevStart = new Date(start.getTime() - duration)
     const prevEnd = start
 
+    let invoicesQuery = supabase.from('invoices').select('id, grand_total, status, document_type, created_at, client_id, agency_id').eq('workspace_id', workspace_id).eq('document_type', 'invoice')
+    let recentInvoicesQuery = supabase.from('invoices').select('*, client:clients(id, full_name, company_name)').eq('workspace_id', workspace_id).eq('document_type', 'invoice').order('created_at', { ascending: false }).limit(5)
+    let expensesQuery = supabase.from('expenses').select('amount, created_at, agency_id').eq('workspace_id', workspace_id)
+
+    if (agency_id) {
+      invoicesQuery = invoicesQuery.eq('agency_id', agency_id)
+      recentInvoicesQuery = recentInvoicesQuery.eq('agency_id', agency_id)
+      expensesQuery = expensesQuery.eq('agency_id', agency_id)
+    }
+
     // On lance plusieurs requêtes en parallèle pour la performance
     const [
       invoicesRes,
@@ -48,12 +58,12 @@ export class DashboardRepository {
       itemsRes,
       recentInvoicesRes
     ] = await Promise.all([
-      supabase.from('invoices').select('id, grand_total, status, document_type, created_at, client_id').eq('workspace_id', workspace_id).eq('document_type', 'invoice'),
-      supabase.from('expenses').select('amount, created_at').eq('workspace_id', workspace_id),
+      invoicesQuery,
+      expensesQuery,
       supabase.from('clients').select('id, full_name, company_name').eq('workspace_id', workspace_id),
       supabase.from('services').select('id').eq('workspace_id', workspace_id),
       supabase.from('invoice_items').select('service_name, line_total, invoice:invoices!inner(workspace_id, document_type, created_at)').eq('invoice.workspace_id', workspace_id).eq('invoice.document_type', 'invoice'),
-      supabase.from('invoices').select('*, client:clients(id, full_name, company_name)').eq('workspace_id', workspace_id).eq('document_type', 'invoice').order('created_at', { ascending: false }).limit(5)
+      recentInvoicesQuery
     ])
 
     const allInvoices = invoicesRes.data || []

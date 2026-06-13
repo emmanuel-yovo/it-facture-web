@@ -40,6 +40,7 @@ export interface Invoice {
 
 export interface CreateInvoiceData {
   client_id: string
+  agency_id?: string | null
   document_type?: string
   status?: string
   notes?: string
@@ -50,25 +51,17 @@ export interface CreateInvoiceData {
 }
 
 export class InvoiceRepository {
-  async getAll(params: { workspace_id?: string;  
-    page?: number; 
-    pageSize?: number; 
-    search?: string; 
-    status?: string; 
-    client_id?: string; 
-    date_from?: string; 
-    date_to?: string; 
-    document_type?: string 
-  }): Promise<PaginatedResult<Invoice>> {
+  async getAll(params: { page?: number; pageSize?: number; workspace_id?: string; status?: string; search?: string; client_id?: string; agency_id?: string; date_from?: string; date_to?: string; document_type?: string }): Promise<PaginatedResult<Invoice>> {
     const page = params.page || 1
     const pageSize = params.pageSize || 10
     const offset = (page - 1) * pageSize
 
     let query = supabase
       .from('invoices')
-      .select('*, client:clients(id, full_name, company_name, email, phone, address)', { count: 'exact' })
+      .select('*, client:clients(id, full_name, company_name, email, phone, address), agency:agencies(*)', { count: 'exact' })
 
     if (params.workspace_id) query = query.eq('workspace_id', params.workspace_id);
+    if (params.agency_id) query = query.eq('agency_id', params.agency_id);
     if (params.search) {
       // Pour chercher à travers la relation client, Supabase le permet si configuré, 
       // ou on peut filtrer par numéro de facture
@@ -122,7 +115,8 @@ export class InvoiceRepository {
     const { data: invoiceNumber, error: rpcError } = await supabase
       .rpc('get_next_invoice_number', { 
         p_workspace_id: workspace_id, 
-        p_doc_type: docType 
+        p_doc_type: docType,
+        p_agency_id: data.agency_id || null
       })
 
     if (rpcError) throw rpcError
@@ -160,6 +154,7 @@ export class InvoiceRepository {
       .from('invoices')
       .insert({
         workspace_id,
+        agency_id: data.agency_id || null,
         invoice_number: invoiceNumber,
         client_id: data.client_id,
         document_type: docType,
@@ -202,11 +197,18 @@ export class InvoiceRepository {
     if (docType === 'invoice') {
       for (const item of finalItemsToInsert) {
         if (item.service_id) {
-          const { data: service } = await supabase.from('services').select('track_stock, stock_quantity').eq('id', item.service_id).single()
-          if (service && service.track_stock) {
-            await supabase.from('services')
-              .update({ stock_quantity: Math.max(0, service.stock_quantity - item.quantity) })
-              .eq('id', item.service_id)
+          const { data: service } = await supabase.from('services').select('track_stock, stock_quantity, type').eq('id', item.service_id).single()
+          if (service && service.track_stock && service.type === 'product') {
+            if (data.agency_id) {
+              const { data: level } = await supabase.from('inventory_levels').select('id, quantity').eq('service_id', item.service_id).eq('agency_id', data.agency_id).single()
+              if (level) {
+                await supabase.from('inventory_levels').update({ quantity: Math.max(0, level.quantity - item.quantity) }).eq('id', level.id)
+              }
+            } else {
+              await supabase.from('services')
+                .update({ stock_quantity: Math.max(0, service.stock_quantity - item.quantity) })
+                .eq('id', item.service_id)
+            }
           }
         }
       }
@@ -240,11 +242,18 @@ export class InvoiceRepository {
       const { data: items } = await supabase.from('invoice_items').select('service_id, quantity').eq('invoice_id', id)
       for (const item of items || []) {
         if (item.service_id) {
-          const { data: service } = await supabase.from('services').select('track_stock, stock_quantity').eq('id', item.service_id).single()
-          if (service && service.track_stock) {
-            await supabase.from('services')
-              .update({ stock_quantity: Math.max(0, service.stock_quantity - item.quantity) })
-              .eq('id', item.service_id)
+          const { data: service } = await supabase.from('services').select('track_stock, stock_quantity, type').eq('id', item.service_id).single()
+          if (service && service.track_stock && service.type === 'product') {
+            if (updatedInvoice?.agency_id) {
+              const { data: level } = await supabase.from('inventory_levels').select('id, quantity').eq('service_id', item.service_id).eq('agency_id', updatedInvoice.agency_id).single()
+              if (level) {
+                await supabase.from('inventory_levels').update({ quantity: Math.max(0, level.quantity - item.quantity) }).eq('id', level.id)
+              }
+            } else {
+              await supabase.from('services')
+                .update({ stock_quantity: Math.max(0, service.stock_quantity - item.quantity) })
+                .eq('id', item.service_id)
+            }
           }
         }
       }

@@ -11,14 +11,17 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { formatCurrency } from '@/lib/utils'
-import { Plus, Search, Pencil, Trash2, Wrench, FileUp, FileSpreadsheet } from 'lucide-react'
+import { Plus, Search, Pencil, Trash2, Wrench, FileUp, FileSpreadsheet, Building2 } from 'lucide-react'
 import { serviceRepository, Service } from '@/lib/repositories/service.repository'
 import { settingsRepository } from '@/lib/repositories/settings.repository'
+import { inventoryRepository, InventoryLevel } from '@/lib/repositories/inventory.repository'
+import { agencyRepository, Agency } from '@/lib/repositories/agency.repository'
 import { useTranslation } from 'react-i18next'
 
-const empty = { name: '', description: '', category: '', unit_price: 0, vat_percentage: 19.25, is_active: true, track_stock: false, stock_quantity: 0 }
+const empty = { name: '', type: 'service', description: '', category: '', unit_price: 0, vat_percentage: 19.25, is_active: true, track_stock: false, stock_quantity: 0 }
 
 export default function ServicesPage() {
   const { t } = useTranslation()
@@ -31,8 +34,12 @@ export default function ServicesPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [stockModalOpen, setStockModalOpen] = useState(false)
   const [editing, setEditing] = useState<Service | null>(null)
+  const [stockTarget, setStockTarget] = useState<Service | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Service | null>(null)
+  const [agencies, setAgencies] = useState<Agency[]>([])
+  const [inventoryLevels, setInventoryLevels] = useState<InventoryLevel[]>([])
   const [form, setForm] = useState<Partial<Service>>(empty)
   const [defaultVat, setDefaultVat] = useState(19.25)
   const [initialLoading, setInitialLoading] = useState(true)
@@ -49,6 +56,9 @@ export default function ServicesPage() {
       
       const settings = await settingsRepository.getSettings(workspaceId)
       if (settings.tax_rate !== undefined) setDefaultVat(Number(settings.tax_rate))
+      
+      const ags = await agencyRepository.getAll(workspaceId)
+      setAgencies(ags)
     } catch (err) {
       console.error(err)
     } finally {
@@ -182,6 +192,7 @@ export default function ServicesPage() {
     setEditing(s)
     setForm({ 
       name: s.name, 
+      type: s.type || 'service',
       description: s.description || '', 
       category: s.category, 
       unit_price: s.unit_price, 
@@ -197,6 +208,42 @@ export default function ServicesPage() {
     setEditing(null)
     setForm({ ...empty, vat_percentage: defaultVat })
     setModalOpen(true)
+  }
+
+  const openStockModal = async (s: Service) => {
+    setStockTarget(s)
+    try {
+      const levels = await inventoryRepository.getByService(s.id)
+      setInventoryLevels(levels)
+      setStockModalOpen(true)
+    } catch (err) {
+      console.error("Failed to load inventory", err)
+      alert("Erreur lors du chargement des stocks.")
+    }
+  }
+
+  const handleStockChange = (agencyId: string, field: 'quantity' | 'unit_price', value: number | null) => {
+    setInventoryLevels(prev => {
+      const existing = prev.find(l => l.agency_id === agencyId)
+      if (existing) {
+        return prev.map(l => l.agency_id === agencyId ? { ...l, [field]: value } : l)
+      }
+      return [...prev, { id: 'new', service_id: stockTarget!.id, agency_id: agencyId, quantity: field === 'quantity' ? value || 0 : 0, unit_price: field === 'unit_price' ? value : null, created_at: '', updated_at: '' }]
+    })
+  }
+
+  const handleStockSave = async () => {
+    if (!stockTarget) return
+    try {
+      for (const level of inventoryLevels) {
+        await inventoryRepository.upsert(level)
+      }
+      setStockModalOpen(false)
+      load() // reload services to get updated stock if it was global, though global stock is separate from agency stock
+    } catch (err) {
+      console.error(err)
+      alert("Erreur lors de la sauvegarde des stocks.")
+    }
   }
 
   if (initialLoading) {
@@ -248,21 +295,21 @@ export default function ServicesPage() {
             <table className="w-full text-sm">
               <thead><tr className="border-b border-border bg-muted/30">
                 <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('services.name')}</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t('services.category')}</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground hidden sm:table-cell">{t('services.category')}</th>
                 <th className="text-right py-3 px-4 font-medium text-muted-foreground">{t('services.unitPrice')}</th>
-                <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('services.vatPercentage')}</th>
-                <th className="text-center py-3 px-4 font-medium text-muted-foreground">En stock</th>
-                <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('invoices.status', 'Statut')}</th>
+                <th className="text-center py-3 px-4 font-medium text-muted-foreground hidden md:table-cell">{t('services.vatPercentage')}</th>
+                <th className="text-center py-3 px-4 font-medium text-muted-foreground hidden sm:table-cell">En stock</th>
+                <th className="text-center py-3 px-4 font-medium text-muted-foreground hidden md:table-cell">{t('invoices.status', 'Statut')}</th>
                 <th className="text-center py-3 px-4 font-medium text-muted-foreground">{t('common.actions')}</th>
               </tr></thead>
               <tbody>
                 {services.map(s => (
                   <tr key={s.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                    <td className="py-3 px-4"><div><p className="font-medium">{s.name}</p>{s.description && <p className="text-xs text-muted-foreground mt-0.5 truncate max-w-[300px]">{s.description}</p>}</div></td>
-                    <td className="py-3 px-4"><Badge variant="secondary">{s.category}</Badge></td>
+                    <td className="py-3 px-4"><div><p className="font-medium">{s.name}</p>{s.description && <p className="text-xs text-muted-foreground mt-0.5 truncate max-w-[300px] hidden sm:block">{s.description}</p>}</div></td>
+                    <td className="py-3 px-4 hidden sm:table-cell"><Badge variant="secondary">{s.category}</Badge></td>
                     <td className="py-3 px-4 text-right font-medium">{formatCurrency(s.unit_price)}</td>
-                    <td className="py-3 px-4 text-center text-muted-foreground">{s.vat_percentage}%</td>
-                    <td className="py-3 px-4 text-center">
+                    <td className="py-3 px-4 text-center text-muted-foreground hidden md:table-cell">{s.vat_percentage}%</td>
+                    <td className="py-3 px-4 text-center hidden sm:table-cell">
                       {s.track_stock ? (
                         <Badge variant="outline" className={s.stock_quantity <= 0 ? 'border-red-500 text-red-500' : s.stock_quantity <= 5 ? 'border-amber-500 text-amber-500' : 'border-emerald-500 text-emerald-500'}>
                           {s.stock_quantity}
@@ -271,7 +318,7 @@ export default function ServicesPage() {
                         <span className="text-muted-foreground text-xs italic">—</span>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-center">
+                    <td className="py-3 px-4 text-center hidden md:table-cell">
                       <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${s.is_active ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}>
                         {s.is_active ? t('services.active') : t('services.inactive')}
                       </div>
@@ -279,6 +326,11 @@ export default function ServicesPage() {
                     <td className="py-3 px-4 text-center">
                       {['admin', 'superadmin'].includes(user?.role as string) ? (
                         <div className="flex items-center justify-center gap-1">
+                          {s.type === 'product' && (
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:text-blue-600" onClick={() => openStockModal(s)} title="Stock & Prix par Agence">
+                              <Building2 className="w-4 h-4" />
+                            </Button>
+                          )}
                           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(s)}>
                             <Pencil className="w-4 h-4" />
                           </Button>
@@ -293,7 +345,7 @@ export default function ServicesPage() {
                   </tr>
                 ))}
                 {services.length === 0 && (
-                  <tr><td colSpan={6} className="py-12 text-center text-muted-foreground"><Wrench className="w-12 h-12 mx-auto mb-3 opacity-30" /><p>{t('services.noServices')}</p></td></tr>
+                  <tr><td colSpan={7} className="py-12 text-center text-muted-foreground"><Wrench className="w-12 h-12 mx-auto mb-3 opacity-30" /><p>{t('services.noServices')}</p></td></tr>
                 )}
               </tbody>
             </table>
@@ -301,31 +353,90 @@ export default function ServicesPage() {
         </CardContent>
       </Card>
 
+      <Dialog open={stockModalOpen} onOpenChange={setStockModalOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader><DialogTitle>Stock & Prix par Agence</DialogTitle><DialogDescription>Gérez le stock et les prix spécifiques par agence pour {stockTarget?.name}</DialogDescription></DialogHeader>
+          <div className="py-4 max-h-[60vh] overflow-y-auto">
+            {agencies.length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center">Aucune agence configurée.</p>
+            ) : (
+              <div className="space-y-4">
+                {agencies.map(agency => {
+                  const level = inventoryLevels.find(l => l.agency_id === agency.id)
+                  return (
+                    <div key={agency.id} className="p-3 border rounded-lg bg-muted/20">
+                      <h4 className="font-medium mb-3">{agency.name}</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <Label className="text-xs">Quantité en stock</Label>
+                          <Input 
+                            type="number" 
+                            min="0"
+                            value={level?.quantity || 0} 
+                            onChange={(e) => handleStockChange(agency.id, 'quantity', parseInt(e.target.value) || 0)} 
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Prix spécifique (optionnel)</Label>
+                          <Input 
+                            type="number" 
+                            min="0"
+                            placeholder={`Défaut: ${stockTarget?.unit_price}`}
+                            value={level?.unit_price ?? ''} 
+                            onChange={(e) => handleStockChange(agency.id, 'unit_price', e.target.value ? parseFloat(e.target.value) : null)} 
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setStockModalOpen(false)}>{t('common.cancel')}</Button>
+            <Button onClick={handleStockSave}>{t('common.save')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent>
           <DialogHeader><DialogTitle>{editing ? t('services.editService') : t('services.addService')}</DialogTitle><DialogDescription>Configurez le service ou produit</DialogDescription></DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-4">
-            <div className="col-span-2 space-y-2"><Label>{t('services.name')} *</Label><Input value={form.name || ''} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} /></div>
+            <div className="space-y-2"><Label>Type</Label>
+              <Select value={form.type} onValueChange={(v) => setForm(f => ({ ...f, type: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="service">Service (Prestation)</SelectItem>
+                  <SelectItem value="product">Produit (Physique)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2"><Label>{t('services.name')} *</Label><Input value={form.name || ''} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} /></div>
             <div className="col-span-2 space-y-2"><Label>{t('services.description')}</Label><Textarea value={form.description || ''} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} rows={2} /></div>
             <div className="space-y-2"><Label>{t('services.category')}</Label><Input value={form.category || ''} onChange={(e) => setForm(f => ({ ...f, category: e.target.value }))} placeholder="Ex: Réseau, Conseil..." /></div>
             <div className="space-y-2"><Label>{t('services.unitPrice')} ({localStorage.getItem('currency_symbol') || 'FCFA'})</Label><Input type="number" value={form.unit_price} onChange={(e) => setForm(f => ({ ...f, unit_price: Number(e.target.value) }))} /></div>
             <div className="space-y-2"><Label>{t('services.vatPercentage')}</Label><Input type="number" step="0.01" value={form.vat_percentage} onChange={(e) => setForm(f => ({ ...f, vat_percentage: Number(e.target.value) }))} /></div>
             <div className="flex items-center gap-3 pt-6"><Switch checked={form.is_active} onCheckedChange={(v) => setForm(f => ({ ...f, is_active: v }))} /><Label>{t('services.active')}</Label></div>
-            <div className="col-span-2 border-t pt-4 mt-2">
-              <h3 className="font-medium text-sm mb-4 text-muted-foreground">Gestion de Stock</h3>
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-3">
-                  <Switch checked={form.track_stock} onCheckedChange={(v) => setForm(f => ({ ...f, track_stock: v }))} />
-                  <Label>Suivre le stock pour ce produit</Label>
-                </div>
-                {form.track_stock && (
-                  <div className="space-y-2 max-w-xs">
-                    <Label>Quantité en stock</Label>
-                    <Input type="number" min="0" value={form.stock_quantity} onChange={(e) => setForm(f => ({ ...f, stock_quantity: Number(e.target.value) }))} />
+            
+            {form.type === 'product' && (
+              <div className="col-span-2 border-t pt-4 mt-2">
+                <h3 className="font-medium text-sm mb-4 text-muted-foreground">Gestion de Stock (Global)</h3>
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-3">
+                    <Switch checked={form.track_stock} onCheckedChange={(v) => setForm(f => ({ ...f, track_stock: v }))} />
+                    <Label>Suivre le stock pour ce produit</Label>
                   </div>
-                )}
+                  {form.track_stock && (
+                    <div className="space-y-2 max-w-xs">
+                      <Label>Quantité en stock global</Label>
+                      <Input type="number" min="0" value={form.stock_quantity} onChange={(e) => setForm(f => ({ ...f, stock_quantity: Number(e.target.value) }))} />
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setModalOpen(false)}>{t('common.cancel')}</Button>

@@ -28,6 +28,7 @@ export default function UsersPage() {
   const router = useRouter()
   const { user, workspaceId, workspacePlan } = useAuthStore()
   const [profiles, setProfiles] = useState<Profile[]>([])
+  const [agencies, setAgencies] = useState<{ id: string, name: string }[]>([])
   const [loading, setLoading] = useState(true)
   
   // Form state
@@ -37,29 +38,42 @@ export default function UsersPage() {
   const [inviteName, setInviteName] = useState('')
   const [invitePassword, setInvitePassword] = useState('')
   const [inviteRole, setInviteRole] = useState('user')
+  const [inviteAgency, setInviteAgency] = useState('none')
   const [inviteError, setInviteError] = useState('')
 
   useEffect(() => {
     if (workspaceId) {
-      fetchUsers()
+      fetchUsersAndAgencies()
     }
   }, [workspaceId])
 
-  async function fetchUsers() {
+  async function fetchUsersAndAgencies() {
     if (!workspaceId) return
     
     setLoading(true)
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('workspace_id', workspaceId)
-      .order('full_name')
+    const [usersRes, agenciesRes] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('*, agency:agencies(name)')
+        .eq('workspace_id', workspaceId)
+        .order('full_name'),
+      supabase
+        .from('agencies')
+        .select('id, name')
+        .eq('workspace_id', workspaceId)
+        .eq('is_active', true)
+    ])
 
-    if (!error && data) {
+    if (!usersRes.error && usersRes.data) {
       // Filtrer les superadmins pour qu'ils n'apparaissent pas dans la liste
-      const filtered = data.filter(p => p.role !== 'superadmin')
+      const filtered = usersRes.data.filter(p => p.role !== 'superadmin')
       setProfiles(filtered)
     }
+    
+    if (!agenciesRes.error && agenciesRes.data) {
+      setAgencies(agenciesRes.data)
+    }
+    
     setLoading(false)
   }
 
@@ -112,7 +126,8 @@ export default function UsersPage() {
           email: inviteEmail,
           password: invitePassword,
           fullName: inviteName,
-          role: inviteRole
+          role: inviteRole,
+          agencyId: inviteAgency === 'none' ? null : inviteAgency
         })
       })
 
@@ -128,7 +143,8 @@ export default function UsersPage() {
       setInvitePassword('')
       setInviteName('')
       setInviteRole('user')
-      fetchUsers() // Rafraîchir la liste
+      setInviteAgency('none')
+      fetchUsersAndAgencies() // Rafraîchir la liste
 
     } catch (err: any) {
       setInviteError(err.message)
@@ -201,6 +217,22 @@ export default function UsersPage() {
                     <Input required type="text" value={invitePassword} onChange={e => setInvitePassword(e.target.value)} placeholder="Mot de passe sécurisé..." />
                     <p className="text-xs text-muted-foreground">{t('users.passwordHint', "L'utilisateur pourra le modifier plus tard.")}</p>
                   </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Agence rattachée</label>
+                    <Select value={inviteAgency} onValueChange={setInviteAgency}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Aucune (Siège/Global)</SelectItem>
+                        {agencies.map(a => (
+                          <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   <div className="space-y-2">
                     <label className="text-sm font-medium">{t('users.role', 'Rôle')}</label>
                     <Select value={inviteRole} onValueChange={setInviteRole}>
@@ -241,18 +273,20 @@ export default function UsersPage() {
               <thead>
                 <tr className="border-b bg-muted/30">
                   <th className="py-3 px-6 font-medium text-muted-foreground">{t('users.nameEmail', 'Nom / Email')}</th>
+                  <th className="py-3 px-6 font-medium text-muted-foreground">Agence</th>
                   <th className="py-3 px-6 font-medium text-muted-foreground">{t('users.role', 'Rôle')}</th>
                   <th className="py-3 px-6 font-medium text-muted-foreground">{t('invoices.status')}</th>
                   <th className="py-3 px-6 font-medium text-muted-foreground text-right">{t('common.actions', 'Actions')}</th>
                 </tr>
               </thead>
               <tbody>
-                {profiles.map(p => (
+                {profiles.map((p: any) => (
                   <tr key={p.id} className="border-b border-border/50 hover:bg-muted/10 transition-colors">
                     <td className="py-4 px-6">
                       <div className="font-medium text-foreground">{p.full_name}</div>
                       <div className="text-xs text-muted-foreground">{p.id === user?.id ? t('users.you', '(Vous)') : ''}</div>
                     </td>
+                    <td className="py-4 px-6 text-muted-foreground">{p.agency ? p.agency.name : 'Global'}</td>
                     <td className="py-4 px-6">{getRoleBadge(p.role)}</td>
                     <td className="py-4 px-6"><Badge variant="outline" className="text-emerald-500 border-emerald-500">Actif</Badge></td>
                     <td className="py-4 px-6 text-right">

@@ -4,6 +4,7 @@ import { PaginatedResult } from './client.repository'
 export interface Expense {
   id: string
   workspace_id: string
+  agency_id: string | null
   title: string
   amount: number
   category: string | null
@@ -13,16 +14,17 @@ export interface Expense {
 }
 
 export class ExpenseRepository {
-  async getAll(params: { workspace_id?: string;  page?: number; pageSize?: number; search?: string }): Promise<PaginatedResult<Expense>> {
+  async getAll(params: { workspace_id?: string; agency_id?: string; page?: number; pageSize?: number; search?: string }): Promise<PaginatedResult<Expense>> {
     const page = params.page || 1
     const pageSize = params.pageSize || 10
     const offset = (page - 1) * pageSize
 
     let query = supabase
       .from('expenses')
-      .select('*', { count: 'exact' })
+      .select('*, agency:agencies(*)', { count: 'exact' })
 
     if (params.workspace_id) query = query.eq('workspace_id', params.workspace_id);
+    if (params.agency_id) query = query.eq('agency_id', params.agency_id);
     if (params.search) {
       query = query.ilike('title', `%${params.search}%`)
     }
@@ -47,6 +49,7 @@ export class ExpenseRepository {
       .from('expenses')
       .insert({
         workspace_id,
+        agency_id: data.agency_id,
         title: data.title,
         amount: data.amount || 0,
         category: data.category,

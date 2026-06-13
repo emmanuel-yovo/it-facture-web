@@ -11,6 +11,7 @@ import { DollarSign, FileText, Users, TrendingUp, ArrowUpRight, ArrowDownRight, 
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart, BarChart, Bar, PieChart, Pie, Cell, Legend } from 'recharts'
 import { dashboardRepository, DashboardStats } from '@/lib/repositories/dashboard.repository'
 import { settingsRepository } from '@/lib/repositories/settings.repository'
+import { agencyRepository, Agency } from '@/lib/repositories/agency.repository'
 import { useAuthStore } from '@/store/authStore'
 import { useTranslation } from 'react-i18next'
 
@@ -22,9 +23,11 @@ const COLORS = ['#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6']
 export default function DashboardPage() {
   const { t } = useTranslation()
   const router = useRouter()
-  const { workspaceId } = useAuthStore()
+  const { workspaceId, agencyId } = useAuthStore()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [settings, setSettings] = useState<any>(null)
+  const [agencies, setAgencies] = useState<Agency[]>([])
+  const [selectedAgency, setSelectedAgency] = useState<string>('all')
   const [loading, setLoading] = useState(true)
   const [period, setPeriod] = useState('this_month')
 
@@ -61,14 +64,16 @@ export default function DashboardPage() {
     }
     
     Promise.all([
-      dashboardRepository.getStats(workspaceId, start?.toISOString(), end?.toISOString()),
-      settingsRepository.getSettings(workspaceId)
-    ]).then(([statsData, settingsData]) => {
+      dashboardRepository.getStats(workspaceId, agencyId || (selectedAgency !== 'all' ? selectedAgency : undefined), start?.toISOString(), end?.toISOString()),
+      settingsRepository.getSettings(workspaceId),
+      !agencyId ? agencyRepository.getAll(workspaceId) : Promise.resolve([])
+    ]).then(([statsData, settingsData, ags]) => {
       setStats(statsData)
       setSettings(settingsData)
+      if (ags.length > 0) setAgencies(ags)
       setLoading(false)
     }).catch(console.error)
-  }, [workspaceId, period])
+  }, [workspaceId, period, selectedAgency, agencyId])
 
   if (loading || !stats) {
     return (
@@ -106,7 +111,21 @@ export default function DashboardPage() {
           <p className="text-muted-foreground text-sm mt-1">{t('dashboard.subtitle', "Vue d'ensemble de votre activité financière")}</p>
         </motion.div>
         
-        <motion.div variants={item} className="w-full sm:w-auto">
+        <motion.div variants={item} className="w-full sm:w-auto flex flex-col sm:flex-row gap-2">
+          {!agencyId && agencies.length > 0 && (
+            <Select value={selectedAgency} onValueChange={setSelectedAgency}>
+              <SelectTrigger className="w-full sm:w-[200px] bg-card border-border">
+                <SelectValue placeholder="Toutes les agences" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les agences</SelectItem>
+                {agencies.map(a => (
+                  <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          
           <Select value={period} onValueChange={setPeriod}>
             <SelectTrigger className="w-full sm:w-[200px] bg-card border-border">
               <SelectValue />
