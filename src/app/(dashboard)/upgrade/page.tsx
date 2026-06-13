@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Check, Zap, AlertCircle, Loader2 } from 'lucide-react'
+import { Check, Zap, AlertCircle, Loader2, Flame } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { Badge } from '@/components/ui/badge'
 import { useState } from 'react'
@@ -160,7 +160,7 @@ export default function UpgradePage() {
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-0 right-0 flex justify-center">
-                  <Badge className="bg-blue-500 hover:bg-blue-600 border-none px-3 py-1">Le plus populaire</Badge>
+                  <Badge className="bg-blue-500 hover:bg-blue-600 border-none px-3 py-1 flex items-center gap-1">Le plus populaire <Flame className="w-3.5 h-3.5 text-yellow-300" /></Badge>
                 </div>
               )}
               <CardHeader>

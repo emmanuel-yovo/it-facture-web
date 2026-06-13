@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
-import { Building, Upload, Save, Check, LogOut, ShieldCheck, Mail, FileText, Languages, CreditCard, Users, Copy, Trash2, Bell, MessageCircle, Shield } from 'lucide-react'
+import { Building, Upload, Save, Check, LogOut, ShieldCheck, Mail, FileText, Languages, CreditCard, Users, Copy, Trash2, Bell, MessageCircle, Shield, AlertTriangle } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
@@ -591,7 +591,7 @@ export default function SettingsPage() {
                               <li>Cliquez sur <strong>Générer</strong>.</li>
                               <li>Copiez le mot de passe de 16 lettres (sans espaces) et collez-le ici.</li>
                             </ol>
-                            <p className="italic text-amber-600/80 mt-1">ATTENTION : Votre mot de passe de messagerie habituel ne fonctionnera pas par sécurité.</p>
+                            <p className="italic text-amber-600/80 mt-1 flex items-center gap-1"><AlertTriangle className="w-4 h-4" /> ATTENTION : Votre mot de passe de messagerie habituel ne fonctionnera pas par sécurité.</p>
                           </div>
                         </li>
                       </ul>

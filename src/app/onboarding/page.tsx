@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuthStore } from '@/store/authStore'
 import { useAuth } from '@/hooks/useAuth'
-import { Building, AlertCircle } from 'lucide-react'
+import { Building, AlertCircle, PartyPopper } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 export default function OnboardingPage() {
@@ -101,7 +101,7 @@ export default function OnboardingPage() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md bg-card border border-border rounded-2xl p-8 shadow-xl relative z-10 mx-4"
       >
-        <h1 className="text-2xl font-bold mb-2 text-center">{t('onboarding.welcome', 'Bienvenue !')}</h1>
+        <h1 className="text-2xl font-bold mb-2 text-center flex justify-center items-center gap-2">{t('onboarding.welcome', 'Bienvenue !')} <PartyPopper className="w-6 h-6 text-yellow-500" /></h1>
         <p className="text-muted-foreground mb-6 text-center text-sm">
           {t('onboarding.welcomeDesc', 'Avant de commencer, configurez votre accès à IT-Facture.')}
         </p>
